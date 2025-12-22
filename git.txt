@@ -1,7 +1,30 @@
+git status
+
+目前在哪個分支
+git branch --show-current
+
+看歷史
+git log --oneline
+
+比較差異
+git diff
+
+查看遠端
+git remote -v
+
+暫存
+git stash
+git stash pop
+
+丟掉尚未 commit 的改動
+git restore .
+
+例行公事
 git switch main
 git pull
 git switch -c feature/xxx
-# 寫 code
+
+寫 code
 git add . && git commit -m "xxx"
 git switch main
 git merge feature/xxx
