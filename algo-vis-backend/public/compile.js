@@ -9,8 +9,48 @@ document.getElementById('runBtn').addEventListener('click', async () => {
   if (out) out.textContent = '編譯執行中⋯⋯';
   if (dbg) dbg.textContent = '等待 debug 訊息⋯⋯';
 
-  // ✅ TLE 門檻（以後端實際執行時間為準）
+  // TLE 門檻（顯示用；實際判定以後端 error 為主）
   const TLE_MS = 5000;
+
+  // 小工具：安全轉字串
+  const toStr = (v) => (v === undefined || v === null) ? '' : String(v);
+
+  // 小工具：判定種類（只用後端回來的 data.error / output）
+  function judgeResult(data) {
+    const err = toStr(data && data.error).trim();
+    const outText = toStr(data && data.output);
+    const runTime = (data && typeof data.runTime === 'number') ? data.runTime : null;
+
+    const errLower = err.toLowerCase();
+    const outLower = outText.toLowerCase();
+
+    // 1) 先用後端 error 字串判定（最準）
+    if (errLower.includes('time limit exceeded')) {
+      return { kind: 'TLE', message: err || `Time Limit Exceeded (> ${TLE_MS}ms)` };
+    }
+    if (errLower.includes('output limit exceeded') || outLower.includes('output limit exceeded')) {
+      return { kind: 'OLE', message: err || `Output Limit Exceeded` };
+    }
+    if (errLower.includes('memory limit exceeded') || errLower.includes('bad_alloc')) {
+      return { kind: 'MLE', message: err || 'std::bad_alloc' };
+    }
+
+    // 2) 如果 error 有內容但不是上面三種 → Runtime Error / Compile Error / 其他
+    if (err !== '') {
+      return { kind: 'RE', message: err };
+    }
+
+    // 3) 後端沒給 error，但跑超過門檻：當成備援 TLE
+    if (typeof runTime === 'number' && runTime > TLE_MS) {
+      return {
+        kind: 'TLE',
+        message: `Time Limit Exceeded（執行時間 ${runTime} ms，限制 ${TLE_MS} ms）`
+      };
+    }
+
+    // 4) 沒錯誤
+    return { kind: 'OK', message: '' };
+  }
 
   try {
     const t0 = performance.now();
@@ -41,27 +81,31 @@ document.getElementById('runBtn').addEventListener('click', async () => {
     const memoryKB    = data.memoryKB;
     const debug_log   = data.debug_log;
 
-    // ✅ 唯一的 TLE 判斷來源
-    const isTLE =
-      (data && data.tle === true) ||
-      (typeof runTime === 'number' && runTime > TLE_MS);
+    // 統一判定（TLE / OLE / MLE / RE / OK）
+    const judge = judgeResult(data);
 
-    // === 顯示輸出 ===
-    if (res.ok) {
-      if (isTLE) {
-        if (out) {
-          out.textContent =
-            `執行失敗：Time Limit Exceeded（執行時間 ${runTime} ms，限制 ${TLE_MS} ms）`;
-        }
-      } else {
-        const text = (data.output || '').toString();
-        if (out) {
-          out.textContent = text.trim() === '' ? '(程式沒有任何輸出)' : text;
-        }
+    // === 顯示輸出（重點：TLE 也要顯示已產生的 output） ===
+    const rawOutput = (data.output || '').toString();
+    const hasOutput = rawOutput.trim() !== '';
+
+    if (out) {
+      let display = '';
+
+      // 1) 若有錯誤（TLE/OLE/MLE/RE），把錯誤訊息附加在後面（不要覆蓋掉 output）
+      if (judge.kind !== 'OK') {
+        const msg = (judge.message || '').trim();
+        display += (msg !== '' ? msg : judge.kind);
+        display += `\n`;
       }
-    } else {
-      const errMsg = data.error || `HTTP ${res.status}`;
-      if (out) out.textContent = '執行失敗：\n' + errMsg;
+
+      // 2) 放已輸出內容（就算錯誤也保留）
+      if (hasOutput) {
+        display += rawOutput;
+      } else {
+        display += '(程式沒有任何輸出)';
+      }
+
+      out.textContent = display;
     }
 
     // === 顯示 debug log ===
@@ -78,8 +122,9 @@ document.getElementById('runBtn').addEventListener('click', async () => {
       }
       header += `前端整體耗時（含請求）：約 ${totalMs} ms\n`;
 
-      if (isTLE) {
-        header += `\n⚠ 判定：TLE（以後端執行時間為準，門檻 ${TLE_MS} ms）\n`;
+      // 在 debug 區塊顯示判定結果
+      if (judge.kind !== 'OK') {
+        if (judge.message) header += `\n${judge.message}\n`;
       }
 
       header += '\n';

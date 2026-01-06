@@ -9,13 +9,90 @@ const SAMPLE_DIR = path.join(__dirname, 'tmp', 'algorithm_sample');
 const app = express();
 let debugMessages = [];
 
-// 記錄這次請求的 debug 訊息
-function logDebug(msg) {
-  debugMessages.push({ time: new Date().toISOString(), msg });
+// === 限制設定 ===
+const LIMITS = {
+  TIME_MS: 5000,           // TLE: 5 秒
+  MEMORY_MB: 256,          // MLE: 256 MB (透過 ulimit -v)
+  OUTPUT_SIZE: 64 * 1024, // OLE: 128 KB (截斷輸出)
+};
+
+// 記錄 debug 訊息（支援附帶欄位，例如 memory）
+function logDebug(msg, extra = {}) {
+  debugMessages.push({
+    time: new Date().toISOString(),
+    msg,
+    ...extra,
+  });
 }
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json({ limit: '5mb' }));
+
+/**
+ * 讀取 Linux /proc/<pid>/status 取得記憶體資訊
+ * - VmRSS: 目前實際常駐記憶體 (KB)
+ * - VmHWM: RSS 峰值 (KB)
+ * - VmSize: 虛擬記憶體 (KB)
+ *
+ * 若非 Linux 或 /proc 不存在，會回傳 null
+ */
+function readProcStatus(pid) {
+  try {
+    const statusPath = `/proc/${pid}/status`;
+    const text = fs.readFileSync(statusPath, 'utf8');
+
+    const getKB = (key) => {
+      const m = text.match(new RegExp(`^${key}:\\s+(\\d+)\\s+kB$`, 'm'));
+      return m ? Number(m[1]) : null;
+    };
+
+    return {
+      rssKB: getKB('VmRSS'),
+      hwmKB: getKB('VmHWM'),
+      vmsKB: getKB('VmSize'),
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * 以固定頻率輪詢 child PID 的 /proc 記憶體資訊
+ * 回傳 { stop, getPeak }
+ */
+function startMemorySampler(childPid, intervalMs = 80) {
+  let peakRssKB = 0;
+  let peakHwmKB = 0;
+  let peakVmsKB = 0;
+
+  // 第一次先抓一下，避免很快結束時完全沒有資料
+  const first = readProcStatus(childPid);
+  if (first) {
+    if (typeof first.rssKB === 'number') peakRssKB = Math.max(peakRssKB, first.rssKB);
+    if (typeof first.hwmKB === 'number') peakHwmKB = Math.max(peakHwmKB, first.hwmKB);
+    if (typeof first.vmsKB === 'number') peakVmsKB = Math.max(peakVmsKB, first.vmsKB);
+  //  logDebug('MEM: sample', { pid: childPid, rssKB: first.rssKB, hwmKB: first.hwmKB, vmsKB: first.vmsKB });
+  } else {
+    logDebug('MEM: /proc 讀取失敗或非 Linux，無法取用 child 記憶體資訊', { pid: childPid });
+  }
+
+  const timer = setInterval(() => {
+    const info = readProcStatus(childPid);
+    if (!info) return;
+
+    if (typeof info.rssKB === 'number') peakRssKB = Math.max(peakRssKB, info.rssKB);
+    if (typeof info.hwmKB === 'number') peakHwmKB = Math.max(peakHwmKB, info.hwmKB);
+    if (typeof info.vmsKB === 'number') peakVmsKB = Math.max(peakVmsKB, info.vmsKB);
+
+    // debug_log 裡會看到「當下」記憶體（你也可以改成每 N 次再 log）
+  //  logDebug('MEM: sample', { pid: childPid, rssKB: info.rssKB, hwmKB: info.hwmKB, vmsKB: info.vmsKB });
+  }, intervalMs);
+
+  return {
+    stop: () => clearInterval(timer),
+    getPeak: () => ({ peakRssKB, peakHwmKB, peakVmsKB }),
+  };
+}
 
 // 編譯＋執行 C++ 程式
 app.post('/compile', (req, res) => {
@@ -24,7 +101,6 @@ app.post('/compile', (req, res) => {
   const { code, input } = req.body || {};
 
   if (typeof code !== 'string') {
-    logDebug('收到的 code 不是字串');
     return res.status(400).json({
       output: '',
       error: 'code 必須是字串',
@@ -35,36 +111,22 @@ app.post('/compile', (req, res) => {
     });
   }
 
-  // main.cpp / main_exec 放在「專案根目錄」
   const sourcePath = path.join(__dirname, 'main.cpp');
   const exePath    = path.join(__dirname, 'main_exec');
 
   // 1. 寫入 main.cpp
-  logDebug('開始寫入 main.cpp');
   try {
     fs.writeFileSync(sourcePath, code, 'utf8');
   } catch (err) {
-    logDebug('寫入 main.cpp 失敗：' + err.message);
     return res.status(500).json({
       output: '',
       error: '無法寫入 main.cpp：' + err.message,
-      compileTime: null,
-      runTime: null,
-      memoryKB: null,
       debug_log: debugMessages,
     });
   }
-  logDebug('main.cpp 寫入完成，開始編譯');
+  logDebug('main.cpp 寫入完成');
 
-  // 檢查 AV.hpp 有沒有在你說的 /tmp 位置
-  const avInProjectTmp = fs.existsSync(path.join(__dirname, 'tmp', 'AV.hpp'));
-  const avInSystemTmp  = fs.existsSync('/tmp/AV.hpp');
-  logDebug('fs.existsSync(__dirname + "/tmp/AV.hpp") = ' + avInProjectTmp);
-  logDebug('fs.existsSync("/tmp/AV.hpp") = ' + avInSystemTmp);
-
-  // 編譯參數：
-  //   -I 專案底下的 tmp
-  //   -I 系統的 /tmp
+  // 2. 編譯
   const compileArgs = [
     '-std=c++17',
     '-O2',
@@ -73,32 +135,18 @@ app.post('/compile', (req, res) => {
     '-I', '/tmp',
     '-o', exePath,
   ];
-  logDebug('編譯指令: g++ ' + compileArgs.join(' '));
 
   const compileStart = performance.now();
-  const gpp = spawn('g++', compileArgs, {
-    cwd: __dirname, // 在專案根目錄編譯
-  });
+  const gpp = spawn('g++', compileArgs, { cwd: __dirname });
 
   let compileErr = '';
-
-  gpp.stderr.on('data', (data) => {
-    compileErr += data.toString();
-  });
-
-  gpp.on('error', (e) => {
-    logDebug('啟動 g++ 失敗：' + e.message);
-  });
+  gpp.stderr.on('data', (data) => { compileErr += data.toString(); });
 
   gpp.on('close', (codeExit) => {
-    const compileEnd  = performance.now();
-    const compileTime = +(compileEnd - compileStart).toFixed(1);
+    const compileTime = +((performance.now() - compileStart).toFixed(1));
 
     if (codeExit !== 0) {
       logDebug('編譯失敗，退出碼：' + codeExit);
-      if (compileErr) {
-        logDebug('g++ stderr:\n' + compileErr);
-      }
       return res.status(400).json({
         output: '',
         error: compileErr || ('編譯失敗，退出碼：' + codeExit),
@@ -110,141 +158,194 @@ app.post('/compile', (req, res) => {
     }
 
     logDebug('編譯成功，耗時 ' + compileTime + ' ms');
-    logDebug('開始執行程式');
 
-    // 2. 執行程式：cwd 一樣放在專案根目錄
-    //   這樣 AV.hpp 裡的 "public/code_script.js" 會寫到 /usr/src/app/public/code_script.js
+    // 3. 執行程式 (加上 TLE, OLE, MLE 保護)
+
+    // MLE 關鍵：使用 sh -c 配合 ulimit 啟動程式
+    // ulimit -v 單位是 KB，所以 256MB = 256 * 1024 KB
+    //
+    // 注意：這裡用 exec "${exePath}"，sh 會被替換成 exe，本 PID 會變成 exe PID
+    const ulimitCmd = `ulimit -v ${LIMITS.MEMORY_MB * 1024} && exec "${exePath}"`;
+
     const runStart = performance.now();
-    const child = spawn(exePath, [], {
+
+    const child = spawn('sh', ['-c', ulimitCmd], {
       cwd: __dirname,
       stdio: ['pipe', 'pipe', 'pipe'],
     });
 
+  //  logDebug('執行程序已啟動', { pid: child.pid });
+
     let runOut = '';
     let runErr = '';
+    let isTLE = false;
+    let isOLE = false;
 
-    child.stdout.on('data', (data) => {
-      runOut += data.toString();
-    });
+    // 記憶體監控（peak RSS / HWM）
+    let memSampler = null;
+    let peakMem = { peakRssKB: 0, peakHwmKB: 0, peakVmsKB: 0 };
 
-    child.stderr.on('data', (data) => {
-      runErr += data.toString();
-    });
+    // 啟動取樣（child.pid 有可能是 null，保險）
+    if (child.pid) {
+      memSampler = startMemorySampler(child.pid, 1);
+    } else {
+      logDebug('MEM: child.pid 不存在，無法取樣記憶體');
+    }
+
+    // OLE 檢查與資料收集函式
+    const collectOutput = (data, isStderr) => {
+      // 如果已經判斷出錯 (TLE/OLE)，就不再收資料，避免記憶體浪費
+      if (isTLE || isOLE) return;
+
+      const chunk = data.toString();
+      const currentLen = runOut.length + runErr.length;
+
+      // 檢查是否加上這塊會超限
+      if (currentLen + chunk.length > LIMITS.OUTPUT_SIZE) {
+        isOLE = true;
+
+        // 截斷並保留最後一點點空間給提示訊息
+        const remaining = LIMITS.OUTPUT_SIZE - currentLen;
+        if (remaining > 0) {
+          if (isStderr) runErr += chunk.substring(0, remaining);
+          else          runOut += chunk.substring(0, remaining);
+        }
+
+        const msg = '\n... [Output Limit Exceeded]';
+        if (isStderr) runErr += msg;
+        else          runOut += msg;
+
+        logDebug('OLE: 輸出超過限制，強制終止');
+        try { child.kill('SIGKILL'); } catch (e) {}
+      } else {
+        if (isStderr) runErr += chunk;
+        else          runOut += chunk;
+      }
+    };
+
+    child.stdout.on('data', (d) => collectOutput(d, false));
+    child.stderr.on('data', (d) => collectOutput(d, true));
+
+    // TLE 計時器
+    const tleTimer = setTimeout(() => {
+      isTLE = true;
+      logDebug(`TLE: 超過 ${LIMITS.TIME_MS}ms，強制終止`, { pid: child.pid });
+      try { child.kill('SIGKILL'); } catch (e) {}
+    }, LIMITS.TIME_MS);
+
+    // 寫入 stdin
+    if (typeof input === 'string' && input.length > 0) {
+      child.stdin.write(input);
+    }
+    child.stdin.end();
 
     child.on('error', (e) => {
       logDebug('執行程式 spawn 失敗：' + e.message);
     });
 
-    // 把前端「輸入」tab 的文字寫進 stdin，給 C++ 用 cin / getline 讀
-    if (typeof input === 'string' && input.length > 0) {
-      logDebug('寫入程式 stdin：\n' + input);
-      child.stdin.write(input);
-    }
-    child.stdin.end();
-
-    const maxMem = null; // 簡化：暫時不抓記憶體
-
-    // 執行超過 5 秒自動切斷（TLE）
-    const TLE_MS = 5000;
-    let killedByTLE = false;
-
-    const tleTimer = setTimeout(() => {
-      killedByTLE = true;
-      logDebug(`TLE：執行超過 ${TLE_MS} ms，強制中止程式 (SIGKILL)`);
-      try {
-        child.kill('SIGKILL');
-      } catch (e) {
-        logDebug('TLE kill 失敗：' + e.message);
-      }
-    }, TLE_MS);
-
     child.on('close', (codeRun, signal) => {
       clearTimeout(tleTimer);
 
-      const runEnd  = performance.now();
-      const runTime = +(runEnd - runStart).toFixed(1);
-
-      logDebug('程式結束，退出碼：' + codeRun + (signal ? `，signal：${signal}` : ''));
-
-      if (runErr) {
-        logDebug('程式 stderr:\n' + runErr);
+      // 停止記憶體監控
+      if (memSampler) {
+        memSampler.stop();
+        peakMem = memSampler.getPeak();
       }
 
-      // ★ 新增：TLE 回傳（維持你原本回傳格式，只用 error 告知）
-      if (killedByTLE) {
-        return res.status(400).json({
-          output: runOut || '',
-          error: `Time Limit Exceeded（超過 ${TLE_MS} ms）`,
-          compileTime,
-          runTime,
-          memoryKB: maxMem,
-          debug_log: debugMessages,
-        });
+      const runTime = +((performance.now() - runStart).toFixed(1));
+
+      logDebug(`程式結束，退出碼：${codeRun}，signal：${signal}`, {
+        codeRun,
+        signal,
+        peakRssKB: peakMem.peakRssKB,
+        peakHwmKB: peakMem.peakHwmKB,
+        peakVmsKB: peakMem.peakVmsKB,
+      });
+
+      // 這裡的 memoryKB：以 peak RSS 為主；若抓不到 RSS，退而求其次用 HWM
+      const memoryKB =
+        (peakMem.peakRssKB && peakMem.peakRssKB > 0) ? peakMem.peakRssKB :
+        (peakMem.peakHwmKB && peakMem.peakHwmKB > 0) ? peakMem.peakHwmKB :
+        null;
+
+      let finalError = '';
+
+      // ========== 1) 優先判斷 TLE ==========
+      if (isTLE) {
+        finalError = `Time Limit Exceeded (> ${LIMITS.TIME_MS}ms)`;
       }
 
-      if (codeRun !== 0) {
-        return res.status(400).json({
-          output: runOut || runErr,
-          error: runErr || ('程式非正常結束，退出碼：' + codeRun),
-          compileTime,
-          runTime,
-          memoryKB: maxMem,
-          debug_log: debugMessages,
-        });
+      // ========== 2) 判斷 OLE ==========
+      else if (isOLE) {
+        finalError = `Output Limit Exceeded (> ${LIMITS.OUTPUT_SIZE / 1024}KB)`;
       }
 
-      return res.json({
-        output: runOut,
-        error: '',
+      // ========== 3) 判斷 Runtime Error ==========
+      if (!finalError) {
+        // 正常結束：不應該有 error
+        if (codeRun === 0 && !signal) {
+          finalError = '';
+        } else {
+          // 非正常：有 signal 或 exit code 非 0
+          // 若有 stderr，就把 stderr 當錯誤訊息（更好 debug）
+          finalError = (runErr && runErr.trim() !== '')
+            ? runErr
+            : `Runtime Error`;
+        }
+      }
+
+      // 回傳結果
+      res.json({
+        output: runOut, // TLE/OLE 時這裡也會有被截斷前的輸出
+        error: finalError,
         compileTime,
         runTime,
-        memoryKB: maxMem,
-        debug_log: debugMessages,
+        memoryKB, // 這裡回傳 peak RSS (KB)
+        debug_log: debugMessages, // 你會在這裡看到 MEM sample 與 peak
       });
     });
   });
 });
 
+// === 你原本的 /api/samples 路由 (完全保留) ===
 app.get('/api/samples', (req, res) => {
     // === 除錯點 1：確認請求進入路由 ===
 
     if (req.query.filename) {
         // --- 邏輯 A：如果有 filename，就讀取檔案內容 ---
-        console.log('[API] 進入讀取檔案模式');
+      //  console.log('[API] 進入讀取檔案模式');
 
         const filePath = path.join(SAMPLE_DIR, req.query.filename);
 
         // 安全檢查
-        // 注意：path.join 有時會處理掉 ..，建議用 path.resolve 檢查絕對路徑會更嚴謹
-        // 但這裡先沿用你的邏輯
         if (!filePath.startsWith(SAMPLE_DIR)) {
-             console.log('[API] ⛔ 路徑非法攔截:', filePath);
+          //   console.log('[API] 路徑非法攔截:', filePath);
              return res.status(403).send("Forbidden");
         }
 
         fs.readFile(filePath, 'utf8', (err, data) => {
             if (err) {
-                console.log('[API] ❌ 讀取失敗:', err.message);
+                console.log('[API]  讀取失敗:', err.message);
                 return res.status(404).send("File not found");
             }
-            console.log('[API] ✅ 檔案讀取成功');
+          //  console.log('[API]  檔案讀取成功');
             res.send(data);
         });
 
     } else {
         // --- 邏輯 B：沒有 filename，就列出檔案列表 ---
-        console.log('[API] 進入列表模式');
+      //  console.log('[API] 進入列表模式');
 
         fs.readdir(SAMPLE_DIR, (err, files) => {
             if (err) {
-                console.log('[API] ❌ 無法讀取資料夾:', err.message);
+              //  console.log('[API] 無法讀取資料夾:', err.message);
                 return res.json([]);
             }
 
             // 過濾 .cpp 或 .c
             const cppFiles = files.filter(f => f.endsWith('.cpp') || f.endsWith('.c'));
 
-            console.log('[API] ✅ 列表回傳:', cppFiles);
+          //  console.log('[API] 列表回傳:', cppFiles);
             res.json(cppFiles);
         });
     }
