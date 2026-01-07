@@ -1,0 +1,20 @@
+version: '3'
+services:
+  # 這是你的 Node.js 程式
+  backend:
+    build: .
+    restart: always
+    # 注意：這裡不需要 ports 對外暴露 3000，因為只有 Nginx 需要跟它連線
+
+  # 這是 Nginx 伺服器
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80" # 對外開放標準網頁 Port 80
+    volumes:
+      # 把你的設定檔掛進去
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      # 把靜態檔案掛進去給 Nginx 讀 (對應 public 資料夾)
+      - ./public:/usr/share/nginx/html
+    depends_on:
+      - backend

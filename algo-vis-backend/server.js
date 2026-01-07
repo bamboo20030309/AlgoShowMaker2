@@ -25,7 +25,7 @@ function logDebug(msg, extra = {}) {
   });
 }
 
-app.use(express.static(path.join(__dirname, 'public')));
+//app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json({ limit: '5mb' }));
 
 /**
