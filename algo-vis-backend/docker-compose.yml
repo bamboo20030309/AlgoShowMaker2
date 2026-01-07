@@ -6,6 +6,10 @@ services:
     restart: always
     # 注意：這裡不需要 ports 對外暴露 3000，因為只有 Nginx 需要跟它連線
 
+    # 讓後端容器的 /public 資料夾跟外面的 /public 資料夾同步
+    # 這樣 C++ 產生的檔案才會出現在你電腦上，Nginx 才讀得到。
+    volumes:
+      - ./public:/usr/src/app/public
   # 這是 Nginx 伺服器
   nginx:
     image: nginx:latest
