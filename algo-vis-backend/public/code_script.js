@@ -56,6 +56,10 @@
                     drawArray('num', 0, 0, [0,0,1,2],  [{ type: "highlight", elements: [2]},{ type: "focus", elements: [2]},{ type: "point", elements: [2]},{ type: "mark", elements: [2]},{ type: "background", elements: [2]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
+                    addEditorHighlight(11);
+                    drawArray('num', 0, 0, [0,0,1,2],  [{ type: "highlight", elements: [2]},{ type: "focus", elements: [2]},{ type: "point", elements: [2]},{ type: "mark", elements: [2]},{ type: "background", elements: [2]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
+                }
+                if (track === 0) {
                     addEditorHighlight(12);
                     drawArray('heap', 0, 150, [0,0,1,2],  [{ type: "highlight", elements: [1]},{ type: "focus", elements: [1]},{ type: "point", elements: [1]},{ type: "mark", elements: [1]},{ type: "background", elements: [1]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
                 }
