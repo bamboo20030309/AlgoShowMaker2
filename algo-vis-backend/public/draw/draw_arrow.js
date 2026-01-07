@@ -31,7 +31,7 @@
     if (!svg) return null;
 
     const key = colorKey(color);
-    const markerId = 'debug-arrow-marker-' + key;
+    const markerId = 'arrow-marker-' + key;
 
     let marker = svg.querySelector('#' + markerId);
     if (marker) return markerId;
@@ -70,7 +70,7 @@
     if (!svg) return null;
 
     const key = colorKey(color);
-    const markerId = 'debug-dot-marker-' + key;
+    const markerId = 'dot-marker-' + key;
 
     let marker = svg.querySelector('#' + markerId);
     if (marker) return markerId;
@@ -126,7 +126,7 @@
     const vp = window.getViewport && window.getViewport();
     if (!vp || !window.resolvePos) return;
 
-    const lines = vp.querySelectorAll('#debug-arrow-layer line[data-bind="resolvePos"]');
+    const lines = vp.querySelectorAll('#arrow-layer line[data-bind="resolvePos"]');
     lines.forEach(line => {
       const sStr = line.getAttribute('data-start-spec');
       const eStr = line.getAttribute('data-end-spec');
@@ -168,7 +168,7 @@
       const lineId = line.getAttribute('id');
       if (lineId && vp.querySelector) {
         const label = vp.querySelector(
-          '#debug-arrow-layer text[data-arrow-id="' + CSS.escape(lineId) + '"]'
+          '#arrow-layer text[data-arrow-id="' + CSS.escape(lineId) + '"]'
         );
         if (label) {
           const mx = (x1 + x2) / 2;
@@ -434,7 +434,7 @@
     const vp = window.getViewport && window.getViewport();
     if (!vp) return;
 
-    const layer = vp.querySelector('#debug-arrow-layer');
+    const layer = vp.querySelector('#arrow-layer');
     if (layer) layer.innerHTML = '';
 
     emitArrowMap.clear();
