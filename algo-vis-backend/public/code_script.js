@@ -6,3316 +6,448 @@
         switch(f) {
             case 0:
                 if (track === 0) {
-                    drawColoredText([{text: "這是 LCS 的{演算法視覺化}範例\nLongest Common Subsequence 最長共同子序列 簡稱 LCS\n目的是為了找出兩個字串之間相同且最長的子序列 (子序列可以不連續)"}], 0, 80);
+                    addEditorHighlight(11);
+                    drawArray('num', 0, 0, [0,0],  [{ type: "highlight", elements: [0]},{ type: "focus", elements: [0]},{ type: "point", elements: [0]},{ type: "mark", elements: [0]},{ type: "background", elements: [0]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    addEditorHighlight(167);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]}], [],  "normal", 0);
+                    addEditorHighlight(12);
+                    drawArray('heap', 0, 150, [0,0],  [{ type: "highlight", elements: [-1]},{ type: "focus", elements: [-1]},{ type: "point", elements: [-1]},{ type: "mark", elements: [-1]},{ type: "background", elements: [-1]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
                 }
-                if (track === 1) {
-                    addEditorHighlight(171);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]}], [],  "normal", 0);
+                if (track === 0) {
+                    addEditorHighlight(13);
+                    drawArray('BIT', 0, 300, [0,0],  [{ type: "highlight", elements: [-1]},{ type: "focus", elements: [-1]},{ type: "point", elements: [-1]},{ type: "mark", elements: [-1]},{ type: "background", elements: [-1]}], [0], "BIT", 10, 1, [],  [],  [],  [],  []);
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", direction: "bottom" }, { group: "heap", direction: "top" }, { color: "black" ,width: "3" });
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", index: 1 }, { group: "BIT", index: 0 }, {  });
                 }
                 break;
             case 1:
                 if (track === 0) {
-                    drawColoredText([{text: "ㄧ般來說 LCS 的 DP 會寫成底下這樣的形式\n每ㄧ個格子代表當前的字串前綴的 LCS 數值\n比如說底下第4列第8行的格子就代表 "},{text: "edcbabc", bg_color: "rgba(254, 238, 62, 0.46)"},{text: " 和 "},{text: "abc", bg_color: "rgba(254, 238, 62, 0.46)"},{text: " 的 LCS 值"}], 0, 80);
+                    addEditorHighlight(11);
+                    drawArray('num', 0, 0, [0,0,1],  [{ type: "highlight", elements: [1]},{ type: "focus", elements: [1]},{ type: "point", elements: [1]},{ type: "mark", elements: [1]},{ type: "background", elements: [1]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    addEditorHighlight(200);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 238, 62, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8]]},{ type: "background", color: "rgba(254, 238, 62, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0]]},{ type: "highlight", elements: [[4,8]]}], [],  "normal", 0);
+                    addEditorHighlight(12);
+                    drawArray('heap', 0, 150, [0,0,1],  [{ type: "highlight", elements: [0]},{ type: "focus", elements: [0]},{ type: "point", elements: [0]},{ type: "mark", elements: [0]},{ type: "background", elements: [0]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
+                }
+                if (track === 0) {
+                    addEditorHighlight(13);
+                    drawArray('BIT', 0, 300, [0,0,1],  [{ type: "highlight", elements: [0]},{ type: "focus", elements: [0]},{ type: "point", elements: [0]},{ type: "mark", elements: [0]},{ type: "background", elements: [0]}], [0], "BIT", 10, 1, [],  [],  [],  [],  []);
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", direction: "bottom" }, { group: "heap", direction: "top" }, { color: "black" ,width: "3" });
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", index: 2 }, { group: "BIT", index: 1 }, {  });
                 }
                 break;
             case 2:
                 if (track === 0) {
-                    drawColoredText([{text: "假設要計算 "},{text: "edcbabc", bg_color: "rgba(254, 238, 62, 0.46)"},{text: " "},{text: "d", bg_color: "rgba(50, 191, 87, 0.46)"},{text: " 和 "},{text: "abc", bg_color: "rgba(254, 238, 62, 0.46)"},{text: " "},{text: "b", bg_color: "rgba(50, 191, 87, 0.46)"},{text: " 的 LCS\n那麼剛好因為新加入的字元是 "},{text: "ㄧ樣的", bg_color: "rgba(50, 191, 87, 0.46)"},{text: "\n那麼就可以直接去取剛剛算過的 "},{text: "edcbabc", bg_color: "rgba(254, 238, 62, 0.46)"},{text: " 和 "},{text: "abc", bg_color: "rgba(254, 238, 62, 0.46)"},{text: " 的 LCS 值 再加上 1 就是現在的 LCS 值"}], 0, 80);
+                    addEditorHighlight(11);
+                    drawArray('num', 0, 0, [0,0,1,2],  [{ type: "highlight", elements: [2]},{ type: "focus", elements: [2]},{ type: "point", elements: [2]},{ type: "mark", elements: [2]},{ type: "background", elements: [2]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    addEditorHighlight(244);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','3+1','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 238, 62, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8]]},{ type: "background", color: "rgba(254, 238, 62, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[0,9]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[5,0]]},{ type: "highlight", elements: [[5,9]]}], [],  "normal", 0);
+                    addEditorHighlight(12);
+                    drawArray('heap', 0, 150, [0,0,1,2],  [{ type: "highlight", elements: [1]},{ type: "focus", elements: [1]},{ type: "point", elements: [1]},{ type: "mark", elements: [1]},{ type: "background", elements: [1]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 4, col: 8 }, { color: "rgba(50, 191, 87, 0.7)" });
+                    addEditorHighlight(13);
+                    drawArray('BIT', 0, 300, [0,0,1,2],  [{ type: "highlight", elements: [1]},{ type: "focus", elements: [1]},{ type: "point", elements: [1]},{ type: "mark", elements: [1]},{ type: "background", elements: [1]}], [0], "BIT", 10, 1, [],  [],  [],  [],  []);
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", direction: "bottom" }, { group: "heap", direction: "top" }, { color: "black" ,width: "3" });
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", index: 3 }, { group: "BIT", index: 2 }, {  });
                 }
                 break;
             case 3:
                 if (track === 0) {
-                    drawColoredText([{text: "假設要計算 "},{text: "{edcbabcd:edcba b c d e}", bg_color: "rgba(254, 238, 62, 0.46)"},{text: " "},{text: "{e}", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 和 "},{text: "abc", bg_color: "rgba(254, 238, 62, 0.46)"},{text: " "},{text: "b", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 的 LCS\n那麼因為新加入的字元是 "},{text: "不ㄧ樣的", bg_color: "rgba(254, 62, 62, 0.46)"},{text: "\n那就必須要去找 "},{text: "edcbabcd", bg_color: "rgba(254, 238, 62, 0.46)"},{text: " , "},{text: "abc", bg_color: "rgba(254, 238, 62, 0.46)"},{text: " "},{text: "b", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 與 "},{text: "{edcbabcd:edcba b c d e}", bg_color: "rgba(254, 238, 62, 0.46)"},{text: " "},{text: "{e}", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " , "},{text: "abc", bg_color: "rgba(254, 238, 62, 0.46)"},{text: " 的最大值才是現在的 LCS 值"}], 0, 80);
+                    addEditorHighlight(11);
+                    drawArray('num', 0, 0, [0,0,1,2,3],  [{ type: "highlight", elements: [3]},{ type: "focus", elements: [3]},{ type: "point", elements: [3]},{ type: "mark", elements: [3]},{ type: "background", elements: [3]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    addEditorHighlight(298);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 238, 62, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9]]},{ type: "background", color: "rgba(254, 238, 62, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[5,0]]},{ type: "highlight", elements: [[5,10]]}], [],  "normal", 0);
+                    addEditorHighlight(12);
+                    drawArray('heap', 0, 150, [0,0,1,2,3],  [{ type: "highlight", elements: [2]},{ type: "focus", elements: [2]},{ type: "point", elements: [2]},{ type: "mark", elements: [2]},{ type: "background", elements: [2]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 9 }, { group: "LCS", row: 4, col: 9 }, {  });
+                    addEditorHighlight(13);
+                    drawArray('BIT', 0, 300, [0,0,1,2,3],  [{ type: "highlight", elements: [2]},{ type: "focus", elements: [2]},{ type: "point", elements: [2]},{ type: "mark", elements: [2]},{ type: "background", elements: [2]}], [0], "BIT", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 4, col: 9 }, { color: "rgba(50, 191, 87, 0.7)" });
+                    drawArrow({ group: "num", direction: "bottom" }, { group: "heap", direction: "top" }, { color: "black" ,width: "3" });
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", index: 4 }, { group: "BIT", index: 3 }, {  });
+                }
+                if (track === 1) {
+                    addEditorHighlight(17);
+                    drawArray('num', 0, 0, [0,0,1,2,3],  [{ type: "mark", elements: [0,1,2,3]},{ type: "highlight", elements: [3]},{ type: "point", elements: [3]},{ type: "focus", elements: [3]},{ type: "background", elements: [3]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
+                }
+                if (track === 1) {
+                    addEditorHighlight(18);
+                    drawArray('heap', 0, 150, [0,0,1,2,3],  [{ type: "mark", elements: [0,1,2,3]},{ type: "highlight", elements: [2]},{ type: "point", elements: [2]},{ type: "focus", elements: [2]},{ type: "background", elements: [2]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
+                }
+                if (track === 1) {
+                    addEditorHighlight(19);
+                    drawArray('BIT', 0, 300, [0,0,1,2,3],  [{ type: "mark", elements: [0,1,2,3]},{ type: "highlight", elements: [2]},{ type: "point", elements: [2]},{ type: "focus", elements: [2]},{ type: "background", elements: [2]}], [0], "BIT", 10, 1, [],  [],  [],  [],  []);
                 }
                 break;
             case 4:
                 if (track === 0) {
-                    drawColoredText([{text: "接著展示流程"}], 0, 120);
+                    addEditorHighlight(11);
+                    drawArray('num', 0, 0, [0,0,1,2,3,4],  [{ type: "highlight", elements: [4]},{ type: "focus", elements: [4]},{ type: "point", elements: [4]},{ type: "mark", elements: [4]},{ type: "background", elements: [4]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    addEditorHighlight(318);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]}], [],  "normal", 0);
+                    addEditorHighlight(12);
+                    drawArray('heap', 0, 150, [0,0,1,2,3,4],  [{ type: "highlight", elements: [3]},{ type: "focus", elements: [3]},{ type: "point", elements: [3]},{ type: "mark", elements: [3]},{ type: "background", elements: [3]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
                 }
-                if (track === 1) {
-                    drawColoredText([{text: "接著展示流程"}], 0, 120);
+                if (track === 0) {
+                    addEditorHighlight(13);
+                    drawArray('BIT', 0, 300, [0,0,1,2,3,4],  [{ type: "highlight", elements: [3]},{ type: "focus", elements: [3]},{ type: "point", elements: [3]},{ type: "mark", elements: [3]},{ type: "background", elements: [3]}], [0], "BIT", 10, 1, [],  [],  [],  [],  []);
                 }
-                if (track === 1) {
-                    addEditorHighlight(323);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]}], [],  "normal", 0);
+                if (track === 0) {
+                    drawArrow({ group: "num", direction: "bottom" }, { group: "heap", direction: "top" }, { color: "black" ,width: "3" });
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", index: 5 }, { group: "BIT", index: 4 }, {  });
                 }
                 break;
             case 5:
                 if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
+                    addEditorHighlight(11);
+                    drawArray('num', 0, 0, [0,0,1,2,3,4,5],  [{ type: "highlight", elements: [5]},{ type: "focus", elements: [5]},{ type: "point", elements: [5]},{ type: "mark", elements: [5]},{ type: "background", elements: [5]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[2,0],[0,2]]},{ type: "highlight", elements: [[2,0],[0,2],[2,2]]}], [],  "normal", 0);
+                    addEditorHighlight(12);
+                    drawArray('heap', 0, 150, [0,0,1,2,3,4,5],  [{ type: "highlight", elements: [4]},{ type: "focus", elements: [4]},{ type: "point", elements: [4]},{ type: "mark", elements: [4]},{ type: "background", elements: [4]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 0, col: 1 }, { group: "LCS", row: 1, col: 1 }, { color: "rgba(50, 191, 87, 0.7)" });
+                    addEditorHighlight(13);
+                    drawArray('BIT', 0, 300, [0,0,1,2,3,4,5],  [{ type: "highlight", elements: [4]},{ type: "focus", elements: [4]},{ type: "point", elements: [4]},{ type: "mark", elements: [4]},{ type: "background", elements: [4]}], [0], "BIT", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 0 }, { group: "LCS", row: 1, col: 1 }, {  });
+                    drawArrow({ group: "num", direction: "bottom" }, { group: "heap", direction: "top" }, { color: "black" ,width: "3" });
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", index: 6 }, { group: "BIT", index: 5 }, {  });
                 }
                 break;
             case 6:
                 if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
+                    addEditorHighlight(11);
+                    drawArray('num', 0, 0, [0,0,1,2,3,4,5,6],  [{ type: "highlight", elements: [6]},{ type: "focus", elements: [6]},{ type: "point", elements: [6]},{ type: "mark", elements: [6]},{ type: "background", elements: [6]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[2,0],[0,3]]},{ type: "highlight", elements: [[2,0],[0,3],[2,3]]}], [],  "normal", 0);
+                    addEditorHighlight(12);
+                    drawArray('heap', 0, 150, [0,0,1,2,3,4,5,6],  [{ type: "highlight", elements: [5]},{ type: "focus", elements: [5]},{ type: "point", elements: [5]},{ type: "mark", elements: [5]},{ type: "background", elements: [5]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 0, col: 2 }, { group: "LCS", row: 1, col: 2 }, { color: "rgba(50, 191, 87, 0.7)" });
+                    addEditorHighlight(13);
+                    drawArray('BIT', 0, 300, [0,0,1,2,3,4,5,6],  [{ type: "highlight", elements: [5]},{ type: "focus", elements: [5]},{ type: "point", elements: [5]},{ type: "mark", elements: [5]},{ type: "background", elements: [5]}], [0], "BIT", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 1 }, { group: "LCS", row: 1, col: 2 }, {  });
+                    drawArrow({ group: "num", direction: "bottom" }, { group: "heap", direction: "top" }, { color: "black" ,width: "3" });
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", index: 7 }, { group: "BIT", index: 6 }, {  });
                 }
                 break;
             case 7:
                 if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
+                    addEditorHighlight(11);
+                    drawArray('num', 0, 0, [0,0,1,2,3,4,5,6,7],  [{ type: "highlight", elements: [7]},{ type: "focus", elements: [7]},{ type: "point", elements: [7]},{ type: "mark", elements: [7]},{ type: "background", elements: [7]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[2,0],[0,4]]},{ type: "highlight", elements: [[2,0],[0,4],[2,4]]}], [],  "normal", 0);
+                    addEditorHighlight(12);
+                    drawArray('heap', 0, 150, [0,0,1,2,3,4,5,6,7],  [{ type: "highlight", elements: [6]},{ type: "focus", elements: [6]},{ type: "point", elements: [6]},{ type: "mark", elements: [6]},{ type: "background", elements: [6]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 0, col: 3 }, { group: "LCS", row: 1, col: 3 }, { color: "rgba(50, 191, 87, 0.7)" });
+                    addEditorHighlight(13);
+                    drawArray('BIT', 0, 300, [0,0,1,2,3,4,5,6,7],  [{ type: "highlight", elements: [6]},{ type: "focus", elements: [6]},{ type: "point", elements: [6]},{ type: "mark", elements: [6]},{ type: "background", elements: [6]}], [0], "BIT", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 2 }, { group: "LCS", row: 1, col: 3 }, {  });
+                    drawArrow({ group: "num", direction: "bottom" }, { group: "heap", direction: "top" }, { color: "black" ,width: "3" });
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", index: 8 }, { group: "BIT", index: 7 }, {  });
+                }
+                if (track === 1) {
+                    addEditorHighlight(17);
+                    drawArray('num', 0, 0, [0,0,1,2,3,4,5,6,7],  [{ type: "mark", elements: [0,1,2,3,4,5,6,7]},{ type: "highlight", elements: [7]},{ type: "point", elements: [7]},{ type: "focus", elements: [7]},{ type: "background", elements: [7]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
+                }
+                if (track === 1) {
+                    addEditorHighlight(18);
+                    drawArray('heap', 0, 150, [0,0,1,2,3,4,5,6,7],  [{ type: "mark", elements: [0,1,2,3,4,5,6,7]},{ type: "highlight", elements: [6]},{ type: "point", elements: [6]},{ type: "focus", elements: [6]},{ type: "background", elements: [6]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
+                }
+                if (track === 1) {
+                    addEditorHighlight(19);
+                    drawArray('BIT', 0, 300, [0,0,1,2,3,4,5,6,7],  [{ type: "mark", elements: [0,1,2,3,4,5,6,7]},{ type: "highlight", elements: [6]},{ type: "point", elements: [6]},{ type: "focus", elements: [6]},{ type: "background", elements: [6]}], [0], "BIT", 10, 1, [],  [],  [],  [],  []);
                 }
                 break;
             case 8:
                 if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
+                    addEditorHighlight(11);
+                    drawArray('num', 0, 0, [0,0,1,2,3,4,5,6,7,8],  [{ type: "highlight", elements: [8]},{ type: "focus", elements: [8]},{ type: "point", elements: [8]},{ type: "mark", elements: [8]},{ type: "background", elements: [8]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[2,0],[0,5]]},{ type: "highlight", elements: [[2,0],[0,5],[2,5]]}], [],  "normal", 0);
+                    addEditorHighlight(12);
+                    drawArray('heap', 0, 150, [0,0,1,2,3,4,5,6,7,8],  [{ type: "highlight", elements: [7]},{ type: "focus", elements: [7]},{ type: "point", elements: [7]},{ type: "mark", elements: [7]},{ type: "background", elements: [7]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 0, col: 4 }, { group: "LCS", row: 1, col: 4 }, { color: "rgba(50, 191, 87, 0.7)" });
+                    addEditorHighlight(13);
+                    drawArray('BIT', 0, 300, [0,0,1,2,3,4,5,6,7,8],  [{ type: "highlight", elements: [7]},{ type: "focus", elements: [7]},{ type: "point", elements: [7]},{ type: "mark", elements: [7]},{ type: "background", elements: [7]}], [0], "BIT", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 3 }, { group: "LCS", row: 1, col: 4 }, {  });
+                    drawArrow({ group: "num", direction: "bottom" }, { group: "heap", direction: "top" }, { color: "black" ,width: "3" });
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", index: 9 }, { group: "BIT", index: 8 }, {  });
                 }
                 break;
             case 9:
                 if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.46)"},{text: " 拿左上角的數值加ㄧ"}], 0, 120);
+                    addEditorHighlight(11);
+                    drawArray('num', 0, 0, [0,0,1,2,3,4,5,6,7,8,9],  [{ type: "highlight", elements: [9]},{ type: "focus", elements: [9]},{ type: "point", elements: [9]},{ type: "mark", elements: [9]},{ type: "background", elements: [9]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    addEditorHighlight(343);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[2,0],[0,6]]},{ type: "highlight", elements: [[2,0],[0,6],[2,6]]}], [],  "normal", 0);
+                    addEditorHighlight(12);
+                    drawArray('heap', 0, 150, [0,0,1,2,3,4,5,6,7,8,9],  [{ type: "highlight", elements: [8]},{ type: "focus", elements: [8]},{ type: "point", elements: [8]},{ type: "mark", elements: [8]},{ type: "background", elements: [8]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 0, col: 4 }, { group: "LCS", row: 1, col: 5 }, { color: "rgba(50, 191, 87, 0.7)" });
+                    addEditorHighlight(13);
+                    drawArray('BIT', 0, 300, [0,0,1,2,3,4,5,6,7,8,9],  [{ type: "highlight", elements: [8]},{ type: "focus", elements: [8]},{ type: "point", elements: [8]},{ type: "mark", elements: [8]},{ type: "background", elements: [8]}], [0], "BIT", 10, 1, [],  [],  [],  [],  []);
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", direction: "bottom" }, { group: "heap", direction: "top" }, { color: "black" ,width: "3" });
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", index: 10 }, { group: "BIT", index: 9 }, {  });
                 }
                 break;
             case 10:
                 if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
+                    addEditorHighlight(11);
+                    drawArray('num', 0, 0, [0,0,1,2,3,4,5,6,7,8,9,10],  [{ type: "highlight", elements: [10]},{ type: "focus", elements: [10]},{ type: "point", elements: [10]},{ type: "mark", elements: [10]},{ type: "background", elements: [10]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[2,0],[0,7]]},{ type: "highlight", elements: [[2,0],[0,7],[2,7]]}], [],  "normal", 0);
+                    addEditorHighlight(12);
+                    drawArray('heap', 0, 150, [0,0,1,2,3,4,5,6,7,8,9,10],  [{ type: "highlight", elements: [9]},{ type: "focus", elements: [9]},{ type: "point", elements: [9]},{ type: "mark", elements: [9]},{ type: "background", elements: [9]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 0, col: 6 }, { group: "LCS", row: 1, col: 6 }, {  });
+                    addEditorHighlight(13);
+                    drawArray('BIT', 0, 300, [0,0,1,2,3,4,5,6,7,8,9,10],  [{ type: "highlight", elements: [9]},{ type: "focus", elements: [9]},{ type: "point", elements: [9]},{ type: "mark", elements: [9]},{ type: "background", elements: [9]}], [0], "BIT", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 1, col: 6 }, { color: "rgba(50, 191, 87, 0.7)" });
+                    drawArrow({ group: "num", direction: "bottom" }, { group: "heap", direction: "top" }, { color: "black" ,width: "3" });
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", index: 11 }, { group: "BIT", index: 10 }, {  });
                 }
                 break;
             case 11:
                 if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
+                    addEditorHighlight(11);
+                    drawArray('num', 0, 0, [0,0,1,2,3,4,5,6,7,8,9,10,11],  [{ type: "highlight", elements: [11]},{ type: "focus", elements: [11]},{ type: "point", elements: [11]},{ type: "mark", elements: [11]},{ type: "background", elements: [11]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[2,0],[0,8]]},{ type: "highlight", elements: [[2,0],[0,8],[2,8]]}], [],  "normal", 0);
+                    addEditorHighlight(12);
+                    drawArray('heap', 0, 150, [0,0,1,2,3,4,5,6,7,8,9,10,11],  [{ type: "highlight", elements: [10]},{ type: "focus", elements: [10]},{ type: "point", elements: [10]},{ type: "mark", elements: [10]},{ type: "background", elements: [10]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 0, col: 7 }, { group: "LCS", row: 1, col: 7 }, {  });
+                    addEditorHighlight(13);
+                    drawArray('BIT', 0, 300, [0,0,1,2,3,4,5,6,7,8,9,10,11],  [{ type: "highlight", elements: [10]},{ type: "focus", elements: [10]},{ type: "point", elements: [10]},{ type: "mark", elements: [10]},{ type: "background", elements: [10]}], [0], "BIT", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 6 }, { group: "LCS", row: 1, col: 7 }, { color: "rgba(50, 191, 87, 0.7)" });
+                    drawArrow({ group: "num", direction: "bottom" }, { group: "heap", direction: "top" }, { color: "black" ,width: "3" });
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", index: 12 }, { group: "BIT", index: 11 }, {  });
                 }
                 break;
             case 12:
                 if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
+                    addEditorHighlight(11);
+                    drawArray('num', 0, 0, [0,0,1,2,3,4,5,6,7,8,9,10,11,12],  [{ type: "highlight", elements: [12]},{ type: "focus", elements: [12]},{ type: "point", elements: [12]},{ type: "mark", elements: [12]},{ type: "background", elements: [12]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','0'],['b','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[2,0],[0,9]]},{ type: "highlight", elements: [[2,0],[0,9],[2,9]]}], [],  "normal", 0);
+                    addEditorHighlight(12);
+                    drawArray('heap', 0, 150, [0,0,1,2,3,4,5,6,7,8,9,10,11,12],  [{ type: "highlight", elements: [11]},{ type: "focus", elements: [11]},{ type: "point", elements: [11]},{ type: "mark", elements: [11]},{ type: "background", elements: [11]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 0, col: 8 }, { group: "LCS", row: 1, col: 8 }, {  });
+                    addEditorHighlight(13);
+                    drawArray('BIT', 0, 300, [0,0,1,2,3,4,5,6,7,8,9,10,11,12],  [{ type: "highlight", elements: [11]},{ type: "focus", elements: [11]},{ type: "point", elements: [11]},{ type: "mark", elements: [11]},{ type: "background", elements: [11]}], [0], "BIT", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 7 }, { group: "LCS", row: 1, col: 8 }, { color: "rgba(50, 191, 87, 0.7)" });
+                    drawArrow({ group: "num", direction: "bottom" }, { group: "heap", direction: "top" }, { color: "black" ,width: "3" });
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", index: 13 }, { group: "BIT", index: 12 }, {  });
                 }
                 break;
             case 13:
                 if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
+                    addEditorHighlight(11);
+                    drawArray('num', 0, 0, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13],  [{ type: "highlight", elements: [13]},{ type: "focus", elements: [13]},{ type: "point", elements: [13]},{ type: "mark", elements: [13]},{ type: "background", elements: [13]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[2,0],[0,10]]},{ type: "highlight", elements: [[2,0],[0,10],[2,10]]}], [],  "normal", 0);
+                    addEditorHighlight(12);
+                    drawArray('heap', 0, 150, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13],  [{ type: "highlight", elements: [12]},{ type: "focus", elements: [12]},{ type: "point", elements: [12]},{ type: "mark", elements: [12]},{ type: "background", elements: [12]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 0, col: 9 }, { group: "LCS", row: 1, col: 9 }, {  });
+                    addEditorHighlight(13);
+                    drawArray('BIT', 0, 300, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13],  [{ type: "highlight", elements: [12]},{ type: "focus", elements: [12]},{ type: "point", elements: [12]},{ type: "mark", elements: [12]},{ type: "background", elements: [12]}], [0], "BIT", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 8 }, { group: "LCS", row: 1, col: 9 }, { color: "rgba(50, 191, 87, 0.7)" });
+                    drawArrow({ group: "num", direction: "bottom" }, { group: "heap", direction: "top" }, { color: "black" ,width: "3" });
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", index: 14 }, { group: "BIT", index: 13 }, {  });
                 }
                 if (track === 1) {
-                    drawText("{加速...}", 0, 120);
+                    addEditorHighlight(17);
+                    drawArray('num', 0, 0, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13],  [{ type: "mark", elements: [0,1,2,3,4,5,6,7,8,9,10,11,12,13]},{ type: "highlight", elements: [13]},{ type: "point", elements: [13]},{ type: "focus", elements: [13]},{ type: "background", elements: [13]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 1) {
-                    addEditorHighlight(379);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[2,0],[0,10]]},{ type: "highlight", elements: [[2,10]]}], [],  "normal", 0);
+                    addEditorHighlight(18);
+                    drawArray('heap', 0, 150, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13],  [{ type: "mark", elements: [0,1,2,3,4,5,6,7,8,9,10,11,12,13]},{ type: "highlight", elements: [12]},{ type: "point", elements: [12]},{ type: "focus", elements: [12]},{ type: "background", elements: [12]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 1) {
-                    drawArrow({ group: "LCS", row: 0, col: 9 }, { group: "LCS", row: 1, col: 9 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 1, col: 8 }, { group: "LCS", row: 1, col: 9 }, { color: "rgba(50, 191, 87, 0.7)" });
+                    addEditorHighlight(19);
+                    drawArray('BIT', 0, 300, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13],  [{ type: "mark", elements: [0,1,2,3,4,5,6,7,8,9,10,11,12,13]},{ type: "highlight", elements: [12]},{ type: "point", elements: [12]},{ type: "focus", elements: [12]},{ type: "background", elements: [12]}], [0], "BIT", 10, 1, [],  [],  [],  [],  []);
                 }
                 break;
             case 14:
                 if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
+                    addEditorHighlight(11);
+                    drawArray('num', 0, 0, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14],  [{ type: "highlight", elements: [14]},{ type: "focus", elements: [14]},{ type: "point", elements: [14]},{ type: "mark", elements: [14]},{ type: "background", elements: [14]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[3,0],[0,2]]},{ type: "highlight", elements: [[3,0],[0,2],[3,2]]}], [],  "normal", 0);
+                    addEditorHighlight(12);
+                    drawArray('heap', 0, 150, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14],  [{ type: "highlight", elements: [13]},{ type: "focus", elements: [13]},{ type: "point", elements: [13]},{ type: "mark", elements: [13]},{ type: "background", elements: [13]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 1 }, { group: "LCS", row: 2, col: 1 }, { color: "rgba(50, 191, 87, 0.7)" });
+                    addEditorHighlight(13);
+                    drawArray('BIT', 0, 300, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14],  [{ type: "highlight", elements: [13]},{ type: "focus", elements: [13]},{ type: "point", elements: [13]},{ type: "mark", elements: [13]},{ type: "background", elements: [13]}], [0], "BIT", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 0 }, { group: "LCS", row: 2, col: 1 }, {  });
+                    drawArrow({ group: "num", direction: "bottom" }, { group: "heap", direction: "top" }, { color: "black" ,width: "3" });
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", index: 15 }, { group: "BIT", index: 14 }, {  });
                 }
                 break;
             case 15:
                 if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
+                    addEditorHighlight(11);
+                    drawArray('num', 0, 0, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],  [{ type: "highlight", elements: [15]},{ type: "focus", elements: [15]},{ type: "point", elements: [15]},{ type: "mark", elements: [15]},{ type: "background", elements: [15]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[3,0],[0,3]]},{ type: "highlight", elements: [[3,0],[0,3],[3,3]]}], [],  "normal", 0);
+                    addEditorHighlight(12);
+                    drawArray('heap', 0, 150, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],  [{ type: "highlight", elements: [14]},{ type: "focus", elements: [14]},{ type: "point", elements: [14]},{ type: "mark", elements: [14]},{ type: "background", elements: [14]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 2 }, { group: "LCS", row: 2, col: 2 }, { color: "rgba(50, 191, 87, 0.7)" });
+                    addEditorHighlight(13);
+                    drawArray('BIT', 0, 300, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],  [{ type: "highlight", elements: [14]},{ type: "focus", elements: [14]},{ type: "point", elements: [14]},{ type: "mark", elements: [14]},{ type: "background", elements: [14]}], [0], "BIT", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 1 }, { group: "LCS", row: 2, col: 2 }, {  });
+                    drawArrow({ group: "num", direction: "bottom" }, { group: "heap", direction: "top" }, { color: "black" ,width: "3" });
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", index: 16 }, { group: "BIT", index: 15 }, {  });
                 }
                 break;
             case 16:
                 if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
+                    addEditorHighlight(11);
+                    drawArray('num', 0, 0, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],  [{ type: "highlight", elements: [16]},{ type: "focus", elements: [16]},{ type: "point", elements: [16]},{ type: "mark", elements: [16]},{ type: "background", elements: [16]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[3,0],[0,4]]},{ type: "highlight", elements: [[3,0],[0,4],[3,4]]}], [],  "normal", 0);
+                    addEditorHighlight(12);
+                    drawArray('heap', 0, 150, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],  [{ type: "highlight", elements: [15]},{ type: "focus", elements: [15]},{ type: "point", elements: [15]},{ type: "mark", elements: [15]},{ type: "background", elements: [15]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 3 }, { group: "LCS", row: 2, col: 3 }, { color: "rgba(50, 191, 87, 0.7)" });
+                    addEditorHighlight(13);
+                    drawArray('BIT', 0, 300, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],  [{ type: "highlight", elements: [15]},{ type: "focus", elements: [15]},{ type: "point", elements: [15]},{ type: "mark", elements: [15]},{ type: "background", elements: [15]}], [0], "BIT", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 2 }, { group: "LCS", row: 2, col: 3 }, {  });
+                    drawArrow({ group: "num", direction: "bottom" }, { group: "heap", direction: "top" }, { color: "black" ,width: "3" });
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", index: 17 }, { group: "BIT", index: 16 }, {  });
                 }
                 break;
             case 17:
                 if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.46)"},{text: " 拿左上角的數值加ㄧ"}], 0, 120);
+                    addEditorHighlight(11);
+                    drawArray('num', 0, 0, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17],  [{ type: "highlight", elements: [17]},{ type: "focus", elements: [17]},{ type: "point", elements: [17]},{ type: "mark", elements: [17]},{ type: "background", elements: [17]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    addEditorHighlight(343);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[3,0],[0,5]]},{ type: "highlight", elements: [[3,0],[0,5],[3,5]]}], [],  "normal", 0);
+                    addEditorHighlight(12);
+                    drawArray('heap', 0, 150, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17],  [{ type: "highlight", elements: [16]},{ type: "focus", elements: [16]},{ type: "point", elements: [16]},{ type: "mark", elements: [16]},{ type: "background", elements: [16]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 3 }, { group: "LCS", row: 2, col: 4 }, { color: "rgba(50, 191, 87, 0.7)" });
+                    addEditorHighlight(13);
+                    drawArray('BIT', 0, 300, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17],  [{ type: "highlight", elements: [16]},{ type: "focus", elements: [16]},{ type: "point", elements: [16]},{ type: "mark", elements: [16]},{ type: "background", elements: [16]}], [0], "BIT", 10, 1, [],  [],  [],  [],  []);
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", direction: "bottom" }, { group: "heap", direction: "top" }, { color: "black" ,width: "3" });
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", index: 18 }, { group: "BIT", index: 17 }, {  });
                 }
                 break;
             case 18:
                 if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
+                    addEditorHighlight(11);
+                    drawArray('num', 0, 0, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],  [{ type: "highlight", elements: [18]},{ type: "focus", elements: [18]},{ type: "point", elements: [18]},{ type: "mark", elements: [18]},{ type: "background", elements: [18]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[3,0],[0,6]]},{ type: "highlight", elements: [[3,0],[0,6],[3,6]]}], [],  "normal", 0);
+                    addEditorHighlight(12);
+                    drawArray('heap', 0, 150, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],  [{ type: "highlight", elements: [17]},{ type: "focus", elements: [17]},{ type: "point", elements: [17]},{ type: "mark", elements: [17]},{ type: "background", elements: [17]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 2, col: 5 }, { color: "rgba(50, 191, 87, 0.7)" });
+                    addEditorHighlight(13);
+                    drawArray('BIT', 0, 300, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],  [{ type: "highlight", elements: [17]},{ type: "focus", elements: [17]},{ type: "point", elements: [17]},{ type: "mark", elements: [17]},{ type: "background", elements: [17]}], [0], "BIT", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 2, col: 5 }, {  });
+                    drawArrow({ group: "num", direction: "bottom" }, { group: "heap", direction: "top" }, { color: "black" ,width: "3" });
+                }
+                if (track === 0) {
+                    drawArrow({ group: "num", index: 19 }, { group: "BIT", index: 18 }, {  });
                 }
                 break;
             case 19:
                 if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.46)"},{text: " 拿左上角的數值加ㄧ"}], 0, 120);
+                    addEditorHighlight(11);
+                    drawArray('num', 0, 0, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19],  [{ type: "highlight", elements: [19]},{ type: "focus", elements: [19]},{ type: "point", elements: [19]},{ type: "mark", elements: [19]},{ type: "background", elements: [19]}], [0], "normal", 0, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    addEditorHighlight(343);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[3,0],[0,7]]},{ type: "highlight", elements: [[3,0],[0,7],[3,7]]}], [],  "normal", 0);
+                    addEditorHighlight(12);
+                    drawArray('heap', 0, 150, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19],  [{ type: "highlight", elements: [18]},{ type: "focus", elements: [18]},{ type: "point", elements: [18]},{ type: "mark", elements: [18]},{ type: "background", elements: [18]}], [0], "heap", 10, 1, [],  [],  [],  [],  []);
                 }
                 if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 2, col: 6 }, { color: "rgba(50, 191, 87, 0.7)" });
+                    addEditorHighlight(13);
+                    drawArray('BIT', 0, 300, [0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19],  [{ type: "highlight", elements: [18]},{ type: "focus", elements: [18]},{ type: "point", elements: [18]},{ type: "mark", elements: [18]},{ type: "background", elements: [18]}], [0], "BIT", 10, 1, [],  [],  [],  [],  []);
                 }
-                break;
-            case 20:
                 if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
+                    drawArrow({ group: "num", direction: "bottom" }, { group: "heap", direction: "top" }, { color: "black" ,width: "3" });
                 }
                 if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[3,0],[0,8]]},{ type: "highlight", elements: [[3,0],[0,8],[3,8]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 7 }, { group: "LCS", row: 2, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 2, col: 7 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 21:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','0'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[3,0],[0,9]]},{ type: "highlight", elements: [[3,0],[0,9],[3,9]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 8 }, { group: "LCS", row: 2, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 7 }, { group: "LCS", row: 2, col: 8 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 22:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[3,0],[0,10]]},{ type: "highlight", elements: [[3,0],[0,10],[3,10]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 9 }, { group: "LCS", row: 2, col: 9 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 8 }, { group: "LCS", row: 2, col: 9 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 1) {
-                    drawText("{加速...}", 0, 120);
-                }
-                if (track === 1) {
-                    addEditorHighlight(379);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[3,0],[0,10]]},{ type: "highlight", elements: [[3,10]]}], [],  "normal", 0);
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 1, col: 9 }, { group: "LCS", row: 2, col: 9 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 2, col: 8 }, { group: "LCS", row: 2, col: 9 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 23:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[4,0],[0,2]]},{ type: "highlight", elements: [[4,0],[0,2],[4,2]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 1 }, { group: "LCS", row: 3, col: 1 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 0 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                break;
-            case 24:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[4,0],[0,3]]},{ type: "highlight", elements: [[4,0],[0,3],[4,3]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 2 }, { group: "LCS", row: 3, col: 2 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 1 }, { group: "LCS", row: 3, col: 2 }, {  });
-                }
-                break;
-            case 25:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.46)"},{text: " 拿左上角的數值加ㄧ"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(343);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[4,0],[0,4]]},{ type: "highlight", elements: [[4,0],[0,4],[4,4]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 2 }, { group: "LCS", row: 3, col: 3 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 26:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[4,0],[0,5]]},{ type: "highlight", elements: [[4,0],[0,5],[4,5]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 3, col: 4 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 3, col: 4 }, {  });
-                }
-                break;
-            case 27:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[4,0],[0,6]]},{ type: "highlight", elements: [[4,0],[0,6],[4,6]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 5 }, { group: "LCS", row: 3, col: 5 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 4 }, { group: "LCS", row: 3, col: 5 }, {  });
-                }
-                break;
-            case 28:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[4,0],[0,7]]},{ type: "highlight", elements: [[4,0],[0,7],[4,7]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 3, col: 6 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 5 }, { group: "LCS", row: 3, col: 6 }, {  });
-                }
-                break;
-            case 29:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.46)"},{text: " 拿左上角的數值加ㄧ"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(343);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[4,0],[0,8]]},{ type: "highlight", elements: [[4,0],[0,8],[4,8]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 3, col: 7 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 30:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','0'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[4,0],[0,9]]},{ type: "highlight", elements: [[4,0],[0,9],[4,9]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 8 }, { group: "LCS", row: 3, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 3, col: 8 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 31:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[4,0],[0,10]]},{ type: "highlight", elements: [[4,0],[0,10],[4,10]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 9 }, { group: "LCS", row: 3, col: 9 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 8 }, { group: "LCS", row: 3, col: 9 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 1) {
-                    drawText("{加速...}", 0, 120);
-                }
-                if (track === 1) {
-                    addEditorHighlight(379);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[4,0],[0,10]]},{ type: "highlight", elements: [[4,10]]}], [],  "normal", 0);
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 2, col: 9 }, { group: "LCS", row: 3, col: 9 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 3, col: 8 }, { group: "LCS", row: 3, col: 9 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 32:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','0','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[5,0],[0,2]]},{ type: "highlight", elements: [[5,0],[0,2],[5,2]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 1 }, { group: "LCS", row: 4, col: 1 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 0 }, { group: "LCS", row: 4, col: 1 }, {  });
-                }
-                break;
-            case 33:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.46)"},{text: " 拿左上角的數值加ㄧ"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(343);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','0','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[5,0],[0,3]]},{ type: "highlight", elements: [[5,0],[0,3],[5,3]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 1 }, { group: "LCS", row: 4, col: 2 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 34:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','0','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[5,0],[0,4]]},{ type: "highlight", elements: [[5,0],[0,4],[5,4]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 4, col: 3 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 4, col: 3 }, {  });
-                }
-                break;
-            case 35:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','0','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[5,0],[0,5]]},{ type: "highlight", elements: [[5,0],[0,5],[5,5]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 4 }, { group: "LCS", row: 4, col: 4 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 3 }, { group: "LCS", row: 4, col: 4 }, {  });
-                }
-                break;
-            case 36:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','0','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[5,0],[0,6]]},{ type: "highlight", elements: [[5,0],[0,6],[5,6]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 5 }, { group: "LCS", row: 4, col: 5 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 4 }, { group: "LCS", row: 4, col: 5 }, {  });
-                }
-                break;
-            case 37:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','0','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[5,0],[0,7]]},{ type: "highlight", elements: [[5,0],[0,7],[5,7]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 6 }, { group: "LCS", row: 4, col: 6 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 5 }, { group: "LCS", row: 4, col: 6 }, {  });
-                }
-                break;
-            case 38:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','0','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[5,0],[0,8]]},{ type: "highlight", elements: [[5,0],[0,8],[5,8]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 4, col: 7 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 6 }, { group: "LCS", row: 4, col: 7 }, {  });
-                }
-                break;
-            case 39:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.46)"},{text: " 拿左上角的數值加ㄧ"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(343);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','0'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[5,0],[0,9]]},{ type: "highlight", elements: [[5,0],[0,9],[5,9]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 4, col: 8 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 40:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[5,0],[0,10]]},{ type: "highlight", elements: [[5,0],[0,10],[5,10]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 9 }, { group: "LCS", row: 4, col: 9 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 4, col: 9 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 1) {
-                    drawText("{加速...}", 0, 120);
-                }
-                if (track === 1) {
-                    addEditorHighlight(379);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','0','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[5,0],[0,10]]},{ type: "highlight", elements: [[5,10]]}], [],  "normal", 0);
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 3, col: 9 }, { group: "LCS", row: 4, col: 9 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 4, col: 9 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 41:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.46)"},{text: " 拿左上角的數值加ㄧ"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(343);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','0','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[6,0],[0,2]]},{ type: "highlight", elements: [[6,0],[0,2],[6,2]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 0 }, { group: "LCS", row: 5, col: 1 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 42:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','0','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[6,0],[0,3]]},{ type: "highlight", elements: [[6,0],[0,3],[6,3]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 5, col: 2 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 5, col: 2 }, {  });
-                }
-                break;
-            case 43:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','0','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[6,0],[0,4]]},{ type: "highlight", elements: [[6,0],[0,4],[6,4]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 3 }, { group: "LCS", row: 5, col: 3 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 2 }, { group: "LCS", row: 5, col: 3 }, {  });
-                }
-                break;
-            case 44:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','0','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[6,0],[0,5]]},{ type: "highlight", elements: [[6,0],[0,5],[6,5]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 4 }, { group: "LCS", row: 5, col: 4 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 3 }, { group: "LCS", row: 5, col: 4 }, {  });
-                }
-                break;
-            case 45:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','0','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[6,0],[0,6]]},{ type: "highlight", elements: [[6,0],[0,6],[6,6]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 5 }, { group: "LCS", row: 5, col: 5 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 4 }, { group: "LCS", row: 5, col: 5 }, {  });
-                }
-                break;
-            case 46:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','0','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[6,0],[0,7]]},{ type: "highlight", elements: [[6,0],[0,7],[6,7]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 6 }, { group: "LCS", row: 5, col: 6 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 5 }, { group: "LCS", row: 5, col: 6 }, {  });
-                }
-                break;
-            case 47:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','0','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[6,0],[0,8]]},{ type: "highlight", elements: [[6,0],[0,8],[6,8]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 7 }, { group: "LCS", row: 5, col: 7 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 6 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                break;
-            case 48:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','0'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[6,0],[0,9]]},{ type: "highlight", elements: [[6,0],[0,9],[6,9]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 5, col: 8 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 7 }, { group: "LCS", row: 5, col: 8 }, {  });
-                }
-                break;
-            case 49:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.46)"},{text: " 拿左上角的數值加ㄧ"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(343);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[6,0],[0,10]]},{ type: "highlight", elements: [[6,0],[0,10],[6,10]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 5, col: 9 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 1) {
-                    drawText("{加速...}", 0, 120);
-                }
-                if (track === 1) {
-                    addEditorHighlight(352);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','0','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[6,0],[0,10]]},{ type: "highlight", elements: [[6,10]]}], [],  "normal", 0);
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 5, col: 9 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 50:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','0','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[7,0],[0,2]]},{ type: "highlight", elements: [[7,0],[0,2],[7,2]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 6, col: 1 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 0 }, { group: "LCS", row: 6, col: 1 }, {  });
-                }
-                break;
-            case 51:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.46)"},{text: " 拿左上角的數值加ㄧ"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(343);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','0','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[7,0],[0,3]]},{ type: "highlight", elements: [[7,0],[0,3],[7,3]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 6, col: 2 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 52:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','0','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[7,0],[0,4]]},{ type: "highlight", elements: [[7,0],[0,4],[7,4]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 3 }, { group: "LCS", row: 6, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 6, col: 3 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 53:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','0','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[7,0],[0,5]]},{ type: "highlight", elements: [[7,0],[0,5],[7,5]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 4 }, { group: "LCS", row: 6, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 3 }, { group: "LCS", row: 6, col: 4 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 54:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','0','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[7,0],[0,6]]},{ type: "highlight", elements: [[7,0],[0,6],[7,6]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 5 }, { group: "LCS", row: 6, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 4 }, { group: "LCS", row: 6, col: 5 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 55:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','0','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[7,0],[0,7]]},{ type: "highlight", elements: [[7,0],[0,7],[7,7]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 6 }, { group: "LCS", row: 6, col: 6 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 5 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                break;
-            case 56:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','0','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[7,0],[0,8]]},{ type: "highlight", elements: [[7,0],[0,8],[7,8]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 7 }, { group: "LCS", row: 6, col: 7 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 6 }, { group: "LCS", row: 6, col: 7 }, {  });
-                }
-                break;
-            case 57:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.46)"},{text: " 拿左上角的數值加ㄧ"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(343);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','0'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[7,0],[0,9]]},{ type: "highlight", elements: [[7,0],[0,9],[7,9]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 7 }, { group: "LCS", row: 6, col: 8 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 58:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[7,0],[0,10]]},{ type: "highlight", elements: [[7,0],[0,10],[7,10]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 6, col: 9 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 6, col: 9 }, {  });
-                }
-                if (track === 1) {
-                    drawText("{加速...}", 0, 120);
-                }
-                if (track === 1) {
-                    addEditorHighlight(379);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','0','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[7,0],[0,10]]},{ type: "highlight", elements: [[7,10]]}], [],  "normal", 0);
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 6, col: 9 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 6, col: 9 }, {  });
-                }
-                break;
-            case 59:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','0','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[8,0],[0,2]]},{ type: "highlight", elements: [[8,0],[0,2],[8,2]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 1 }, { group: "LCS", row: 7, col: 1 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 0 }, { group: "LCS", row: 7, col: 1 }, {  });
-                }
-                break;
-            case 60:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','0','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[8,0],[0,3]]},{ type: "highlight", elements: [[8,0],[0,3],[8,3]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 7, col: 2 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 1 }, { group: "LCS", row: 7, col: 2 }, {  });
-                }
-                break;
-            case 61:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.46)"},{text: " 拿左上角的數值加ㄧ"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(343);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','0','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[8,0],[0,4]]},{ type: "highlight", elements: [[8,0],[0,4],[8,4]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 7, col: 3 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 62:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','0','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[8,0],[0,5]]},{ type: "highlight", elements: [[8,0],[0,5],[8,5]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 4 }, { group: "LCS", row: 7, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 7, col: 4 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 63:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','0','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[8,0],[0,6]]},{ type: "highlight", elements: [[8,0],[0,6],[8,6]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 5 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 4 }, { group: "LCS", row: 7, col: 5 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 64:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','0','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[8,0],[0,7]]},{ type: "highlight", elements: [[8,0],[0,7],[8,7]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 6 }, { group: "LCS", row: 7, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 5 }, { group: "LCS", row: 7, col: 6 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 65:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.46)"},{text: " 拿左上角的數值加ㄧ"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(343);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','0','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[8,0],[0,8]]},{ type: "highlight", elements: [[8,0],[0,8],[8,8]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 6 }, { group: "LCS", row: 7, col: 7 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 66:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','0'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[8,0],[0,9]]},{ type: "highlight", elements: [[8,0],[0,9],[8,9]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 7, col: 8 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 7, col: 8 }, {  });
-                }
-                break;
-            case 67:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[8,0],[0,10]]},{ type: "highlight", elements: [[8,0],[0,10],[8,10]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 9 }, { group: "LCS", row: 7, col: 9 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 8 }, { group: "LCS", row: 7, col: 9 }, {  });
-                }
-                if (track === 1) {
-                    drawText("{加速...}", 0, 120);
-                }
-                if (track === 1) {
-                    addEditorHighlight(379);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[8,0],[0,10]]},{ type: "highlight", elements: [[8,10]]}], [],  "normal", 0);
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 6, col: 9 }, { group: "LCS", row: 7, col: 9 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 7, col: 8 }, { group: "LCS", row: 7, col: 9 }, {  });
-                }
-                break;
-            case 68:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[9,0],[0,2]]},{ type: "highlight", elements: [[9,0],[0,2],[9,2]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 1 }, { group: "LCS", row: 8, col: 1 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 0 }, { group: "LCS", row: 8, col: 1 }, {  });
-                }
-                break;
-            case 69:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','0','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[9,0],[0,3]]},{ type: "highlight", elements: [[9,0],[0,3],[9,3]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 2 }, { group: "LCS", row: 8, col: 2 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 1 }, { group: "LCS", row: 8, col: 2 }, {  });
-                }
-                break;
-            case 70:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','0','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[9,0],[0,4]]},{ type: "highlight", elements: [[9,0],[0,4],[9,4]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 8, col: 3 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 2 }, { group: "LCS", row: 8, col: 3 }, {  });
-                }
-                break;
-            case 71:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.46)"},{text: " 拿左上角的數值加ㄧ"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(343);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','0','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[9,0],[0,5]]},{ type: "highlight", elements: [[9,0],[0,5],[9,5]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 8, col: 4 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 72:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','0','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[9,0],[0,6]]},{ type: "highlight", elements: [[9,0],[0,6],[9,6]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 5 }, { group: "LCS", row: 8, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 8, col: 5 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 73:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.46)"},{text: " 拿左上角的數值加ㄧ"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(343);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','0','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[9,0],[0,7]]},{ type: "highlight", elements: [[9,0],[0,7],[9,7]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 5 }, { group: "LCS", row: 8, col: 6 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 74:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','0','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[9,0],[0,8]]},{ type: "highlight", elements: [[9,0],[0,8],[9,8]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 8, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 8, col: 7 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 75:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','0'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[9,0],[0,9]]},{ type: "highlight", elements: [[9,0],[0,9],[9,9]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 8 }, { group: "LCS", row: 8, col: 8 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 7 }, { group: "LCS", row: 8, col: 8 }, {  });
-                }
-                break;
-            case 76:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[9,0],[0,10]]},{ type: "highlight", elements: [[9,0],[0,10],[9,10]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 8 }, { group: "LCS", row: 8, col: 9 }, {  });
-                }
-                if (track === 1) {
-                    drawText("{加速...}", 0, 120);
-                }
-                if (track === 1) {
-                    addEditorHighlight(379);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','0','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[9,0],[0,10]]},{ type: "highlight", elements: [[9,10]]}], [],  "normal", 0);
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 7, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 8, col: 8 }, { group: "LCS", row: 8, col: 9 }, {  });
-                }
-                break;
-            case 77:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','0','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[10,0],[0,2]]},{ type: "highlight", elements: [[10,0],[0,2],[10,2]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 1 }, { group: "LCS", row: 9, col: 1 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 0 }, { group: "LCS", row: 9, col: 1 }, {  });
-                }
-                break;
-            case 78:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','0','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[10,0],[0,3]]},{ type: "highlight", elements: [[10,0],[0,3],[10,3]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 2 }, { group: "LCS", row: 9, col: 2 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 1 }, { group: "LCS", row: 9, col: 2 }, {  });
-                }
-                break;
-            case 79:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','0','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[10,0],[0,4]]},{ type: "highlight", elements: [[10,0],[0,4],[10,4]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 3 }, { group: "LCS", row: 9, col: 3 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 2 }, { group: "LCS", row: 9, col: 3 }, {  });
-                }
-                break;
-            case 80:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','0','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[10,0],[0,5]]},{ type: "highlight", elements: [[10,0],[0,5],[10,5]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 9, col: 4 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 3 }, { group: "LCS", row: 9, col: 4 }, {  });
-                }
-                break;
-            case 81:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.46)"},{text: " 拿左上角的數值加ㄧ"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(343);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','0','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[10,0],[0,6]]},{ type: "highlight", elements: [[10,0],[0,6],[10,6]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 9, col: 5 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 82:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','0','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[10,0],[0,7]]},{ type: "highlight", elements: [[10,0],[0,7],[10,7]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 9, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 9, col: 6 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 83:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','0','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[10,0],[0,8]]},{ type: "highlight", elements: [[10,0],[0,8],[10,8]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 7 }, { group: "LCS", row: 9, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 6 }, { group: "LCS", row: 9, col: 7 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 84:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','0']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[10,0],[0,9]]},{ type: "highlight", elements: [[10,0],[0,9],[10,9]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 8 }, { group: "LCS", row: 9, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 7 }, { group: "LCS", row: 9, col: 8 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                break;
-            case 85:
-                if (track === 0) {
-                    drawColoredText([{text: "兩個字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 左與上取最大"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(364);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[10,0],[0,10]]},{ type: "highlight", elements: [[10,0],[0,10],[10,10]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 9 }, { group: "LCS", row: 9, col: 9 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 8 }, { group: "LCS", row: 9, col: 9 }, {  });
-                }
-                if (track === 1) {
-                    drawText("{加速...}", 0, 120);
-                }
-                if (track === 1) {
-                    addEditorHighlight(379);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[10,0],[0,10]]},{ type: "highlight", elements: [[10,10]]}], [],  "normal", 0);
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 8, col: 9 }, { group: "LCS", row: 9, col: 9 }, { color: "rgba(50, 191, 87, 0.7)" });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 9, col: 8 }, { group: "LCS", row: 9, col: 9 }, {  });
-                }
-                break;
-            case 86:
-                if (track === 0) {
-                    drawColoredText([{text: "這樣計算 LCS 就完成了"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(401);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]}], [],  "normal", 0);
-                }
-                if (track === 1) {
-                    drawColoredText([{text: "這樣計算 LCS 就完成了"}], 0, 120);
-                }
-                if (track === 1) {
-                    addEditorHighlight(406);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]}], [],  "normal", 0);
-                }
-                break;
-            case 87:
-                if (track === 0) {
-                    drawColoredText([{text: "接下來講講如何把最長共同子序列的序列都找出{來:ㄌㄞˊ}\n先把每個是因為相同字元而取左上角值加ㄧ的格子全部畫上橋\n然後從最右下角開始回朔"}], 0, 80);
-                }
-                if (track === 0) {
-                    addEditorHighlight(418);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 1) {
-                    drawColoredText([{text: "接下來講講如何把最長共同子序列的序列都找出{來:ㄌㄞˊ}\n先把每個是因為相同字元而取左上角值加ㄧ的格子全部畫上橋\n然後從最右下角開始回朔"}], 0, 80);
-                }
-                if (track === 1) {
-                    addEditorHighlight(425);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]}], [],  "normal", 0);
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                break;
-            case 88:
-                if (track === 0) {
-                    drawColoredText([{text: "字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 並且左上都ㄧ樣大\n那麼這時候dfs就會分叉成兩條路\n先往上走"}], 0, 80);
-                }
-                if (track === 0) {
-                    addEditorHighlight(76);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[10,0],[0,10]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]},{ type: "highlight", elements: [[10,10]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 9, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                break;
-            case 89:
-                if (track === 0) {
-                    drawColoredText([{text: "字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 那就{挑:ㄊㄧㄠ}大的走 這邊往上走"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(113);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[9,0],[0,10]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]},{ type: "highlight", elements: [[9,10]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 9 }, { group: "LCS", row: 7, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 9, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                break;
-            case 90:
-                if (track === 0) {
-                    drawColoredText([{text: "字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 那就{挑:ㄊㄧㄠ}大的走 這邊往上走"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(113);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[8,0],[0,10]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]},{ type: "highlight", elements: [[8,10]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 9 }, { group: "LCS", row: 6, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 9 }, { group: "LCS", row: 7, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 9, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                break;
-            case 91:
-                if (track === 0) {
-                    drawColoredText([{text: "字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 那就{挑:ㄊㄧㄠ}大的走 這邊往上走"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(113);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[7,0],[0,10]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]},{ type: "highlight", elements: [[7,10]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 9 }, { group: "LCS", row: 5, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 9 }, { group: "LCS", row: 6, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 9 }, { group: "LCS", row: 7, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 9, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                break;
-            case 92:
-                if (track === 0) {
-                    drawColoredText([{text: "遇到字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.7)"},{text: " 那就直接走左上(橋)"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(56);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[6,0],[0,10]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]},{ type: "highlight", elements: [[6,10]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 9 }, { group: "LCS", row: 5, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 9 }, { group: "LCS", row: 6, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 9 }, { group: "LCS", row: 7, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 9, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                break;
-            case 93:
-                if (track === 0) {
-                    drawColoredText([{text: "遇到字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.7)"},{text: " 那就直接走左上(橋)"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(56);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[5,0],[0,9]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]},{ type: "highlight", elements: [[5,9]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 9 }, { group: "LCS", row: 5, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 9 }, { group: "LCS", row: 6, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 9 }, { group: "LCS", row: 7, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 9, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                break;
-            case 94:
-                if (track === 0) {
-                    drawColoredText([{text: "遇到字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.7)"},{text: " 那就直接走左上(橋)"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(56);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[4,0],[0,8]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]},{ type: "highlight", elements: [[4,8]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 9 }, { group: "LCS", row: 5, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 9 }, { group: "LCS", row: 6, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 9 }, { group: "LCS", row: 7, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 9, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                break;
-            case 95:
-                if (track === 0) {
-                    drawColoredText([{text: "遇到字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.7)"},{text: " 那就直接走左上(橋)"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(56);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[3,0],[0,7]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]},{ type: "highlight", elements: [[3,7]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 9 }, { group: "LCS", row: 5, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 9 }, { group: "LCS", row: 6, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 9 }, { group: "LCS", row: 7, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 9, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                break;
-            case 96:
-                if (track === 0) {
-                    drawColoredText([{text: "遇到字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.7)"},{text: " 那就直接走左上(橋)"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(56);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[2,0],[0,6]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]},{ type: "highlight", elements: [[2,6]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 9 }, { group: "LCS", row: 5, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 9 }, { group: "LCS", row: 6, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 9 }, { group: "LCS", row: 7, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 9, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                break;
-            case 97:
-                if (track === 0) {
-                    drawText("如果儲存下來的字串跟LCS長度相同，那就算找到ㄧ組解了，把答案儲存下來", 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(26);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[1,0],[0,5]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]},{ type: "highlight", elements: [[1,5]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    addEditorHighlight(33);
-                    drawArray('ans', 0, 20, ['edcba'],  [], [0], "normal", 0, 0, [],  [],  [],  [],  []);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 9 }, { group: "LCS", row: 5, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 9 }, { group: "LCS", row: 6, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 9 }, { group: "LCS", row: 7, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 9, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 1) {
-                    drawText("如果儲存下來的字串跟LCS長度相同，那就算找到ㄧ組解了，把答案儲存下來", 0, 120);
-                }
-                if (track === 1) {
-                    addEditorHighlight(37);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[1,0],[0,5]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]},{ type: "highlight", elements: [[1,5]]}], [],  "normal", 0);
-                }
-                if (track === 1) {
-                    addEditorHighlight(44);
-                    drawArray('ans', 0, 20, ['edcba'],  [], [0], "normal", 0, 0, [],  [],  [],  [],  []);
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 6, col: 9 }, { group: "LCS", row: 5, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 7, col: 9 }, { group: "LCS", row: 6, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 8, col: 9 }, { group: "LCS", row: 7, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 9, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                break;
-            case 98:
-                if (track === 0) {
-                    drawColoredText([{text: "回到剛剛的遞迴 這次往左走"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(93);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[10,0],[0,10]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]},{ type: "highlight", elements: [[10,10]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 9, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                break;
-            case 99:
-                if (track === 0) {
-                    drawColoredText([{text: "字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 那就{挑:ㄊㄧㄠ}大的走 這邊往左走"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(133);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[10,0],[0,9]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]},{ type: "highlight", elements: [[10,9]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 8 }, { group: "LCS", row: 9, col: 7 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 9, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                break;
-            case 100:
-                if (track === 0) {
-                    drawColoredText([{text: "字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 那就{挑:ㄊㄧㄠ}大的走 這邊往左走"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(133);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[10,0],[0,8]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]},{ type: "highlight", elements: [[10,8]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 7 }, { group: "LCS", row: 9, col: 6 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 8 }, { group: "LCS", row: 9, col: 7 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 9, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                break;
-            case 101:
-                if (track === 0) {
-                    drawColoredText([{text: "字元 "},{text: "不相同", bg_color: "rgba(254, 62, 62, 0.46)"},{text: " 那就{挑:ㄊㄧㄠ}大的走 這邊往左走"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(133);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(254, 62, 62, 0.7)", elements: [[10,0],[0,7]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]},{ type: "highlight", elements: [[10,7]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 6 }, { group: "LCS", row: 9, col: 5 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 7 }, { group: "LCS", row: 9, col: 6 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 8 }, { group: "LCS", row: 9, col: 7 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 9, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                break;
-            case 102:
-                if (track === 0) {
-                    drawColoredText([{text: "遇到字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.7)"},{text: " 那就直接走左上(橋)"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(56);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[10,0],[0,6]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]},{ type: "highlight", elements: [[10,6]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 6 }, { group: "LCS", row: 9, col: 5 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 7 }, { group: "LCS", row: 9, col: 6 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 8 }, { group: "LCS", row: 9, col: 7 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 9, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                break;
-            case 103:
-                if (track === 0) {
-                    drawColoredText([{text: "遇到字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.7)"},{text: " 那就直接走左上(橋)"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(56);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[9,0],[0,5]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]},{ type: "highlight", elements: [[9,5]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 6 }, { group: "LCS", row: 9, col: 5 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 7 }, { group: "LCS", row: 9, col: 6 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 8 }, { group: "LCS", row: 9, col: 7 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 9, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                break;
-            case 104:
-                if (track === 0) {
-                    drawColoredText([{text: "遇到字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.7)"},{text: " 那就直接走左上(橋)"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(56);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[8,0],[0,4]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]},{ type: "highlight", elements: [[8,4]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 6 }, { group: "LCS", row: 9, col: 5 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 7 }, { group: "LCS", row: 9, col: 6 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 8 }, { group: "LCS", row: 9, col: 7 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 9, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                break;
-            case 105:
-                if (track === 0) {
-                    drawColoredText([{text: "遇到字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.7)"},{text: " 那就直接走左上(橋)"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(56);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[7,0],[0,3]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]},{ type: "highlight", elements: [[7,3]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 6 }, { group: "LCS", row: 9, col: 5 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 7 }, { group: "LCS", row: 9, col: 6 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 8 }, { group: "LCS", row: 9, col: 7 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 9, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                break;
-            case 106:
-                if (track === 0) {
-                    drawColoredText([{text: "遇到字元 "},{text: "相同", bg_color: "rgba(50, 191, 87, 0.7)"},{text: " 那就直接走左上(橋)"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(56);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[6,0],[0,2]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]},{ type: "highlight", elements: [[6,2]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 6 }, { group: "LCS", row: 9, col: 5 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 7 }, { group: "LCS", row: 9, col: 6 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 8 }, { group: "LCS", row: 9, col: 7 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 9, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                break;
-            case 107:
-                if (track === 0) {
-                    drawText("如果儲存下來的字串跟LCS長度相同，那就算找到ㄧ組解了，把答案儲存下來", 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(26);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[5,0],[0,1]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]},{ type: "highlight", elements: [[5,1]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    addEditorHighlight(33);
-                    drawArray('ans', 0, 20, ['abcde','edcba'],  [], [0], "normal", 0, 0, [],  [],  [],  [],  []);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 6 }, { group: "LCS", row: 9, col: 5 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 7 }, { group: "LCS", row: 9, col: 6 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 8 }, { group: "LCS", row: 9, col: 7 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 9, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 1) {
-                    drawText("如果儲存下來的字串跟LCS長度相同，那就算找到ㄧ組解了，把答案儲存下來", 0, 120);
-                }
-                if (track === 1) {
-                    addEditorHighlight(37);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "background", color: "rgba(50, 191, 87, 0.7)", elements: [[5,0],[0,1]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]},{ type: "highlight", elements: [[5,1]]}], [],  "normal", 0);
-                }
-                if (track === 1) {
-                    addEditorHighlight(44);
-                    drawArray('ans', 0, 20, ['abcde','edcba'],  [], [0], "normal", 0, 0, [],  [],  [],  [],  []);
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 9, col: 6 }, { group: "LCS", row: 9, col: 5 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 9, col: 7 }, { group: "LCS", row: 9, col: 6 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 9, col: 8 }, { group: "LCS", row: 9, col: 7 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 9, col: 8 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 9, col: 9 }, { group: "LCS", row: 8, col: 9 }, { color: "rgba(55, 210, 97, 1)" });
-                }
-                break;
-            case 108:
-                if (track === 0) {
-                    drawColoredText([{text: "這樣就找完所有的最大共同子序列了"}], 0, 120);
-                }
-                if (track === 0) {
-                    addEditorHighlight(438);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]}], [],  "normal", 0);
-                }
-                if (track === 0) {
-                    addEditorHighlight(443);
-                    drawArray('ans', 0, 20, ['abcde','edcba'],  [], [0], "normal", 0, 0, [],  [],  [],  [],  []);
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 0) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
-                }
-                if (track === 1) {
-                    drawColoredText([{text: "這樣就找完所有的最大共同子序列了"}], 0, 120);
-                }
-                if (track === 1) {
-                    addEditorHighlight(446);
-                    draw2DArray('LCS', 0, 200, [['','','e','d','c','b','a','b','c','d','e'],['','0','0','0','0','0','0','0','0','0','0'],['a','0','0','0','0','0','1','1','1','1','1'],['b','0','0','0','0','1','1','2','2','2','2'],['c','0','0','0','1','1','1','2','3','3','3'],['d','0','0','1','1','1','1','2','3','4','4'],['e','0','1','1','1','1','1','2','3','4','5'],['d','0','1','2','2','2','2','2','3','4','5'],['c','0','1','2','3','3','3','3','3','4','5'],['b','0','1','2','3','4','4','4','4','4','5'],['a','0','1','2','3','4','5','5','5','5','5']],  [{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},{ type: "background", color: "rgba(111, 161, 255, 0.7)", elements: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10]]},{ type: "CDVS", elements: [[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9],[1,10],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[10,1],[10,2],[10,3],[10,4],[10,5],[10,6],[10,7],[10,8],[10,9],[10,10]]}], [],  "normal", 0);
-                }
-                if (track === 1) {
-                    addEditorHighlight(451);
-                    drawArray('ans', 0, 20, ['abcde','edcba'],  [], [0], "normal", 0, 0, [],  [],  [],  [],  []);
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 1, col: 5 }, { group: "LCS", row: 0, col: 4 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 2, col: 4 }, { group: "LCS", row: 1, col: 3 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 2, col: 6 }, { group: "LCS", row: 1, col: 5 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 3, col: 3 }, { group: "LCS", row: 2, col: 2 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 3, col: 7 }, { group: "LCS", row: 2, col: 6 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 4, col: 2 }, { group: "LCS", row: 3, col: 1 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 4, col: 8 }, { group: "LCS", row: 3, col: 7 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 5, col: 1 }, { group: "LCS", row: 4, col: 0 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 5, col: 9 }, { group: "LCS", row: 4, col: 8 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 6, col: 2 }, { group: "LCS", row: 5, col: 1 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 6, col: 8 }, { group: "LCS", row: 5, col: 7 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 7, col: 3 }, { group: "LCS", row: 6, col: 2 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 7, col: 7 }, { group: "LCS", row: 6, col: 6 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 8, col: 4 }, { group: "LCS", row: 7, col: 3 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 8, col: 6 }, { group: "LCS", row: 7, col: 5 }, {  });
-                }
-                if (track === 1) {
-                    drawArrow({ group: "LCS", row: 9, col: 5 }, { group: "LCS", row: 8, col: 4 }, {  });
+                    drawArrow({ group: "num", index: 20 }, { group: "BIT", index: 19 }, {  });
                 }
                 break;
         }
     }
     let currentFrame = 0;
-    const totalFrames = 109;
-    const keyFrames = [0,4,13,22,31,40,49,58,67,76,85,86,87,97,97,107,107,108,108];
-    const stopFrames = [86,108];
+    const totalFrames = 20;
+    const keyFrames = [3,3,3,7,7,7,13,13,13];
+    const stopFrames = [19];
     const fastFrames = [];
-    const fastonFrames = [22,23,24,25,26,27,28,29,30];
+    const fastonFrames = [];
     const skipFrames = [];
 
     function findNextKey(frame) {
