@@ -52,11 +52,11 @@
             av.frame_draw    ("isprime" , 0,90,   isprime, {{{"highlight"},{i}},                  {{"focus"},_draw_focus},       {{"point"},{i}}, {{"mark"},AV::AtoB(0,i-1)} },                                     {1,n}, "normal", _draw_itemsPerRow, 2);
             av.key_frame_draw(  "prime" , 0,560,     prime, {{{"highlight"},_key_frame_focus},     {{"focus"},_key_frame_focus} },                                                                                   {0}  , "normal", _draw_itemsPerRow, 0);
             av.key_frame_draw("isprime" , 0,90,   isprime, {{{"highlight"},_key_frame_highlight}, {{"focus"},_draw_focus},       {{"point"},{i}}, {{"mark"},AV::AtoB(0,i-1)}, {{"background"},_key_frame_modify} }, {1,n}, "normal", _draw_itemsPerRow, 2);        
-        //    av.key_arrow(AV::relPos_to_absPos("isprime",i-1), AV::relPos_to_absPos("prime",k), 3, {{"color","rgba(13, 102, 13, 0.8)"}, {"label","×"}});
+        //    av.key_arrow(AV::relPos_to_absPos("isprime",i-1), AV::relPos_to_absPos("prime",k),  {{"color","rgba(13, 102, 13, 0.8)"}, {"label","×"}, {"width","3"}});
             int _tmp_k=0;
             for(auto&v:prime){
                 if(i*v>n)break;
-                av.key_arrow(AV::relPos_to_absPos("prime",_tmp_k), AV::relPos_to_absPos("isprime",i*v-1), 3, {{"color","rgba(51, 168, 51, 0.7)"}});
+                av.key_arrow(AV::relPos_to_absPos("prime",_tmp_k), AV::relPos_to_absPos("isprime",i*v-1), {{"color","rgba(51, 168, 51, 0.7)"}, {"width","3"}});
                 _tmp_k++;
                 if(i%v==0)break;
             }
@@ -81,8 +81,8 @@
                 av.text("因為 "+to_string(i)+"{×:乘}"+to_string(v)+"="+to_string(i*v)+"\n所以殺掉 "+to_string(i*v),0,0);
                 av.frame_draw(  "prime" , 0,560,     prime, {{{"highlight"},{k}},     {{"focus"},_key_frame_focus}},                                                                  {0}  , "normal", _draw_itemsPerRow, 0);
                 av.frame_draw("isprime" , 0,90,   isprime, {{{"highlight"},{i,i*v}}, {{"focus"},_draw_focus}, {{"point"},{i}}, {{"mark"},AV::AtoB(0,i-1)}, {{"background"},{i*v}} }, {1,n}, "normal", _draw_itemsPerRow, 2);
-                av.arrow(AV::relPos_to_absPos("isprime",i-1), AV::relPos_to_absPos("prime",k), 3, {{"color","rgba(13, 102, 13, 0.8)"}, {"label","×"}});
-                av.arrow(AV::relPos_to_absPos("prime",k), AV::relPos_to_absPos("isprime",i*v-1), 3, {{"color","rgba(51, 168, 51, 0.7)"}, {"label","="}});
+                av.arrow(AV::relPos_to_absPos("isprime",i-1), AV::relPos_to_absPos("prime",k), {{"color","rgba(13, 102, 13, 0.8)"}, {"label","×"}, {"width","3"}});
+                av.arrow(AV::relPos_to_absPos("prime",k), AV::relPos_to_absPos("isprime",i*v-1), {{"color","rgba(51, 168, 51, 0.7)"}, {"label","="}, {"width","3"}});
                 av.end_frame_draw();
                 k++;
                 if(i%v==0 && k!=prime.size()) {
@@ -90,8 +90,8 @@
                     av.colored_text({{"因為 "},{to_string(i)+"{%:能夠整除}"+to_string(v)+"=0","rgba(241, 255, 47, 0.44)"},{"\n所以後面的留著給其他人殺"}},0,0);
                     av.frame_draw(  "prime" , 0,560,     prime, {{{"highlight"},{k}},     {{"focus"},_key_frame_focus}},                                                                  {0}  , "normal", _draw_itemsPerRow, 0);
                     av.frame_draw("isprime" , 0,90,   isprime, {{{"highlight"},{i,i*prime[k]}}, {{"focus"},_draw_focus}, {{"point"},{i}}, {{"mark"},AV::AtoB(0,i-1)}, {{"background","rgba(255, 82, 82, 0.44)"},{i*prime[k]}} }, {1,n}, "normal", _draw_itemsPerRow, 2);
-                    av.arrow(AV::relPos_to_absPos("isprime",i-1), AV::relPos_to_absPos("prime",k), 3, {{"color","rgba(255, 0, 0, 0.7)"}, {"label","×"}});
-                    av.arrow(AV::relPos_to_absPos("prime",k), AV::relPos_to_absPos("isprime",i*prime[k]-1), 3, {{"color","rgba(255, 62, 62, 0.7)"}, {"label","="}});
+                    av.arrow(AV::relPos_to_absPos("isprime",i-1), AV::relPos_to_absPos("prime",k), {{"color","rgba(255, 0, 0, 0.7)"}, {"label","×"}, {"width","3"}});
+                    av.arrow(AV::relPos_to_absPos("prime",k), AV::relPos_to_absPos("isprime",i*prime[k]-1), {{"color","rgba(255, 62, 62, 0.7)"}, {"label","="}, {"width","3"}});
                     av.end_frame_draw();
                 }
                 //}
