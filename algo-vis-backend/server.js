@@ -5,7 +5,7 @@ const fs              = require('fs');
 const { spawn }       = require('child_process');
 const { performance } = require('perf_hooks');
 // [修改 1] 引入 uuid 用於產生唯一檔名
-const { v4: uuidv4 }  = require('uuid');
+const { randomUUID: uuidv4 } = require('crypto');
 
 const SAMPLE_DIR = path.join(__dirname, 'tmp', 'algorithm_sample');
 // [修改 2] 確保暫存目錄存在 (用於存放動態生成的 cpp 和 exe)
