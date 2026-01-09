@@ -3,16 +3,30 @@ services:
   # 這是你的 Node.js 程式
   backend:
     build: .
-    restart: always
+    # [安全設定 1] 自動重啟：當機或重開機後會自動爬起來
+    restart: unless-stopped
+    
+    # [安全設定 2] 資源限制：防止 C++ 編譯把伺服器操爆
+    # 注意：這能防止惡意程式耗盡資源導致你無法 SSH 進伺服器救火
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'    # 限制最多用 50% CPU (依你主機核心數調整，0.5 代表半顆核心)
+          memory: 512M    # 限制最多用 512MB RAM (編譯通常夠用，不夠可調成 1G)
+
     # 注意：這裡不需要 ports 對外暴露 3000，因為只有 Nginx 需要跟它連線
 
     # 讓後端容器的 /public 資料夾跟外面的 /public 資料夾同步
     # 這樣 C++ 產生的檔案才會出現在你電腦上，Nginx 才讀得到。
     volumes:
       - ./public:/usr/src/app/public
+
   # 這是 Nginx 伺服器
   nginx:
     image: nginx:latest
+    # [建議新增] Nginx 也要自動重啟，不然掛了網站就打不開了
+    restart: unless-stopped
+    
     ports:
       - "80:80" # 對外開放標準網頁 Port 80
     volumes:
