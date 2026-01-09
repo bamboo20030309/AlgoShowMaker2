@@ -112,12 +112,14 @@ app.post('/compile', (req, res) => {
   const uniqueId = uuidv4();
   const sourcePath = path.join(TEMP_DIR, `main_${uniqueId}.cpp`);
   const exePath    = path.join(TEMP_DIR, `main_exec_${uniqueId}`);
+  const scriptPath = path.join(TEMP_DIR, `script_${uniqueId}.js`);
 
   // [修改 4] 定義清理函式 (用於刪除暫存檔)
   const cleanup = () => {
     try {
         if (fs.existsSync(sourcePath)) fs.unlinkSync(sourcePath);
         if (fs.existsSync(exePath)) fs.unlinkSync(exePath);
+        if (fs.existsSync(scriptPath)) fs.unlinkSync(scriptPath);
         // logDebug('暫存檔清理完成');
     } catch (e) {
         logDebug('清理暫存檔失敗: ' + e.message);
@@ -183,6 +185,10 @@ app.post('/compile', (req, res) => {
     const child = spawn('sh', ['-c', ulimitCmd], {
       cwd: __dirname, // 保持原本的工作目錄
       stdio: ['pipe', 'pipe', 'pipe'],
+      env: {
+          ...process.env, // 保留原本的環境變數
+          AV_OUTPUT_FILE: scriptPath // 告訴 C++ 寫到這裡
+      }
     });
 
     let runOut = '';
@@ -264,6 +270,16 @@ app.post('/compile', (req, res) => {
         peakRssKB: peakMem.peakRssKB,
       });
 
+      // 讀取產生的 JS 檔案內容
+      let scriptContent = '';
+      try {
+          if (fs.existsSync(scriptPath)) {
+              scriptContent = fs.readFileSync(scriptPath, 'utf8');
+          }
+      } catch (err) {
+          logDebug('讀取動畫腳本失敗: ' + err.message);
+      }
+
       // [修改 5] 執行結束，無論成功失敗都清理暫存檔
       cleanup();
 
@@ -298,6 +314,8 @@ app.post('/compile', (req, res) => {
         runTime,
         memoryKB,
         debug_log: debugMessages,
+        // 把讀到的 JS 內容直接傳給前端
+        scriptContent: scriptContent
       });
     });
   });

@@ -6,13 +6,23 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include <cstdlib>
 using namespace std;
 using array_style = pair<vector<string>, vector<int>>;
 using array2D_style = pair<vector<string>, vector<pair<int,int>>>;
 
 class AV {
 public:
-    AV() : _outPath("public/code_script.js"), _frameCount(0) {}
+    AV() : _frameCount(0) {
+        // 嘗試讀取環境變數
+        const char* env_p = getenv("AV_OUTPUT_FILE");
+        if (env_p) {
+            _outPath = string(env_p);
+        } else {
+            // 本機測試時的預設值
+            _outPath = "public/code_script.js";
+        }
+    }
 
     #define draw(...)           draw_impl(__LINE__, __VA_ARGS__)
     #define frame_draw(...)     frame_draw_impl(__LINE__, __VA_ARGS__)

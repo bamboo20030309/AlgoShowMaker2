@@ -91,14 +91,14 @@ document.getElementById('runBtn').addEventListener('click', async () => {
     if (out) {
       let display = '';
 
-      // 1) 若有錯誤（TLE/OLE/MLE/RE），把錯誤訊息附加在後面（不要覆蓋掉 output）
+      // 1. 若有錯誤（TLE/OLE/MLE/RE），把錯誤訊息附加在後面（不要覆蓋掉 output）
       if (judge.kind !== 'OK') {
         const msg = (judge.message || '').trim();
         display += (msg !== '' ? msg : judge.kind);
         display += `\n`;
       }
 
-      // 2) 放已輸出內容（就算錯誤也保留）
+      // 2. 放已輸出內容（就算錯誤也保留）
       if (hasOutput) {
         display += rawOutput;
       } else {
@@ -142,6 +142,37 @@ document.getElementById('runBtn').addEventListener('click', async () => {
       }
     }
 
+    // 3. 處理後端直接回傳的動畫腳本 (Concurrency Fix)
+    if (data.scriptContent) {
+      try {
+        // (A) 使用 window.eval 確保在全域執行 (建立 CodeScript 物件)
+        window.eval(data.scriptContent);
+
+        // (B) 重置動畫狀態
+        if (window.CodeScript && window.CodeScript.reset) {
+          window.CodeScript.reset();
+        }
+
+        // (C) 呼叫 front.js 的函式來更新介面 (幀條碼、總幀數)
+        // 這些函式原本是在 reloadAfterRun 裡呼叫的
+        if (typeof initFrameInfoFromCodeScript === 'function') {
+           initFrameInfoFromCodeScript();
+        }
+        if (typeof syncCurrentFrameFromCodeScript === 'function') {
+           syncCurrentFrameFromCodeScript();
+        }
+        
+        // (D) 高亮第一行程式碼
+        if (typeof csGetCurrentLine === 'function' && typeof addEditorHighlight === 'function') {
+           addEditorHighlight(csGetCurrentLine());
+        }
+
+      } catch (e) {
+        console.error("動畫腳本執行失敗:", e);
+        if (dbg) dbg.textContent += '\n[前端錯誤] 動畫腳本執行失敗: ' + e.message;
+      }
+    }
+
   } catch (err) {
     console.log(err);
     if (out) out.textContent = 'Request 失敗：\n' + err;
@@ -153,10 +184,11 @@ document.getElementById('runBtn').addEventListener('click', async () => {
     '.tab-btn[data-tab="tab-output"]:not([style*="display: none"])'
   );
   if (btn) activateTab(btn);
-
+  /*
   // 重載動畫（重新載入 public/code_script.js）
   if (window.reloadAfterRun)
     window.reloadAfterRun();
   else
     reloadCodeScript();
+  */
 });
