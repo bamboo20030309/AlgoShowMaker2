@@ -124,6 +124,18 @@ app.post('/compile', (req, res) => {
     });
   }
 
+  // 限制程式碼長度 (例如限制 64KB)
+  if (code.length > 64 * 1024) {
+      return res.status(400).json({
+          output: '',
+          error: '程式碼過長 (超過 64KB 限制)，請精簡後再試。',
+          compileTime: null,
+          runTime: null,
+          memoryKB: null,
+          debug_log: debugMessages,
+      });
+  }
+
   // [修改 3] 使用 uuid 產生唯一 ID
   const uniqueId = uuidv4();
   const sourcePath = path.join(TEMP_DIR, `main_${uniqueId}.cpp`);
