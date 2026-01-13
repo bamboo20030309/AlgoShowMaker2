@@ -5,7 +5,7 @@ using namespace std;
 AV av;
 
 int main() {
-    int n=100;
+    int n; cin>>n;
     vector<int> isprime(n+5,1);
     vector<int> prime;
     isprime[0] = isprime[1] = 0;
