@@ -1175,51 +1175,88 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-// 讓 .io-block 內的 Ctrl+A 只選取該區塊的文字
-document.querySelectorAll('.io-block').forEach(block => {
-  // 讓 div 可以被 focus（Ctrl+A 才會進來）
-  if (!block.hasAttribute('tabindex')) {
-    block.setAttribute('tabindex', '0');
+// ==========================================
+// Ctrl+A 限制範圍功能
+// ==========================================
+
+// 定義需要限制 Ctrl+A 的區域 ID
+const restrictedIds = ['inputArea', 'outputArea', 'debugArea'];
+
+restrictedIds.forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  // 1. 讓 div/pre 等非輸入元素可以被 focus (這樣才能偵測按鍵)
+  // textarea 本身就可以 focus，不用加
+  if (el.tagName !== 'TEXTAREA' && el.tagName !== 'INPUT') {
+    el.setAttribute('tabindex', '0');
   }
 
-  block.addEventListener('keydown', e => {
-    // Ctrl+A 或 Cmd+A（Mac 也支援一下）
-    const isSelectAll =
-      (e.ctrlKey || e.metaKey) && (e.key === 'a' || e.key === 'A');
+  // 2. 監聽按鍵事件
+  el.addEventListener('keydown', function(e) {
+    // 偵測 Ctrl+A (Windows) 或 Cmd+A (Mac)
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'a' || e.key === 'A')) {
+      e.preventDefault();  // 阻止瀏覽器預設的「全選網頁」
+      e.stopPropagation(); // 阻止事件冒泡
 
-    if (!isSelectAll) return;
-
-    e.preventDefault();   // 不要讓瀏覽器選整個頁面
-
-    const sel = window.getSelection();
-    const range = document.createRange();
-
-    range.selectNodeContents(block); // 只選這個 block 裡面的所有內容
-
-    sel.removeAllRanges();
-    sel.addRange(range);
+      // A. 針對 輸入框 (Input/Textarea) 使用原生 select()
+      if (this.tagName === 'TEXTAREA' || this.tagName === 'INPUT') {
+        this.select();
+      } 
+      // B. 針對 普通文字 (pre/div) 使用 Range API 來選取
+      else {
+        const range = document.createRange();
+        range.selectNodeContents(this);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    }
   });
 });
 
 
-
-
 // 分隔線拖曳調整寬度
 (function() {
-  const divider = document.getElementById('divider'), codePanel = document.getElementById('codePanel');
+  const divider = document.getElementById('divider');
+  const codePanel = document.getElementById('codePanel');
   let dragging = false;
-  divider.addEventListener('mousedown', e => { dragging = true; document.body.style.cursor = 'col-resize'; e.preventDefault(); });
+
+  divider.addEventListener('mousedown', e => {
+    dragging = true;
+    document.body.style.cursor = 'col-resize';
+    e.preventDefault();
+    
+    // 拖曳開始時：暫時把 transition 關掉，避免卡頓
+    codePanel.style.transition = 'none';
+  });
+
   document.addEventListener('mousemove', e => {
     if (!dragging) return;
+    
     const mainRect = document.getElementById('main').getBoundingClientRect();
     let w = e.clientX - mainRect.left;
+    
+    // 限制最小與最大寬度
     w = Math.max(150, Math.min(mainRect.width - 150, w));
     codePanel.style.width = w + 'px';
 
     // 告訴 Ace Editor 重新計算尺寸
-    aceEditor.resize();
+    if (window.aceEditor) {
+      window.aceEditor.resize();
+    }
   });
-  document.addEventListener('mouseup', () => { dragging = false; document.body.style.cursor = ''; });
+
+  document.addEventListener('mouseup', () => {
+    if (dragging) {
+      dragging = false;
+      document.body.style.cursor = '';
+      
+      // 拖曳結束後：把 transition 清除 (恢復成 CSS 裡的設定)
+      // 這樣按鈕摺疊時依然會有動畫
+      codePanel.style.transition = '';
+    }
+  });
 })();
 
 // === TTS 按鈕：只控制「有聲 / 靜音」，不負責切幀 ===

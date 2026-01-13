@@ -231,29 +231,62 @@ button.auto-stepping:hover {
   gap: 4px;
   padding: 0 12px;
   height: 40px;
-  background: #f3f4f6; /* 這裡保持淺色，區隔左右兩邊 */
+  background: #f3f4f6;
   border-bottom: 1px solid #d1d5db;
 }
 
+/* 標籤按鈕本體 */
 .subTab .tab-btn {
-  position: relative;
+  position: relative; /* 為了讓 ::after 定位 */
   margin-top: 6px;
   padding: 8px 16px;
   border: none;
   background: transparent;
-  color: #666;
+  color: #6b7280;     /* 預設灰色 */
   font-weight: 600;
   font-size: 0.9rem;
   border-radius: 6px 6px 0 0;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
-.subTab .tab-btn:hover { background: #e5e7eb; color: #111; }
+/* [關鍵] 底部的藍色小線條 (預設隱藏) */
+.subTab .tab-btn::after {
+  content: "";
+  position: absolute;
+  left: 12px;         /* 兩側留點空白 */
+  right: 12px;
+  bottom: 0px;        /* 貼齊底部 */
+  height: 3px;        /* 線條厚度 */
+  border-radius: 3px; /* 圓角線條 */
+  background-color: var(--primary-blue);
+  
+  /* 動畫初始狀態：透明 + 縮短 */
+  opacity: 0;
+  transform: scaleX(0.4); 
+  transform-origin: center;
+  transition: all 0.2s ease;
+}
+
+/* Hover 狀態 */
+.subTab .tab-btn:hover {
+  background: #e5e7eb;
+  color: #111;
+}
+
+/* Active (被選中) 狀態 */
 .subTab .tab-btn.active {
   background: #ffffff;
   color: var(--primary-blue);
-  border-top: 2px solid var(--primary-blue);
+  
+  /* [移除] 之前的頂部邊框 */
+  border-top: none !important;
+}
+
+/* Active 時顯示底部藍線並展開 */
+.subTab .tab-btn.active::after {
+  opacity: 1;
+  transform: scaleX(1); /* 伸展到全長 */
 }
 
 /* 內容區 */
