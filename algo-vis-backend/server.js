@@ -358,28 +358,96 @@ setInterval(() => {
     });
 }, 60 * 60 * 1000); 
 
+
+
+const SAMPLES_DIR = path.join(__dirname, '/tmp/algorithm_sample');
+
+// 遞迴讀取目錄結構
+function getDirectoryTree(dirPath, rootPath = SAMPLES_DIR) {
+    const stats = fs.statSync(dirPath);
+    if (!stats.isDirectory()) return [];
+
+    const items = fs.readdirSync(dirPath);
+    const visibleItems = items.filter(item => !item.startsWith('.'));
+
+    const tree = visibleItems.map(item => {
+        const fullPath = path.join(dirPath, item);
+        const itemStats = fs.statSync(fullPath);
+        
+        // [關鍵修正] 計算相對於 SAMPLES_DIR 的路徑 (例如: "Graph/DFS.cpp")
+        // 並將 Windows 的反斜線 '\\' 轉為 Web 通用的正斜線 '/'
+        const relativePath = path.relative(rootPath, fullPath).split(path.sep).join('/');
+
+        if (itemStats.isDirectory()) {
+            return {
+                name: item,
+                type: 'folder',
+                path: relativePath, // 加入路徑
+                children: getDirectoryTree(fullPath, rootPath) // 遞迴
+            };
+        } else {
+            return {
+                name: item,
+                type: 'file',
+                path: relativePath  // 加入路徑
+            };
+        }
+    });
+
+    // 排序：資料夾在先
+    tree.sort((a, b) => {
+        if (a.type === b.type) return a.name.localeCompare(b.name);
+        return a.type === 'folder' ? -1 : 1;
+    });
+
+    return tree;
+}
+
 // === /api/samples 路由 ===
 app.get('/api/samples', (req, res) => {
-    if (req.query.filename) {
-        const filePath = path.join(SAMPLE_DIR, req.query.filename);
-        if (!filePath.startsWith(SAMPLE_DIR)) {
-             return res.status(403).send("Forbidden");
+    const requestedFilename = req.query.filename;
+    // === 情況 A: 讀取檔案內容 (有傳 ?filename=Graph/DFS.cpp) ===
+    if (requestedFilename) {
+        // [安全防護] 防止 Directory Traversal 攻擊 (例如傳 ../../etc/passwd)
+        // 1. 組合完整路徑
+        const safePath = path.join(SAMPLES_DIR, requestedFilename);
+        
+        // 2. 確保解析後的路徑，真的還在 SAMPLES_DIR 裡面
+        if (!safePath.startsWith(SAMPLES_DIR)) {
+            return res.status(403).send("Access Denied: Invalid file path.");
         }
-        fs.readFile(filePath, 'utf8', (err, data) => {
+
+        // 3. 檢查檔案是否存在
+        if (!fs.existsSync(safePath)) {
+            return res.status(404).send("File not found.");
+        }
+
+        // 4. 讀取並回傳文字內容
+        fs.readFile(safePath, 'utf8', (err, data) => {
             if (err) {
-                return res.status(404).send("File not found");
+                console.error(err);
+                return res.status(500).send("Error reading file.");
             }
             res.send(data);
         });
-
-    } else {
-        fs.readdir(SAMPLE_DIR, (err, files) => {
-            if (err) {
+    } 
+    
+    // === 情況 B: 獲取目錄結構 (沒傳參數) ===
+    else {
+        try {
+            // 確認根目錄存在
+            if (!fs.existsSync(SAMPLES_DIR)) {
+                // 如果資料夾不存在，先建立它以免報錯，或是回傳空陣列
+                console.warn(`Samples directory not found at: ${SAMPLES_DIR}`);
                 return res.json([]);
             }
-            const cppFiles = files.filter(f => f.endsWith('.cpp') || f.endsWith('.c'));
-            res.json(cppFiles);
-        });
+
+            const tree = getDirectoryTree(SAMPLES_DIR);
+            res.json(tree);
+        } catch (err) {
+            console.error("Error scanning directory:", err);
+            res.status(500).send("Server error scanning samples.");
+        }
     }
 });
 

@@ -635,7 +635,7 @@ pre#debugArea:focus {
   box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.15); /* 加上藍色光暈 */
 }
 
-/* --- [新增] 自訂捲軸樣式 (讓捲軸變細、變好看) --- */
+/* --- 自訂捲軸樣式 (讓捲軸變細、變好看) --- */
 textarea#inputArea::-webkit-scrollbar,
 pre#outputArea::-webkit-scrollbar,
 pre#debugArea::-webkit-scrollbar {
@@ -665,4 +665,171 @@ textarea#inputArea::-webkit-scrollbar-thumb:hover,
 pre#outputArea::-webkit-scrollbar-thumb:hover,
 pre#debugArea::-webkit-scrollbar-thumb:hover {
   background: #999;
+}
+
+/* =========================================
+    演算法範例集選單 - 綠色按鈕化
+   ========================================= */
+
+/* 1. 外層容器設定 (使用 ID 強制覆寫背景) */
+#algoSamplesBtn {
+  background-color: var(--success-green) !important;
+  border-radius: 4px;
+  margin: 0 4px;
+  padding: 0 4px; /* 稍微縮小內距，讓它緊湊一點 */
+  
+  /* 確保沒有其他干擾 */
+  border: 1px solid transparent; 
+  transition: all 0.2s ease;
+}
+
+/* 2. [新 Class] 裡面的文字樣式 */
+.algo-label {
+  color: white !important; /* 強制白色 */
+  font-weight: bold;
+  font-size: 14px;         /* 補回原本的大小設定 */
+  cursor: pointer;
+  display: block;          /* 確保撐開 */
+  padding: 5px 10px;       /* 增加一點文字周圍的空間 */
+}
+
+/* 3. Hover 滑鼠懸停效果 */
+/* 使用 ID 來鎖定，權重絕對贏過原本的 .menu-item */
+#algoSamplesBtn:hover {
+  background-color: #15803d !important; /* 深綠色背景 */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transform: translateY(-1px);
+}
+
+/* 4. 下拉選單微調 (確保選單不會因為按鈕變動而跑位) */
+#algoSamplesBtn .dropdown-content {
+  margin-top: 2px;
+  border-top: 3px solid var(--success-green); /* 加個綠色頂邊裝飾 */
+}
+
+/* =========================================
+    側邊滑出式範例面板 (Side Drawer)
+   ========================================= */
+
+#algoSidePanel {
+  position: fixed;        /* 固定在視窗上 */
+  top: 50px;              /* 避開上方導覽列 (假設 Nav 高度約 50px) */
+  left: 0;
+  bottom: 0;              /* 延伸到底部 */
+  
+  width: 300px;           /* 面板寬度，可依需求調整 */
+  background-color: #fff; /* 白底 */
+  
+  /* 陰影與邊框 */
+  border-right: 1px solid #ddd;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  
+  /* [關鍵動畫] 預設往左推 100% (隱藏) */
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  z-index: 999;           /* 確保覆蓋在 Ace Editor 之上 */
+  overflow-y: auto;       /* 內容太多時可捲動 */
+}
+
+/* 當加上 open class 時，滑出來 */
+#algoSidePanel.open {
+  transform: translateX(0);
+}
+
+/* --- 面板內部樣式 --- */
+.panel-header {
+  padding: 15px 20px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #eee;
+}
+
+.panel-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+#algoListContainer {
+  padding: 10px 0;
+}
+
+/* =========================================
+    遞迴側邊選單 (Cascading Menu)
+   ========================================= */
+
+/* 1. 選單項目 (File & Folder) */
+.algo-item {
+  position: relative;
+  padding: 8px 10px; /* 縮小一點 padding 比較像檔案列表 */
+  cursor: pointer;
+  color: #555;
+  font-size: 14px;
+  border-bottom: 1px solid transparent; /* 拿掉底線，看起來比較乾淨 */
+  
+  /* 防止文字換行 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  
+  transition: background-color 0.1s;
+}
+
+.algo-item:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+/* 2. 資料夾專屬樣式 */
+.algo-folder {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  /* 讓箭頭在最左邊 */
+}
+
+/* 資料夾左邊的小箭頭 (使用 ::before) */
+.algo-folder::before {
+  content: "▶";
+  font-size: 10px;
+  margin-right: 8px;
+  color: #999;
+  display: inline-block;
+  transition: transform 0.2s;
+  width: 12px; /* 固定寬度讓文字對齊 */
+  text-align: center;
+}
+
+/* 當資料夾被打開時 (加上 .expanded class) */
+.algo-folder.expanded::before {
+  transform: rotate(90deg); /* 箭頭轉向 */
+  color: #555;
+}
+
+/* 3. 子選單容器 (Submenu) */
+.algo-submenu {
+  display: none; /* 預設隱藏 */
+  padding-left: 20px; /* [關鍵] 往內縮排，營造階層感 */
+  border-left: 1px solid #eee; /* 左邊加條細線輔助視覺 */
+  margin-left: 5px;
+}
+
+/* 當資料夾打開時，顯示子選單 */
+.algo-folder.expanded + .algo-submenu {
+  display: block;
+  /* 可以加個簡單的進場動畫 */
+  animation: expandDown 0.2s ease;
+}
+
+@keyframes expandDown {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 4. 檔案圖示 (選用) */
+.algo-file::before {
+  content: "📄"; 
+  font-size: 12px;
+  margin-right: 6px;
+  opacity: 0.7;
 }

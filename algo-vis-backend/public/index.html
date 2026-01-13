@@ -5,16 +5,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>AlgoShowMaker</title>
   <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 <body>
   <nav id="top-bar">
     <div class="menu-brand">AlgoShowMaker</div>
     
-    <div class="menu-item">
-      <span class="menu-label">演算法範例集</span>
-      <div class="dropdown-content" id="algoListDropdown">
-        <div class="dropdown-item disabled">載入中...</div>
-      </div>
+    <div class="menu-item" id="algoSamplesBtn">
+      <span class="algo-label">演算法範例集</span>
     </div>
 
     <div class="menu-item">
@@ -144,6 +142,15 @@
         <span id="toggleAuthModeText">還沒有帳號？</span>
         <a href="#" id="toggleAuthModeBtn">建立帳號</a>
       </div>
+    </div>
+  </div>
+
+  <div id="algoSidePanel">
+    <div class="panel-header">
+        <h3>📚 演算法範例</h3>
+        </div>
+    <div id="algoListContainer">
+        <div class="loading-text">載入中...</div>
     </div>
   </div>
 

@@ -1242,8 +1242,8 @@ restrictedIds.forEach(id => {
     codePanel.style.width = w + 'px';
 
     // 告訴 Ace Editor 重新計算尺寸
-    if (window.aceEditor) {
-      window.aceEditor.resize();
+    if (aceEditor) {
+      aceEditor.resize();
     }
   });
 
@@ -1289,7 +1289,7 @@ restrictedIds.forEach(id => {
 
 document.addEventListener('DOMContentLoaded', () => {
   initTopMenuBar();
-  fetchAlgorithmSamples();
+//  fetchAlgorithmSamples();
 });
 
 function initTopMenuBar() {
@@ -1337,6 +1337,7 @@ function initTopMenuBar() {
  * 假設後端 API: GET /api/samples
  * 回傳格式: ["bfs.cpp", "dfs.cpp", "segment_tree.cpp"]
  */
+/*
 async function fetchAlgorithmSamples() {
   const dropdown = document.getElementById('algoListDropdown');
   
@@ -1381,11 +1382,12 @@ async function fetchAlgorithmSamples() {
     dropdown.appendChild(defaultItem);
   }
 }
-
+*/
 /**
  * 載入特定範例檔案內容
  * 假設後端 API: GET /api/samples?filename=xxx.cpp
  */
+/*
 async function loadSampleCode(filename) {
   try {
     const res = await fetch(`/api/samples?filename=${encodeURIComponent(filename)}`);
@@ -1402,6 +1404,7 @@ async function loadSampleCode(filename) {
     alert(`載入範例失敗: ${e.message}`);
   }
 }
+*/
 
 // ==========================================
 // 登入/註冊 模態視窗控制邏輯
@@ -1513,9 +1516,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // 3. [重要] 通知 Ace Editor 重新計算大小
             // 因為寬度變了，如果不 resize，編輯器文字可能會被切掉或游標錯位
-            if (window.aceEditor) {
+            if (aceEditor) {
                 setTimeout(() => {
-                    window.aceEditor.resize();
+                    aceEditor.resize();
                 }, 310); // 配合 CSS transition 0.3s，稍等一下再 resize
             }
         };
@@ -1670,6 +1673,194 @@ document.addEventListener('keydown', function(e) {
             // 按鈕視覺回饋 (縮一下)
             runBtn.style.transform = "scale(0.95)";
             setTimeout(() => runBtn.style.transform = "", 100);
+        }
+    }
+});
+
+// ==========================================
+//  演算法範例集 - 側邊滑出面板邏輯
+// ==========================================
+document.addEventListener('DOMContentLoaded', function() {
+    
+    const algoBtn = document.getElementById('algoSamplesBtn');
+    const sidePanel = document.getElementById('algoSidePanel');
+    const listContainer = document.getElementById('algoListContainer');
+    
+    let isSamplesLoaded = false; // 避免重複 fetch
+
+    // 1. 按鈕點擊事件：切換面板開關
+    if (algoBtn && sidePanel) {
+        algoBtn.addEventListener('click', function(e) {
+            e.stopPropagation(); // 阻止事件冒泡
+            
+            // 切換 open class
+            sidePanel.classList.toggle('open');
+            
+            // 根據面板狀態改變按鈕外觀 (選用)
+            if (sidePanel.classList.contains('open')) {
+                // 如果還沒載入過資料，就去抓
+                if (!isSamplesLoaded) {
+                    fetchAlgoSamples();
+                }
+            }
+        });
+
+        // 點擊面板內部不要關閉
+        sidePanel.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+
+        // 點擊網頁其他地方關閉面板 (提升 UX)
+        document.addEventListener('click', function() {
+            sidePanel.classList.remove('open');
+        });
+    }
+
+    // 2. 從後端抓取範例列表
+    async function fetchAlgoSamples() {
+        try {
+            // 呼叫後端 API
+            const res = await fetch('/api/samples'); 
+            
+            if (!res.ok) throw new Error('無法載入範例');
+            
+            // 預期回傳樹狀 JSON 結構
+            // 範例: [{ name: "Sort", type: "folder", children: [...] }, { name: "test.cpp", type: "file" }]
+            const data = await res.json();
+            
+            listContainer.innerHTML = ''; // 清空載入中...
+            
+            if (!data || data.length === 0) {
+                listContainer.innerHTML = '<div class="loading-text">沒有可用的範例</div>';
+                return;
+            }
+
+            // [關鍵] 開始遞迴渲染
+            const menuTree = createRecursiveMenu(data);
+            listContainer.appendChild(menuTree);
+
+            isSamplesLoaded = true;
+            
+        } catch (err) {
+            console.error(err);
+            listContainer.innerHTML = `<div class="loading-text" style="color:red;">載入失敗<br>${err.message}</div>`;
+        }
+    }
+    /**
+     * [新增] 遞迴建立選單 DOM 的函式
+     * @param {Array} items - 包含檔案或資料夾物件的陣列
+     * @returns {HTMLElement} - 包含所有項目的 DocumentFragment 或容器
+     */
+    // [修正] 遞迴建立選單 DOM
+    function createRecursiveMenu(items) {
+        const fragment = document.createDocumentFragment();
+
+        // 1. 尋找當前層級是否有主要代碼檔
+        const codeFile = items.find(item => 
+            item.type === 'file' && /\.(cpp|c|js|py)$/i.test(item.name)
+        );
+        const parentCodePath = codeFile ? codeFile.path : null;
+
+        items.forEach(item => {
+            // === 情況 A: 資料夾 (Folder) ===
+            if (item.type === 'folder') {
+                // 1. 資料夾標題列
+                const folderDiv = document.createElement('div');
+                folderDiv.className = 'algo-item algo-folder';
+                
+                // 檔名
+                const textSpan = document.createElement('span');
+                textSpan.textContent = item.name;
+                folderDiv.appendChild(textSpan);
+
+                // 2. 子選單容器 (預設隱藏，不放在 folderDiv 裡面，而是放在它下面)
+                const subMenuDiv = document.createElement('div');
+                subMenuDiv.className = 'algo-submenu';
+                
+                if (item.children && item.children.length > 0) {
+                    const childNodes = createRecursiveMenu(item.children);
+                    subMenuDiv.appendChild(childNodes);
+                }
+
+                // 3. 綁定點擊事件：切換展開/收合
+                folderDiv.addEventListener('click', (e) => {
+                    e.stopPropagation(); // 阻止冒泡
+                    // 切換 expanded class，CSS 會負責顯示/隱藏 sibling (.algo-submenu)
+                    folderDiv.classList.toggle('expanded');
+                });
+
+                fragment.appendChild(folderDiv);
+                fragment.appendChild(subMenuDiv);
+            } 
+            // === 情況 B: 檔案 (File) ===
+            else {
+                const fileDiv = document.createElement('div');
+                fileDiv.className = 'algo-item algo-file';
+                fileDiv.textContent = item.name; 
+                fileDiv.title = item.path;
+
+                fileDiv.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+
+                    // 邏輯同前：連動載入
+                    if (/\.txt$/i.test(item.name) && parentCodePath) {
+                        await loadSampleData(parentCodePath, item.path);
+                    } else {
+                        // 如果是點擊 .cpp 或其他，就載入它自己
+                        await loadSampleData(item.path, null);
+                    }
+                    
+                    // 點擊檔案後，關閉整個側邊面板 (或選擇不關閉，看你習慣)
+                    // sidePanel.classList.remove('open'); 
+                });
+
+                fragment.appendChild(fileDiv);
+            }
+        });
+
+        return fragment;
+    }
+
+    /**
+     * [修正] 載入範例資料 (支援 Code 和 Input)
+     * @param {String} codePath - 程式碼路徑 (例如 "Graph/DFS.cpp")
+     * @param {String} inputPath - 測資路徑 (例如 "Graph/test1.txt")
+     */
+    async function loadSampleData(codePath, inputPath) {
+        try {
+            // 1. 載入程式碼
+            if (codePath) {
+                if(aceEditor) aceEditor.setValue("// 讀取中...", -1);
+                
+                const res = await fetch(`/api/samples?filename=${encodeURIComponent(codePath)}`);
+                if (!res.ok) throw new Error(`無法讀取程式碼: ${codePath}`);
+                const codeText = await res.text();
+                
+                if(aceEditor) {
+                    aceEditor.setValue(codeText, 1);
+                    // 如果有摺疊功能，嘗試摺疊
+                    if (typeof foldDrawBlocks === 'function') setTimeout(foldDrawBlocks, 100);
+                }
+            }
+
+            // 2. 載入測資 (如果有)
+            const inputArea = document.getElementById('inputArea');
+            if (inputPath && inputArea) {
+                inputArea.value = "(讀取測資中...)";
+                
+                const res = await fetch(`/api/samples?filename=${encodeURIComponent(inputPath)}`);
+                if (!res.ok) throw new Error(`無法讀取測資: ${inputPath}`);
+                const inputText = await res.text();
+                
+                inputArea.value = inputText;
+            } else if (inputArea && !inputPath) {
+                // 如果只點了程式碼，是否要清空輸入區？看需求，這裡先不清空
+                // inputArea.value = ""; 
+            }
+
+        } catch (err) {
+            console.error(err);
+            alert("載入失敗: " + err.message);
         }
     }
 });
