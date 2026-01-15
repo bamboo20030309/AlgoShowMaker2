@@ -4,6 +4,7 @@
 node_modules/
 dist/
 build/
+.env
 
 # =========================
 # IDE / Editor
@@ -20,6 +21,5 @@ Thumbs.db
 #==========================
 # build outputs
 #==========================
-algo-vis-backend/public/code_script.js
 dist/
 build/

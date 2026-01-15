@@ -1,23 +1,38 @@
 // server.js
+require('dotenv').config();
 const express                = require('express');
 const path                   = require('path');
 const fs                     = require('fs');
 const { spawn }              = require('child_process');
 const { performance }        = require('perf_hooks');
-const mongoose               = require('mongoose');
 //引入 crypto uuid
 const { randomUUID: uuidv4 } = require('crypto');
 const rateLimit              = require('express-rate-limit');
 
+const mongoose               = require('mongoose');
+const bcrypt                 = require('bcryptjs');
+const jwt                    = require('jsonwebtoken');
+
+// 優先讀取環境變數，如果沒讀到才用後面的預設值
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key';
 
 // 設定連線字串
 // Docker 會自動幫你把 'mongo' 解析成該容器的 IP 位址。
-const MONGO_URI = 'mongodb://mongo:27017/algo_vis_db';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/algo_vis_db';
 
 // 開始連線
 mongoose.connect(MONGO_URI)
   .then(() => console.log('MongoDB 連線成功！'))
   .catch(err => console.error('MongoDB 連線失敗:', err));
+
+// User Schema
+const UserSchema = new mongoose.Schema({
+    username: { type: String, required: true, unique: true }, // 帳號 (唯一)
+    password: { type: String, required: true },               // 密碼 (加密後)
+    created_at: { type: Date, default: Date.now }
+});
+
+const User = mongoose.model('User', UserSchema);
 
 const BLACKLIST_KEYWORDS = [
     // 1. 執行與程序控制
@@ -81,6 +96,100 @@ function logDebug(msg, extra = {}) {
 // 設定中間件
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json({ limit: '5mb' }));
+
+// ==========================================
+// 會員系統 API
+// ==========================================
+
+// 1. 註冊 (Register)
+app.post('/api/auth/register', async (req, res) => {
+    const { username, password } = req.body;
+
+    // 簡單驗證
+    if (!username || !password) {
+        return res.status(400).json({ error: '請輸入帳號和密碼' });
+    }
+
+    try {
+        // 檢查帳號是否已存在
+        const existingUser = await User.findOne({ username });
+        if (existingUser) {
+            return res.status(400).json({ error: '此帳號已被註冊' });
+        }
+
+        // 密碼加密！ (Salt Rounds = 10)
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // 建立新用戶
+        const newUser = await User.create({
+            username,
+            password: hashedPassword
+        });
+
+        res.json({ success: true, message: '註冊成功！', user_uid: newUser._id });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: '伺服器錯誤' });
+    }
+});
+
+// 2. 登入 (Login)
+app.post('/api/auth/login', async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+        // 找用戶
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(400).json({ error: '帳號或密碼錯誤' });
+        }
+
+        // 比對密碼 (將輸入的密碼加密後跟資料庫的比對)
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ error: '帳號或密碼錯誤' });
+        }
+
+        // 發放 JWT 通行證
+        // 裡面藏了 user_id，有效期限 1 天
+        const token = jwt.sign(
+            { id: user._id, username: user.username },
+            JWT_SECRET,
+            { expiresIn: '1d' }
+        );
+
+        res.json({ success: true, token, username: user.username });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: '伺服器錯誤' });
+    }
+});
+
+// 3. 驗證身分的中間件 (Middleware)
+// 用來保護需要登入才能使用的路由
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    // 格式通常是: "Bearer <token>"
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) return res.status(401).json({ error: '請先登入' });
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) return res.status(403).json({ error: '憑證無效或過期' });
+        
+        // 驗證成功，把用戶資料掛在 req 上，後面的路由就可以用了
+        req.user = user; 
+        next();
+    });
+};
+
+// 範例：取得目前登入使用者的資訊 (受保護路由)
+app.get('/api/auth/me', authenticateToken, (req, res) => {
+    res.json({ 
+        message: '驗證成功', 
+        user: req.user 
+    });
+});
 
 /**
  * 讀取 Linux /proc/<pid>/status
@@ -443,7 +552,7 @@ function getDirectoryTree(dirPath, rootPath = SAMPLES_DIR) {
         const fullPath = path.join(dirPath, item);
         const itemStats = fs.statSync(fullPath);
         
-        // [關鍵修正] 計算相對於 SAMPLES_DIR 的路徑 (例如: "Graph/DFS.cpp")
+        // 計算相對於 SAMPLES_DIR 的路徑 (例如: "Graph/DFS.cpp")
         // 並將 Windows 的反斜線 '\\' 轉為 Web 通用的正斜線 '/'
         const relativePath = path.relative(rootPath, fullPath).split(path.sep).join('/');
 

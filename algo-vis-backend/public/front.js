@@ -1332,80 +1332,6 @@ function initTopMenuBar() {
   }
 }
 
-/**
- * 從後端獲取演算法範例列表
- * 假設後端 API: GET /api/samples
- * 回傳格式: ["bfs.cpp", "dfs.cpp", "segment_tree.cpp"]
- */
-/*
-async function fetchAlgorithmSamples() {
-  const dropdown = document.getElementById('algoListDropdown');
-  
-  try {
-    // 這裡需要你的後端支援，目前先用 fetch 模擬
-    // 如果後端還沒寫好，你可以先用假資料測試：
-    // const files = ["test_algo.cpp", "demo_sort.cpp"]; 
-    const res = await fetch('/api/samples'); // 向後端請求
-    if (!res.ok) throw new Error("API request failed");
-    
-    const files = await res.json(); 
-
-    dropdown.innerHTML = ''; // 清空 "載入中..."
-
-    if (files.length === 0) {
-      dropdown.innerHTML = '<div class="dropdown-item disabled">無範例檔案</div>';
-      return;
-    }
-
-    files.forEach(filename => {
-      const item = document.createElement('div');
-      item.className = 'dropdown-item';
-      item.textContent = filename;
-      item.onclick = () => loadSampleCode(filename);
-      dropdown.appendChild(item);
-    });
-
-  } catch (e) {
-    console.error("無法載入範例列表:", e);
-    dropdown.innerHTML = '<div class="dropdown-item disabled">載入失敗 (需後端 API)</div>';
-    
-    // Fallback: 加入原本的 sample 作為選項
-    const defaultItem = document.createElement('div');
-    defaultItem.className = 'dropdown-item';
-    defaultItem.textContent = "預設範例 (Default)";
-    defaultItem.onclick = () => {
-       fetch('sample_code.cpp').then(r=>r.text()).then(c => {
-         aceEditor.setValue(c, -1);
-         setTimeout(foldDrawBlocks, 100);
-       });
-    };
-    dropdown.appendChild(defaultItem);
-  }
-}
-*/
-/**
- * 載入特定範例檔案內容
- * 假設後端 API: GET /api/samples?filename=xxx.cpp
- */
-/*
-async function loadSampleCode(filename) {
-  try {
-    const res = await fetch(`/api/samples?filename=${encodeURIComponent(filename)}`);
-    if (!res.ok) throw new Error("無法讀取檔案");
-    
-    const code = await res.text();
-    aceEditor.setValue(code, -1); // -1 游標回到開頭
-    
-    // 自動摺疊 draw 區塊
-    setTimeout(foldDrawBlocks, 100);
-    isFold = true; // 重置摺疊狀態標記
-
-  } catch (e) {
-    alert(`載入範例失敗: ${e.message}`);
-  }
-}
-*/
-
 // ==========================================
 // 登入/註冊 模態視窗控制邏輯
 // ==========================================
@@ -1453,7 +1379,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if(isLoginMode) {
                 // 切換回登入模式 UI
-                modalTitle.innerText = "會員登入";
+                modalTitle.innerText = "登入";
                 actionBtn.innerText = "登入";
                 toggleText.innerText = "還沒有帳號？";
                 toggleBtn.innerText = "建立帳號";
@@ -1468,26 +1394,100 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // 5. 處理表單送出 (目前僅做前端演示，防止頁面刷新)
+    // [修改] 處理表單送出 (串接後端 API)
     if (authForm) {
-        authForm.onsubmit = function(e) {
-            e.preventDefault(); // 阻止表單預設提交(會重整頁面)
-            
+        authForm.onsubmit = async function(e) {
+            e.preventDefault(); // 阻止表單預設提交
+
             const usernameInput = document.getElementById("usernameInput");
             const passwordInput = document.getElementById("passwordInput");
             const username = usernameInput ? usernameInput.value : "";
+            const password = passwordInput ? passwordInput.value : "";
+
+            // 1. 準備 API 路徑
+            const apiPath = isLoginMode ? '/api/auth/login' : '/api/auth/register';
             
-            if (isLoginMode) {
-                console.log("執行登入動作:", username);
-                alert(`[前端演示] 正在嘗試登入帳號：${username}\n(後端 API 尚未串接)`);
-            } else {
-                console.log("執行註冊動作:", username);
-                alert(`[前端演示] 正在嘗試註冊帳號：${username}\n(後端 API 尚未串接)`);
+            // 2. 顯示 loading 狀態 (選用)
+            const submitBtn = document.getElementById("authActionBtn");
+            const originalBtnText = submitBtn.innerText;
+            submitBtn.innerText = "處理中...";
+            submitBtn.disabled = true;
+
+            try {
+                // 3. 發送請求給後端
+                const res = await fetch(apiPath, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    // 失敗：顯示後端回傳的錯誤訊息
+                    throw new Error(data.error || '操作失敗');
+                }
+
+                // 4. 成功後的處理
+                if (isLoginMode) {
+                    // --- 登入成功 ---
+                    alert(`登入成功！歡迎回來，${data.username}`);
+                    
+                    // 把 JWT Token 存起來！以後發請求都要帶這張票
+                    localStorage.setItem('algo_jwt_token', data.token);
+                    localStorage.setItem('algo_username', data.username);
+                    
+                    // 更新 UI：例如把「登入」按鈕改成「使用者名稱」
+                    updateUserUI(data.username);
+
+                    // 關閉視窗
+                    loginModal.style.display = "none";
+                } else {
+                    // --- 註冊成功 ---
+                    alert('註冊成功！請直接登入。');
+                    // 自動切換到登入模式，方便使用者體驗
+                    document.getElementById("toggleAuthModeBtn").click();
+                    // 幫他填好帳號
+                    usernameInput.value = username;
+                    passwordInput.value = ""; 
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert(`錯誤: ${err.message}`);
+            } finally {
+                // 5. 恢復按鈕狀態
+                submitBtn.innerText = originalBtnText;
+                submitBtn.disabled = false;
             }
-            
-            // 若要測試成功後自動關閉視窗，可解開下面這行：
-            // loginModal.style.display = "none";
         };
     }
+
+    // 一個簡單的函式來更新介面狀態
+    function updateUserUI(username) {
+        const loginBtn = document.getElementById("loginTriggerBtn");
+        if (loginBtn && username) {
+            loginBtn.innerText = `👤 ${username}`;
+            // 你也可以在這裡移除 click 事件，改成「登出」邏輯
+            loginBtn.onclick = function() {
+                if(confirm("確定要登出嗎？")) {
+                    localStorage.removeItem('algo_jwt_token');
+                    localStorage.removeItem('algo_username');
+                    window.location.reload(); // 簡單暴力重整
+                }
+            };
+            // 標記為已登入樣式
+            loginBtn.classList.add('logged-in');
+        }
+    }
+
+    // 頁面載入時，檢查有沒有存過 Token
+    document.addEventListener('DOMContentLoaded', () => {
+        const storedUser = localStorage.getItem('algo_username');
+        if (storedUser) {
+            updateUserUI(storedUser);
+        }
+    });
 });
 
 // ==========================================

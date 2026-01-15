@@ -13,6 +13,9 @@ services:
   # 這是你的 Node.js 程式
   backend:
     build: .
+    # 載入環境變數檔案
+    env_file:
+      - .env
     # 自動重啟：當機或重開機後會自動爬起來
     restart: unless-stopped
 
