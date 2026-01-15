@@ -1486,11 +1486,28 @@ document.addEventListener('DOMContentLoaded', function() {
             const usernameInput = document.getElementById("usernameInput");
             const passwordInput = document.getElementById("passwordInput");
             const username = usernameInput ? usernameInput.value.trim() : "";
-            const password = passwordInput ? passwordInput.value.trim() : "";
+            const password = passwordInput ? passwordInput.value.trim() : ""; 
 
             if (!username || !password) {
                 showMsg("請輸入帳號與密碼", "error");
                 return;
+            }
+
+            // 前端預先檢查 
+            if (isLoginMode === false) { // 只有「註冊模式」才嚴格檢查，登入時隨便他打，反正錯了後端會擋
+                
+                // 檢查 Email 格式
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(username)) {
+                    showMsg("請輸入有效的 Email 地址", "error");
+                    return; // 直接中斷，不發送請求給後端
+                }
+
+                // 檢查密碼長度
+                if (password.length < 8) {
+                    showMsg("密碼長度至少需 8 個字元", "error");
+                    return;
+                }
             }
 
             const apiPath = isLoginMode ? '/api/auth/login' : '/api/auth/register';
@@ -1548,11 +1565,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// --- [UI 更新函式] ---
+// UI 更新函式]
 function updateUserUI(username) {
     const loginBtn = document.getElementById("loginTriggerBtn");
     if (loginBtn && username) {
-        loginBtn.innerText = `👤 ${username}`;
+        loginBtn.innerText = `  ${username}`;
         loginBtn.classList.add('logged-in'); 
         
         // 關鍵：將點擊事件指向我們剛剛定義的 handleLoginBtnClick

@@ -110,6 +110,20 @@ app.post('/api/auth/register', async (req, res) => {
         return res.status(400).json({ error: '請輸入帳號和密碼' });
     }
 
+    // 檢查長度 (例如：帳號至少 5 碼，密碼至少 8 碼)
+    if (username.length < 5) {
+        return res.status(400).json({ error: '帳號長度過短 (至少需 5 個字元)' });
+    }
+    if (password.length < 8) {
+        return res.status(400).json({ error: '密碼長度過短 (至少需 8 個字元)' });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(username)) {
+        return res.status(400).json({ error: '帳號格式錯誤，請使用有效的 Email (例如: user@gmail.com)' });
+    }
+
     try {
         // 檢查帳號是否已存在
         const existingUser = await User.findOne({ username });
