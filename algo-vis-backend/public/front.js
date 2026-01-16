@@ -1148,6 +1148,33 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleBtn.onclick = togglePlay;
   }
 
+  // === [修正] TTS 按鈕邏輯：防止跳幀 ===
+  // 必須放在 DOMContentLoaded 內，才能存取到 isPlaying 變數
+  const ttsBtn = document.getElementById('ttsAvBtn');
+  if (ttsBtn) {
+    // 初始化按鈕狀態 (預設是靜音)
+    ttsBtn.textContent = TTS_ENABLED ? "🔊" : "🔇";
+    ttsBtn.classList.toggle('active', TTS_ENABLED);
+
+    ttsBtn.onclick = () => {
+       // 1. 切換開關變數
+       TTS_ENABLED = !TTS_ENABLED;
+
+       // 2. 更新按鈕外觀 (顏色 + 圖示)
+       ttsBtn.classList.toggle('active', TTS_ENABLED);
+       ttsBtn.textContent = TTS_ENABLED ? "🔊" : "🔇";
+
+       // 3. 靜音處理 (防跳幀核心邏輯)
+       if (!TTS_ENABLED) {
+         // 只有在「非播放中」的狀態下，才強制中斷聲音
+         // 如果正在播放 (isPlaying)，就讓它把這句講完，下一句會自動變靜音
+         if (!isPlaying) {
+            try { window.speechSynthesis.cancel(); } catch {}
+         }
+       }
+    };
+  }
+
   // 只收集「訊息文字」：drawText / drawColoredText 產生的文字
   function collectMessageTextInCurrentFrame() {
     const vp = window.getViewport && window.getViewport();
@@ -1259,6 +1286,7 @@ restrictedIds.forEach(id => {
   });
 })();
 
+/*
 // === TTS 按鈕：只控制「有聲 / 靜音」，不負責切幀 ===
 (function () {
   function bindTTSToggleButton() {
@@ -1284,6 +1312,7 @@ restrictedIds.forEach(id => {
     bindTTSToggleButton();
   }
 })();
+*/
 
 // front.js - 頂部選單擴充邏輯
 
