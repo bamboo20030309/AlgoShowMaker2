@@ -1350,8 +1350,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 取得要隱藏/顯示的區塊
     // 假設你的 HTML 結構是 .form-group 包住 label 和 input
-    const formGroups = document.querySelectorAll(".form-group"); 
-    const modalFooter = document.querySelector(".modal-footer"); 
+    const formGroups = loginModal.querySelectorAll(".form-group"); 
+    const modalFooter = loginModal.querySelector(".modal-footer");
 
     // --- 2. 狀態變數 ---
     let isLoginMode = true;   // 登入模式
@@ -1493,7 +1493,8 @@ document.addEventListener('DOMContentLoaded', function() {
         closeSpan.onclick = function() { loginModal.style.display = "none"; };
     }
     window.onclick = function(event) {
-        if (event.target == loginModal) loginModal.style.display = "none";
+        if (event.target == loginModal)   loginModal.style.display = "none";
+        if (event.target == saveModal)    saveModal.style.display = "none";
     };
 
     // (C) 忘記密碼按鈕
@@ -1664,6 +1665,278 @@ document.addEventListener('DOMContentLoaded', function() {
             } finally {
                 actionBtn.innerText = originalBtnText;
                 actionBtn.disabled = false;
+            }
+        };
+    }
+
+    // ==========================================
+    // [新增] 存取程式碼功能邏輯
+    // ==========================================
+    
+    // DOM 元素
+    const saveModal = document.getElementById("saveCodeModal");
+    const myCodesModal = document.getElementById("myCodesModal");
+    const openSaveBtn = document.getElementById("openSaveModalBtn");
+    const openMyCodesBtn = document.getElementById("openMyCodesBtn");
+    const closeSaveBtn = document.getElementById("closeSaveModal");
+    const closeMyCodesBtn = document.getElementById("closeMyCodesModal");
+    const saveForm = document.getElementById("saveCodeForm");
+    const myCodesList = document.getElementById("myCodesList");
+
+    // --- [工具] 顯示儲存視窗內的訊息 ---
+    function showSaveMsg(msg, type = 'error') {
+        const msgDiv = document.getElementById("saveMessage");
+        if (msgDiv) {
+            msgDiv.textContent = msg;
+            msgDiv.className = type; // 切換 class (success / error)
+        }
+    }
+
+    // --- [工具] 顯示全域浮動通知 (Toast) ---
+    function showToast(msg, type = 'info') {
+        // 1. 確保容器存在
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            document.body.appendChild(container);
+        }
+
+        // 2. 建立通知元素
+        const toast = document.createElement('div');
+        toast.className = `toast-msg ${type}`;
+        toast.innerText = msg;
+
+        // 3. 加入畫面
+        container.appendChild(toast);
+
+        // 4. 動畫結束後移除元素 (配合 CSS animation 3s)
+        setTimeout(() => {
+            if(container.contains(toast)) container.removeChild(toast);
+        }, 3500);
+    }
+
+    // --- 1. 儲存程式碼 ---
+    
+    if(openSaveBtn) {
+        openSaveBtn.onclick = function(e) {
+            e.preventDefault();
+            // 檢查是否登入
+            if (!localStorage.getItem('algo_username')) {
+                showToast("請先登入會員才能儲存程式碼", "warning");
+                // 自動打開登入窗
+                const loginBtn = document.getElementById("loginTriggerBtn");
+                if(loginBtn) loginBtn.click();
+                return;
+            }
+            // 清空舊訊息
+            showSaveMsg("", ""); 
+            document.getElementById("saveMessage").style.display = "none";
+            
+            saveModal.style.display = "block";
+            document.getElementById("saveLangSelect").value = "cpp"; 
+        };
+    }
+    if(closeSaveBtn) closeSaveBtn.onclick = () => saveModal.style.display = "none";
+
+    if(saveForm) {
+        saveForm.onsubmit = async function(e) {
+            e.preventDefault();
+            
+            // 1. 初始化介面狀態
+            showSaveMsg("", ""); // 清除舊訊息
+            document.getElementById("saveMessage").style.display = "none";
+
+            const title = document.getElementById("saveTitleInput").value;
+            const desc = document.getElementById("saveDescInput").value;
+            const language = document.getElementById("saveLangSelect").value;
+            const saveInput = document.getElementById("saveInputCheckbox").checked;
+            
+            const content = aceEditor ? aceEditor.getValue() : "";
+            const inputData = (saveInput && document.getElementById("inputArea")) 
+                              ? document.getElementById("inputArea").value 
+                              : "";
+            
+            const token = localStorage.getItem('algo_jwt_token');
+
+            // 取得按鈕並鎖定
+            const submitBtn = saveForm.querySelector("button");
+            const originalText = "確認儲存"; // 記住原本的文字
+            submitBtn.innerText = "⏳ 儲存中...";
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = "0.7";
+
+            try {
+                // 2. 發送 API 請求
+                const res = await fetch('/api/codes', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        title, desc, language, content,
+                        inputs: inputData ? [inputData] : [] 
+                    })
+                });
+
+                const data = await res.json();
+                if(!res.ok) throw new Error(data.error || "儲存失敗");
+
+                // 3. [成功狀態] 
+                // (A) 顯示綠色訊息框
+                showSaveMsg("✅ 儲存成功！", "success");
+                
+                // (B) 按鈕也變成綠色成功狀態 (雙重回饋)
+                submitBtn.innerText = "✔ 儲存成功";
+                submitBtn.style.backgroundColor = "#198754"; // 變深綠色
+                
+                // (C) 1.5 秒後關閉視窗 (比原本 1 秒長一點，讓你看清楚)
+                setTimeout(() => {
+                    saveModal.style.display = "none";
+                    
+                    // 重置表單與按鈕
+                    document.getElementById("saveTitleInput").value = "";
+                    document.getElementById("saveDescInput").value = "";
+                    submitBtn.innerText = originalText;
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = "1";
+                    submitBtn.style.backgroundColor = ""; // 恢復原本顏色
+                    document.getElementById("saveMessage").style.display = "none"; // 隱藏訊息
+                    
+                    // (選用) 可以在右上角補一個小小的 Toast 再次提醒
+                    if(typeof showToast === 'function') showToast(`已儲存：${title}`, "success");
+                    
+                }, 1500);
+
+            } catch(err) {
+                // 4. [失敗狀態]
+                showSaveMsg("❌ " + err.message, "error");
+                
+                // 恢復按鈕讓使用者可以重試
+                submitBtn.innerText = "再試一次";
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = "1";
+            }
+        };
+    }
+
+    // --- 2. 我的程式碼 (讀取) ---
+
+    if(openMyCodesBtn) {
+        openMyCodesBtn.onclick = function(e) {
+            e.preventDefault();
+            if (!localStorage.getItem('algo_username')) {
+                showToast("請先登入會員才能查看程式碼", "warning");
+                const loginBtn = document.getElementById("loginTriggerBtn");
+                if(loginBtn) loginBtn.click();
+                return;
+            }
+            myCodesModal.style.display = "block";
+            loadMyCodes(); 
+        };
+    }
+    if(closeMyCodesBtn) closeMyCodesBtn.onclick = () => myCodesModal.style.display = "none";
+    
+    const refreshBtn = document.getElementById("refreshMyCodesBtn");
+    if(refreshBtn) refreshBtn.onclick = loadMyCodes;
+
+    // 載入列表函式
+    async function loadMyCodes() {
+        if(!myCodesList) return;
+        myCodesList.innerHTML = '<p style="text-align:center;">載入中...</p>';
+        const token = localStorage.getItem('algo_jwt_token');
+
+        try {
+            const res = await fetch('/api/codes', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if(!res.ok) throw new Error("無法讀取列表");
+            
+            const data = await res.json();
+            const codes = data.codes || [];
+            
+            if (codes.length === 0) {
+                myCodesList.innerHTML = '<p style="text-align:center; color:#666;">你還沒有儲存過任何程式碼喔！</p>';
+                return;
+            }
+
+            myCodesList.innerHTML = codes.map(code => `
+                <div class="code-item" onclick="loadCodeToEditor('${code.code_uid}')">
+                    <div class="code-info">
+                        <h3>${escapeHtml(code.title)} <span style="font-size:12px; color:#fff; background:#2196F3; padding:2px 6px; border-radius:4px;">${code.language}</span></h3>
+                        <p>${escapeHtml(code.desc || "無描述")}</p>
+                        <div class="code-meta">📅 ${new Date(code.created_at).toLocaleString()}</div>
+                    </div>
+                    <button class="btn-small">載入</button>
+                </div>
+            `).join('');
+
+        } catch(err) {
+            myCodesList.innerHTML = `<p style="color:red; text-align:center;">載入失敗: ${err.message}</p>`;
+        }
+    }
+
+    // XSS 防護小工具
+    function escapeHtml(text) {
+        if (!text) return "";
+        return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    // --- 3. 載入單一程式碼 (全域函式) ---
+    // 這個函式需要掛在 window 上，因為上面的 HTML string 用了 onclick
+    window.loadCodeToEditor = async function(codeId) {
+        // 使用 confirm 保留互動確認 (這不是 alert，是瀏覽器原生對話框，符合需求)
+        //if(!confirm("確定要載入這份程式碼嗎？\n(當前編輯區的內容將被覆蓋)")) return;
+        
+        myCodesModal.style.display = "none"; 
+        
+        try {
+            const token = localStorage.getItem('algo_jwt_token');
+            const res = await fetch(`/api/codes/${codeId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (!res.ok) throw new Error("讀取失敗");
+            
+            const data = await res.json();
+            const targetCode = data.code;
+            if(!targetCode) throw new Error("資料格式錯誤");
+
+            if(aceEditor) aceEditor.setValue(targetCode.content, 1);
+            
+            const inputArea = document.getElementById("inputArea");
+            if(inputArea) {
+                if (targetCode.inputs && targetCode.inputs.length > 0) {
+                    inputArea.value = targetCode.inputs[0];
+                } else {
+                    inputArea.value = "";
+                }
+            }
+            
+            // [成功] 使用浮動通知 (Toast) 取代 alert
+            showToast(`已載入：${targetCode.title}`, "success");
+            
+        } catch(err) {
+            // [錯誤] 這裡保留 alert 或是也用 Toast，既然你說 "除非是錯誤"，這裡用 alert 比較保險，但也可用 Toast
+            showToast("載入錯誤: " + err.message, "error");
+        }
+    };
+
+    const checkboxGroup = document.querySelector('.checkbox-group');
+    const checkboxInput = document.getElementById('saveInputCheckbox');
+    if (checkboxGroup && checkboxInput) {
+        checkboxGroup.onclick = function(e) {
+            // 防止重複觸發：
+            // 如果使用者是直接點 "小方框(INPUT)" 或 "文字(LABEL)"，瀏覽器原生就會處理，我們不用管。
+            // 我們只處理點到 "空白背景區域" 的情況。
+            if (e.target !== checkboxInput && e.target.tagName !== 'LABEL') {
+                checkboxInput.checked = !checkboxInput.checked;
             }
         };
     }

@@ -690,6 +690,7 @@ const CodeSchema = new mongoose.Schema({
   title:    { type: String, required: true },  // 標題
   desc:     { type: String },                  // 簡述
   language: { type: String, default: 'cpp' },  // 程式語言
+  inputs:   { type: [String], default: [] },   // 儲存一個或多個輸入內容
   content:  { type: String, required: true },  // 程式碼內容
   created_at: { type: Date, default: Date.now } // 建檔時間
 });
@@ -697,6 +698,66 @@ const CodeSchema = new mongoose.Schema({
 // 4. 建立模型 (Model)
 // 以後你就用這個 'CodeModel' 來對資料庫做增刪改查
 const CodeModel = mongoose.model('Code', CodeSchema);
+
+// === 程式碼儲存與讀取 API ===
+
+// 1. 儲存程式碼 (需登入)
+app.post('/api/codes', authenticateToken, async (req, res) => {
+    const { title, desc, language, content, inputs } = req.body;
+    const user_uid = req.user.id; // 從 JWT 解析出來的 user id
+
+    if (!title || !content) {
+        return res.status(400).json({ error: '標題與程式碼內容為必填' });
+    }
+
+    try {
+        const code_uid = uuidv4();
+        const newCode = await CodeModel.create({
+            user_uid,
+            code_uid,
+            title,
+            desc,
+            language: language || 'cpp',
+            inputs: inputs || [],
+            content
+        });
+        res.json({ success: true, message: '程式碼儲存成功！', code_uid: newCode.code_uid });
+    } catch (err) {
+        console.error('儲存程式碼失敗:', err);
+        res.status(500).json({ error: '伺服器錯誤，儲存失敗' });
+    }
+});
+
+// 2. 讀取該帳號的所有程式碼 (需登入)
+app.get('/api/codes', authenticateToken, async (req, res) => {
+    const user_uid = req.user.id;
+
+    try {
+        // 找出所有屬於該使用者的程式碼，並依照時間降序排列
+        const codes = await CodeModel.find({ user_uid }).sort({ created_at: -1 });
+        res.json({ success: true, codes });
+    } catch (err) {
+        console.error('讀取程式碼列表失敗:', err);
+        res.status(500).json({ error: '伺服器錯誤，讀取失敗' });
+    }
+});
+
+// 3. 讀取特定程式碼內容 (需登入)
+app.get('/api/codes/:code_uid', authenticateToken, async (req, res) => {
+    const { code_uid } = req.params;
+    const user_uid = req.user.id;
+
+    try {
+        const code = await CodeModel.findOne({ code_uid, user_uid });
+        if (!code) {
+            return res.status(404).json({ error: '找不到該程式碼或權限不足' });
+        }
+        res.json({ success: true, code });
+    } catch (err) {
+        console.error('讀取特定程式碼失敗:', err);
+        res.status(500).json({ error: '伺服器錯誤' });
+    }
+});
 
 // === /api/samples 路由 ===
 app.get('/api/samples', (req, res) => {

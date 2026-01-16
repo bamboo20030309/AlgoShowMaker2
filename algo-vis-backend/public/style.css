@@ -933,3 +933,271 @@ pre#debugArea::-webkit-scrollbar-thumb:hover {
   background-color: #218838; /* 深綠色 */
   transform: translateY(-1px);
 }
+
+/* =========================================
+   我的程式碼列表樣式
+   ========================================= */
+.code-item {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.code-item:hover {
+  background: #e9ecef;
+  transform: translateX(5px);
+  border-color: #adb5bd;
+}
+
+.code-info h3 { margin: 0 0 5px 0; font-size: 18px; color: #333; }
+.code-info p { margin: 0; color: #666; font-size: 14px; }
+.code-meta { font-size: 12px; color: #999; margin-top: 5px; }
+
+.btn-small {
+  background-color: transparent;
+  color: var(--primary-blue);
+  border: 1px solid var(--primary-blue);
+  padding: 6px 16px;
+  border-radius: 20px; /* 圓角膠囊狀 */
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap; /* 防止文字換行 */
+}
+
+.btn-small:hover {
+  background-color: var(--primary-blue);
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 122, 204, 0.4);
+}
+
+/* 3. 簡化「重新整理」按鈕 (純圖示) */
+.btn-icon-refresh {
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  font-size: 18px;
+  padding: 8px;
+  border-radius: 50%; /* 圓形 */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.btn-icon-refresh:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* 淺灰背景 */
+  color: var(--primary-blue);
+  transform: rotate(180deg); /* 滑鼠移過去會轉圈圈 */
+}
+
+/* 1. 美化下拉選單 (Select) */
+#saveLangSelect {
+  width: 100%;
+  padding: 10px 12px;
+  background-color: #ffffff; /* 使用深黑背景 */
+  color: #333333;            /* 文字顏色 */
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  appearance: none; /* 移除瀏覽器預設的醜醜箭頭 */
+  
+  /* 自訂一個小箭頭 (SVG 編碼) */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cccccc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+}
+/* 讓箭頭顏色也配合白底 (改成深色箭頭) */
+.select-wrapper::after {
+  background-color: #555555; /* 箭頭改成深灰色 */
+}
+
+#saveLangSelect:focus {
+  border-color: var(--primary-blue); /* 聚焦時變藍色 */
+  box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 2. 美化 Checkbox 區域 (讓整條變成可點擊的區塊) */
+/* 選取包含 checkbox 的那個 form-group */
+#saveCodeForm .form-group[style*="row"] {
+  background-color: rgba(255, 255, 255, 0.05); /* 微微反白 */
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  margin-top: 5px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+#saveCodeForm .form-group[style*="row"]:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--border-color);
+}
+
+/* Checkbox 本體 */
+#saveInputCheckbox {
+  accent-color: var(--primary-blue); /* 讓勾勾變成藍色 */
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* Checkbox 文字標籤 */
+#saveCodeForm label[for="saveInputCheckbox"] {
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-bright);
+  user-select: none; /* 防止連點時選取文字 */
+}
+
+/* 3. 美化儲存按鈕 */
+#saveCodeForm .auth-btn {
+  background-color: var(--success-green); /* 綠色代表「儲存」 */
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 20px;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+#saveCodeForm .auth-btn:hover {
+  filter: brightness(1.1); /* 變亮一點 */
+  transform: translateY(-2px); /* 微微浮起 */
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+}
+
+#saveCodeForm .auth-btn:active {
+  transform: translateY(0); /* 按下去回復 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* 1. 勾選框區域容器 */
+.checkbox-group {
+  /* [關鍵] 在白底上，背景要用淺灰色，才看得到區塊 */
+  background-color: #f5f5f5; 
+  border: 1px solid #ddd;    /* 邊框改淺灰，比較柔和 */
+  
+  /* 以下維持佈局設定 */
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 4px;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  user-select: none; 
+  -webkit-user-select: none; /* Safari / Chrome */
+  -moz-user-select: none;
+}
+
+/* 滑鼠移過去變稍微深一點的灰 */
+.checkbox-group:hover {
+  background-color: #e9e9e9;
+  border-color: #ccc;
+}
+
+/* 2. 勾選框文字 */
+.checkbox-group label {
+  color: #333333 !important; /* 深灰色文字，比全黑(#000)看起來舒服一點 */
+  font-weight: normal;
+  margin-left: 8px;          /* 讓文字跟格子分開一點 */
+  cursor: pointer;
+}
+
+/* 3. (選用) 修正 Checkbox 本體顏色 */
+#saveInputCheckbox {
+  accent-color: var(--primary-blue); /* 保持藍色勾選 */
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* 1. 儲存視窗內的訊息 (顯示在按鈕上方) */
+#saveMessage {
+  margin-top: 15px;      /* 與上方欄位保持距離 */
+  margin-bottom: 10px;   /* 與下方按鈕保持距離 */
+  padding: 12px;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+  display: none;         /* 預設隱藏 */
+}
+
+/* 成功時的樣式 (綠底深綠字) */
+#saveMessage.success {
+  display: block !important; /* 強制顯示 */
+  background-color: #d1e7dd;
+  color: #0f5132;
+  border: 1px solid #badbcc;
+  animation: fadeIn 0.3s ease-in; /* 淡入動畫 */
+}
+
+/* 失敗時的樣式 (紅底深紅字) */
+#saveMessage.error {
+  display: block !important; /* 強制顯示 */
+  background-color: #f8d7da;
+  color: #842029;
+  border: 1px solid #f5c2c7;
+  animation: fadeIn 0.3s ease-in;
+}
+
+/* 2. 全域浮動通知 (Toast) - 用於顯示 "載入成功" 或 "請先登入" */
+#toast-container {
+  position: fixed;
+  top: 80px;        /* 距離頂部一點距離 */
+  left: 50%;
+  transform: translateX(-50%); /* 水平置中 */
+  z-index: 99999;   /* 確保在最上層 */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none; /* 讓點擊穿透，不擋住下方操作 */
+}
+
+.toast-msg {
+  background-color: rgba(50, 50, 50, 0.9);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 50px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  font-size: 14px;
+  opacity: 0;
+  animation: toastFade 3s forwards; /* 3秒動畫：淡入 -> 停留 -> 淡出 */
+}
+
+.toast-msg.success { border-left: 4px solid #28a745; } /* 左邊有綠條 */
+.toast-msg.error   { border-left: 4px solid #dc3545; } /* 左邊有紅條 */
+.toast-msg.warning { border-left: 4px solid #ffc107; } /* 左邊有黃條 */
+
+/* 定義動畫 */
+@keyframes toastFade {
+  0% { opacity: 0; transform: translateY(-20px); }
+  10% { opacity: 1; transform: translateY(0); }
+  80% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-20px); }
+}

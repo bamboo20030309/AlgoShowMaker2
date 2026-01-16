@@ -16,15 +16,23 @@
     </div>
 
     <div class="menu-item">
-      <span class="menu-label">畫布設定 (Canvas)</span>
+      <span class="menu-label">存取程式碼</span>
       <div class="dropdown-content">
-        <div class="dropdown-item" id="menuResetView">重置視角 (Reset View)</div>
-        <div class="dropdown-item" id="menuToggleGrid">切換格線 (Toggle Grid)</div>
+        <div class="dropdown-item" id="openSaveModalBtn">💾 儲存程式碼</div>
+        <div class="dropdown-item" id="openMyCodesBtn">📂 我的程式碼</div>
       </div>
     </div>
 
     <div class="menu-item">
-      <span class="menu-label">編輯器 (Editor)</span>
+      <span class="menu-label">畫布設定</span>
+      <div class="dropdown-content">
+        <div class="dropdown-item" id="menuResetView">重置視角</div>
+        <div class="dropdown-item" id="menuToggleGrid">切換格線</div>
+      </div>
+    </div>
+
+    <div class="menu-item">
+      <span class="menu-label">編輯器</span>
       <div class="dropdown-content">
         <div class="dropdown-item" id="menuToggleFold">摺疊/展開 draw 區塊</div>
         <div class="dropdown-divider"></div>
@@ -155,6 +163,60 @@
         <div class="loading-text">載入中...</div>
     </div>
   </div>
+
+  <div id="saveCodeModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" id="closeSaveModal">&times;</span>
+        <h2 id="saveModalTitle">儲存程式碼</h2>
+        
+        <form id="saveCodeForm" class="auth-form">
+            <div class="form-group">
+                <label>專案標題</label>
+                <input type="text" id="saveTitleInput" required placeholder="給程式碼取個名字...">
+            </div>
+            
+            <div class="form-group">
+                <label>簡述 (選填)</label>
+                <input type="text" id="saveDescInput" placeholder="簡單描述功能...">
+            </div>
+
+            <div class="form-group">
+                <label>語言</label>
+                <div class="select-wrapper">
+                    <select id="saveLangSelect">
+                        <option value="cpp">C++</option>
+                        <option value="python">Python</option>
+                        <option value="java">Java</option>
+                        <option value="javascript">JavaScript</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="saveInputCheckbox">
+                <label for="saveInputCheckbox">一併儲存輸入區的測資</label>
+            </div>
+
+            <div id="saveMessage"></div>
+
+            <button type="submit" class="auth-btn">確認儲存</button>
+        </form>
+    </div>
+  </div>
+
+  <div id="myCodesModal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <span class="close-modal" id="closeMyCodesModal">&times;</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h2 style="margin: 0;">📂 我的程式碼</h2>
+            <button id="refreshMyCodesBtn" class="btn-icon-refresh" title="重新整理">↻</button>
+        </div>
+
+        <div id="myCodesList" style="max-height: 400px; overflow-y: auto;">
+            <p style="text-align: center; color: #999;">載入中...</p>
+        </div>
+    </div>
+  </div> 
 
   <!-- 載入 Ace Editor -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.11.2/ace.js"></script>
