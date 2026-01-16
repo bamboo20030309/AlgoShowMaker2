@@ -890,18 +890,44 @@ pre#debugArea::-webkit-scrollbar-thumb:hover {
   border: 1px solid #f5c6cb;
 }
 
-/* 2. 登入後的按鈕狀態 (綠色) */
+/* 2. 登入後的按鈕狀態*/
 .btn-login.logged-in {
-  background-color: #28a745; /* 鮮豔的綠色 */
-  color: white;
-  border: 1px solid #28a745;
-  font-weight: bold;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  /* 重置背景與邊框，改成簡約風格 */
+  background-color: #ffffff;    /* 純白背景，配合您說的白色底色 */
+  color: #374151;               /* 深灰文字，閱讀舒適 */
+  border: 1px solid #d1d5db;    /* 淡淡的灰色邊框 */
+  
+  /* 字體與排版 */
+  font-size: 13px;
+  font-weight: 500;             /* 不用太粗 */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  
+  /* 膠囊形狀 */
+  border-radius: 20px;          /* 大圓角 */
+  padding: 4px 12px;            /* 適當的留白 */
+  
+  /* 版面配置 */
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  
+  /* 陰影與過渡 */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* 極淡的陰影增加層次感 */
+  transition: all 0.2s ease;
 }
 
 .btn-login.logged-in:hover {
-  background-color: #218838; /* 深綠色 */
-  transform: translateY(-1px);
+  background-color: #f3f4f6;    /* 微亮灰色 */
+  color: #111827;               /* 文字變黑 */
+  border-color: #9ca3af;        /* 邊框加深 */
+  transform: translateY(0px);   /* 登入狀態不建議亂跳動，維持穩定 */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 3. 點擊狀態 */
+.btn-login.logged-in:active {
+  background-color: #e5e7eb;
+  transform: translateY(1px);   /* 微幅下壓感 */
 }
 
 /* =========================================

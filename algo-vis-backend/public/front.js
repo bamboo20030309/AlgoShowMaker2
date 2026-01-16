@@ -1534,7 +1534,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const username = usernameInput ? usernameInput.value.trim() : "";
             const password = passwordInput ? passwordInput.value.trim() : "";
 
-            // === 狀況 1: 處理登出 ===
+            // === 狀況 1: 處理登出 (維持不變) ===
             if (isLogoutMode) {
                 actionBtn.disabled = true;
                 actionBtn.innerText = "登出中...";
@@ -1545,13 +1545,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // === 狀況 2: 處理忘記密碼 (寄信) ===
+            // === 狀況 2: 處理忘記密碼 (維持不變) ===
             if (isForgotMode) {
                 if (!username) { showMsg("請輸入 Email", "error"); return; }
-                
                 actionBtn.innerText = "寄送中...";
                 actionBtn.disabled = true;
-                
                 try {
                     const res = await fetch('/api/auth/forgot-password', {
                         method: 'POST',
@@ -1560,7 +1558,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                     const data = await res.json();
                     if(!res.ok) throw new Error(data.error);
-                    
                     showMsg(data.message, "success");
                 } catch(err) {
                     showMsg(err.message, "error");
@@ -1571,13 +1568,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // === 狀況 3: 處理重置密碼 (更新) ===
+            // === 狀況 3: 處理重置密碼 (維持不變) ===
             if (isResetMode) {
                 if (!password || password.length < 8) { showMsg("新密碼需至少 8 碼", "error"); return; }
-                
                 actionBtn.innerText = "更新中...";
                 actionBtn.disabled = true;
-                
                 try {
                     const res = await fetch('/api/auth/reset-password', {
                         method: 'POST',
@@ -1586,16 +1581,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                     const data = await res.json();
                     if(!res.ok) throw new Error(data.error);
-                    
                     showMsg(data.message, "success");
-                    
-                    // 成功後，切回登入畫面
                     setTimeout(() => {
                         isResetMode = false;
                         currentResetToken = null;
                         isLoginMode = true;
                         updateModalUI();
-                        // 幫使用者填好 Email 方便登入 (假設 user 物件沒回傳 email，這裡先留空)
                         if(passwordInput) passwordInput.value = "";
                     }, 1500);
                 } catch(err) {
@@ -1613,7 +1604,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // 前端簡單驗證 (註冊時才嚴格檢查)
             if (!isLoginMode) {
                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                if (!emailRegex.test(username)) { showMsg("請輸入有效的 Email", "error"); return; }
@@ -1622,9 +1612,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const apiPath = isLoginMode ? '/api/auth/login' : '/api/auth/register';
             const originalBtnText = actionBtn.innerText;
+            
             actionBtn.innerText = "處理中...";
             actionBtn.disabled = true;
             clearMsg();
+
+            // [關鍵] 用來標記是否成功，如果是成功，finally 區塊就暫時不要還原按鈕
+            let isSuccess = false;
 
             try {
                 const res = await fetch(apiPath, {
@@ -1637,7 +1631,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!res.ok) throw new Error(data.error || '操作失敗');
 
                 if (isLoginMode) {
-                    // 登入成功
+                    // --- 登入成功 ---
+                    isSuccess = true; // 標記為成功
+                    
+                    // [修改] 1. 改變按鈕樣式與文字 (綠色 + 登入成功)
+                    actionBtn.innerText = "✔ 登入成功";
+                    actionBtn.style.backgroundColor = "#198754"; // 成功綠
+                    actionBtn.style.borderColor = "#198754";
+                    actionBtn.style.color = "#ffffff";
+                    
                     showMsg(`登入成功！歡迎，${data.username}`, "success");
                     localStorage.setItem('algo_jwt_token', data.token);
                     localStorage.setItem('algo_username', data.username);
@@ -1646,12 +1648,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     setTimeout(() => {
                         loginModal.style.display = "none";
                         if(passwordInput) passwordInput.value = "";
-                    }, 1000);
+
+                        // [修改] 2. 視窗關閉後，把按鈕還原，以免下次打開還是綠的
+                        actionBtn.innerText = originalBtnText;
+                        actionBtn.disabled = false;
+                        actionBtn.style.backgroundColor = ""; 
+                        actionBtn.style.borderColor = "";
+                        actionBtn.style.color = "";
+                    }, 1500); // 1.5秒後關閉
+
                 } else {
-                    // 註冊成功
+                    // --- 註冊成功 ---
                     showMsg('註冊成功！正在為您切換至登入頁...', "success");
                     setTimeout(() => {
-                        isLoginMode = true; // 切換回登入
+                        isLoginMode = true; 
                         updateModalUI();
                         if(usernameInput) usernameInput.value = username;
                         if(passwordInput) passwordInput.value = "";
@@ -1663,8 +1673,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error(err);
                 showMsg(err.message, "error");
             } finally {
-                actionBtn.innerText = originalBtnText;
-                actionBtn.disabled = false;
+                // [修改] 只有在「非成功」的時候才立即還原按鈕
+                // 這樣才能讓使用者看到綠色的「登入成功」狀態
+                if (!isSuccess) {
+                    actionBtn.innerText = originalBtnText;
+                    actionBtn.disabled = false;
+                }
             }
         };
     }
@@ -2028,7 +2042,9 @@ document.addEventListener('DOMContentLoaded', function() {
 function updateUserUI(username) {
     const loginBtn = document.getElementById("loginTriggerBtn");
     if (loginBtn && username) {
-        loginBtn.innerText = `${username}`;
+        // [修改] 加入人頭圖示，讓它看起來更像 User Profile
+        loginBtn.innerHTML = `<span style="opacity:0.7; margin-right:4px;">👤</span> ${username}`;
+        
         loginBtn.classList.add('logged-in'); 
         
         // 關鍵：將點擊事件指向我們剛剛定義的 handleLoginBtnClick
