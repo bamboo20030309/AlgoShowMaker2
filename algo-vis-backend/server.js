@@ -759,6 +759,26 @@ app.get('/api/codes/:code_uid', authenticateToken, async (req, res) => {
     }
 });
 
+// 4. 刪除程式碼 (需登入)
+app.delete('/api/codes/:code_uid', authenticateToken, async (req, res) => {
+    const { code_uid } = req.params;
+    const user_uid = req.user.id;
+
+    try {
+        // 刪除條件：code_uid 符合 且 user_uid 是本人
+        const result = await CodeModel.findOneAndDelete({ code_uid, user_uid });
+        
+        if (!result) {
+            return res.status(404).json({ error: '找不到該程式碼或無權刪除' });
+        }
+
+        res.json({ success: true, message: '刪除成功' });
+    } catch (err) {
+        console.error('刪除失敗:', err);
+        res.status(500).json({ error: '伺服器錯誤' });
+    }
+});
+
 // === /api/samples 路由 ===
 app.get('/api/samples', (req, res) => {
     const requestedFilename = req.query.filename;

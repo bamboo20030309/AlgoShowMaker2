@@ -1880,11 +1880,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // 生成列表 HTML (樣式微調以適應側邊欄)
+            // 生成列表 HTML
             myCodesList.innerHTML = codes.map(code => `
                 <div class="code-item" onclick="loadCodeToEditor('${code.code_uid}')" style="cursor:pointer;">
+                    
+                    <button class="btn-delete-code" onclick="deleteCode(event, '${code.code_uid}', '${escapeHtml(code.title)}')" title="刪除此程式碼">
+                        🗑️
+                    </button>
+
                     <div style="width:100%">
-                        <h3 style="margin:0 0 8px 0; font-size:15px; color:#eee; font-weight:500;">
+                        <h3 style="margin:0 0 8px 0; font-size:15px; color:#eee; font-weight:500; padding-right: 30px;">
                             ${escapeHtml(code.title)}
                         </h3>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
@@ -1906,6 +1911,43 @@ document.addEventListener('DOMContentLoaded', function() {
             myCodesList.innerHTML = `<p style="color:#ff6b6b; text-align:center; padding:20px;">載入失敗: ${err.message}</p>`;
         }
     }
+
+    // [新增] 刪除程式碼函式 (掛在 window 上以便 HTML onclick 呼叫)
+    window.deleteCode = async function(event, codeUid, codeTitle) {
+        // 1. 阻止事件冒泡 (重要！不然點刪除會變成「刪除後又載入」)
+        event.stopPropagation();
+
+        const token = localStorage.getItem('algo_jwt_token');
+
+        try {
+            const res = await fetch(`/api/codes/${codeUid}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            const data = await res.json();
+            
+            if(!res.ok) throw new Error(data.error || "刪除失敗");
+
+            // 3. 成功後顯示訊息並重新整理列表
+            if(typeof showToast === 'function') {
+                showToast("🗑️ 刪除成功", "success");
+            } else {
+                alert("刪除成功");
+            }
+
+            // 重新載入列表
+            loadMyCodes();
+
+        } catch(err) {
+            console.error(err);
+            if(typeof showToast === 'function') {
+                showToast("刪除失敗: " + err.message, "error");
+            } else {
+                alert("刪除失敗: " + err.message);
+            }
+        }
+    };
 
     // XSS 防護小工具 (保留)
     function escapeHtml(text) {

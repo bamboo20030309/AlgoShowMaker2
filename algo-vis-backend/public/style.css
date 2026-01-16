@@ -1298,3 +1298,37 @@ pre#debugArea::-webkit-scrollbar-thumb:hover {
   width: 100%; /* 按鈕變寬，方便點擊 */
   text-align: center;
 }
+
+/* 讓 code-item 變成定位點，方便按鈕絕對定位 */
+.code-item {
+  position: relative; 
+  /* 原本的樣式保持不變... */
+}
+
+/* 刪除按鈕 (垃圾桶) */
+.btn-delete-code {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0; /* 平常隱藏，保持介面乾淨 */
+  transition: all 0.2s;
+  padding: 4px;
+  border-radius: 4px;
+  z-index: 5; /* 確保在最上層 */
+}
+
+/* 滑鼠移到卡片上時，才顯示刪除按鈕 */
+.code-item:hover .btn-delete-code {
+  opacity: 1;
+}
+
+/* 滑鼠移到垃圾桶上時，變紅色背景 */
+.btn-delete-code:hover {
+  background-color: rgba(255, 77, 77, 0.2);
+  transform: scale(1.1);
+}
