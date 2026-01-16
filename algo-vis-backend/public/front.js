@@ -1673,68 +1673,61 @@ document.addEventListener('DOMContentLoaded', function() {
     // [新增] 存取程式碼功能邏輯
     // ==========================================
     
-    // DOM 元素
+    // 1. DOM 元素 (注意：myCodesModal 已被移除，改為 myCodesSidebar)
     const saveModal = document.getElementById("saveCodeModal");
-    const myCodesModal = document.getElementById("myCodesModal");
+    const myCodesSidebar = document.getElementById("myCodesSidebar"); // [新] 側邊欄
     const openSaveBtn = document.getElementById("openSaveModalBtn");
     const openMyCodesBtn = document.getElementById("openMyCodesBtn");
     const closeSaveBtn = document.getElementById("closeSaveModal");
-    const closeMyCodesBtn = document.getElementById("closeMyCodesModal");
+    const closeMyCodesSidebarBtn = document.getElementById("closeMyCodesSidebar"); // [新] 側邊欄關閉紐
     const saveForm = document.getElementById("saveCodeForm");
     const myCodesList = document.getElementById("myCodesList");
+    const refreshBtn = document.getElementById("refreshMyCodesBtn");
 
-    // --- [工具] 顯示儲存視窗內的訊息 ---
+    // --- [工具] 顯示儲存視窗內的訊息 (保留不動) ---
     function showSaveMsg(msg, type = 'error') {
         const msgDiv = document.getElementById("saveMessage");
         if (msgDiv) {
             msgDiv.textContent = msg;
-            msgDiv.className = type; // 切換 class (success / error)
+            msgDiv.className = type; 
         }
     }
 
-    // --- [工具] 顯示全域浮動通知 (Toast) ---
+    // --- [工具] 顯示全域浮動通知 (Toast) (保留不動) ---
     function showToast(msg, type = 'info') {
-        // 1. 確保容器存在
         let container = document.getElementById('toast-container');
         if (!container) {
             container = document.createElement('div');
             container.id = 'toast-container';
             document.body.appendChild(container);
         }
-
-        // 2. 建立通知元素
         const toast = document.createElement('div');
         toast.className = `toast-msg ${type}`;
         toast.innerText = msg;
-
-        // 3. 加入畫面
         container.appendChild(toast);
-
-        // 4. 動畫結束後移除元素 (配合 CSS animation 3s)
         setTimeout(() => {
             if(container.contains(toast)) container.removeChild(toast);
         }, 3500);
     }
 
-    // --- 1. 儲存程式碼 ---
+    // ==========================================
+    // --- 1. 儲存程式碼 (這部分完全保留原本的) ---
+    // ==========================================
     
     if(openSaveBtn) {
         openSaveBtn.onclick = function(e) {
             e.preventDefault();
-            // 檢查是否登入
             if (!localStorage.getItem('algo_username')) {
                 showToast("請先登入會員才能儲存程式碼", "warning");
-                // 自動打開登入窗
                 const loginBtn = document.getElementById("loginTriggerBtn");
                 if(loginBtn) loginBtn.click();
                 return;
             }
-            // 清空舊訊息
             showSaveMsg("", ""); 
-            document.getElementById("saveMessage").style.display = "none";
+            if(document.getElementById("saveMessage")) document.getElementById("saveMessage").style.display = "none";
             
-            saveModal.style.display = "block";
-            document.getElementById("saveLangSelect").value = "cpp"; 
+            if(saveModal) saveModal.style.display = "block";
+            if(document.getElementById("saveLangSelect")) document.getElementById("saveLangSelect").value = "cpp"; 
         };
     }
     if(closeSaveBtn) closeSaveBtn.onclick = () => saveModal.style.display = "none";
@@ -1743,9 +1736,8 @@ document.addEventListener('DOMContentLoaded', function() {
         saveForm.onsubmit = async function(e) {
             e.preventDefault();
             
-            // 1. 初始化介面狀態
-            showSaveMsg("", ""); // 清除舊訊息
-            document.getElementById("saveMessage").style.display = "none";
+            showSaveMsg("", "");
+            if(document.getElementById("saveMessage")) document.getElementById("saveMessage").style.display = "none";
 
             const title = document.getElementById("saveTitleInput").value;
             const desc = document.getElementById("saveDescInput").value;
@@ -1759,15 +1751,13 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const token = localStorage.getItem('algo_jwt_token');
 
-            // 取得按鈕並鎖定
             const submitBtn = saveForm.querySelector("button");
-            const originalText = "確認儲存"; // 記住原本的文字
+            const originalText = "確認儲存";
             submitBtn.innerText = "⏳ 儲存中...";
             submitBtn.disabled = true;
             submitBtn.style.opacity = "0.7";
 
             try {
-                // 2. 發送 API 請求
                 const res = await fetch('/api/codes', {
                     method: 'POST',
                     headers: { 
@@ -1783,37 +1773,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 const data = await res.json();
                 if(!res.ok) throw new Error(data.error || "儲存失敗");
 
-                // 3. [成功狀態] 
-                // (A) 顯示綠色訊息框
                 showSaveMsg("✅ 儲存成功！", "success");
-                
-                // (B) 按鈕也變成綠色成功狀態 (雙重回饋)
                 submitBtn.innerText = "✔ 儲存成功";
-                submitBtn.style.backgroundColor = "#198754"; // 變深綠色
+                submitBtn.style.backgroundColor = "#198754"; 
                 
-                // (C) 1.5 秒後關閉視窗 (比原本 1 秒長一點，讓你看清楚)
                 setTimeout(() => {
                     saveModal.style.display = "none";
-                    
-                    // 重置表單與按鈕
                     document.getElementById("saveTitleInput").value = "";
                     document.getElementById("saveDescInput").value = "";
                     submitBtn.innerText = originalText;
                     submitBtn.disabled = false;
                     submitBtn.style.opacity = "1";
-                    submitBtn.style.backgroundColor = ""; // 恢復原本顏色
-                    document.getElementById("saveMessage").style.display = "none"; // 隱藏訊息
+                    submitBtn.style.backgroundColor = "";
+                    if(document.getElementById("saveMessage")) document.getElementById("saveMessage").style.display = "none";
                     
-                    // (選用) 可以在右上角補一個小小的 Toast 再次提醒
-                    if(typeof showToast === 'function') showToast(`已儲存：${title}`, "success");
-                    
+                    showToast(`已儲存：${title}`, "success");
                 }, 1500);
 
             } catch(err) {
-                // 4. [失敗狀態]
                 showSaveMsg("❌ " + err.message, "error");
-                
-                // 恢復按鈕讓使用者可以重試
                 submitBtn.innerText = "再試一次";
                 submitBtn.disabled = false;
                 submitBtn.style.opacity = "1";
@@ -1821,30 +1799,44 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    // --- 2. 我的程式碼 (讀取) ---
+    // ==========================================
+    // --- 2. 我的程式碼 (這裡是改動最大的地方) ---
+    // ==========================================
 
+    // [修改] 打開側邊欄 (原本是打開 Modal)
     if(openMyCodesBtn) {
         openMyCodesBtn.onclick = function(e) {
             e.preventDefault();
+            
             if (!localStorage.getItem('algo_username')) {
-                showToast("請先登入會員才能查看程式碼", "warning");
+                showToast("請先登入會員", "warning");
                 const loginBtn = document.getElementById("loginTriggerBtn");
                 if(loginBtn) loginBtn.click();
                 return;
             }
-            myCodesModal.style.display = "block";
-            loadMyCodes(); 
+
+            // [新邏輯] 添加 active class 讓側邊欄滑出來
+            if(myCodesSidebar) {
+                myCodesSidebar.classList.add("active");
+                loadMyCodes(); // 自動載入資料
+            }
         };
     }
-    if(closeMyCodesBtn) closeMyCodesBtn.onclick = () => myCodesModal.style.display = "none";
     
-    const refreshBtn = document.getElementById("refreshMyCodesBtn");
+    // [修改] 關閉側邊欄
+    if(closeMyCodesSidebarBtn) {
+        closeMyCodesSidebarBtn.onclick = function() {
+            if(myCodesSidebar) myCodesSidebar.classList.remove("active");
+        };
+    }
+    
+    // 重新整理
     if(refreshBtn) refreshBtn.onclick = loadMyCodes;
 
-    // 載入列表函式
+    // [修改] 載入列表函式 (生成側邊欄專用的 HTML)
     async function loadMyCodes() {
         if(!myCodesList) return;
-        myCodesList.innerHTML = '<p style="text-align:center;">載入中...</p>';
+        myCodesList.innerHTML = '<p style="text-align:center; padding:20px; color:#888;">載入中...</p>';
         const token = localStorage.getItem('algo_jwt_token');
 
         try {
@@ -1857,51 +1849,61 @@ document.addEventListener('DOMContentLoaded', function() {
             const codes = data.codes || [];
             
             if (codes.length === 0) {
-                myCodesList.innerHTML = '<p style="text-align:center; color:#666;">你還沒有儲存過任何程式碼喔！</p>';
+                myCodesList.innerHTML = '<p style="text-align:center; padding:20px; color:#666;">這裡空空如也<br>快去儲存一些程式碼吧！</p>';
                 return;
             }
 
+            // 生成列表 HTML (樣式微調以適應側邊欄)
             myCodesList.innerHTML = codes.map(code => `
-                <div class="code-item" onclick="loadCodeToEditor('${code.code_uid}')">
-                    <div class="code-info">
-                        <h3>${escapeHtml(code.title)} <span style="font-size:12px; color:#fff; background:#2196F3; padding:2px 6px; border-radius:4px;">${code.language}</span></h3>
-                        <p>${escapeHtml(code.desc || "無描述")}</p>
-                        <div class="code-meta">📅 ${new Date(code.created_at).toLocaleString()}</div>
+                <div class="code-item" onclick="loadCodeToEditor('${code.code_uid}')" style="cursor:pointer;">
+                    <div style="width:100%">
+                        <h3 style="margin:0 0 8px 0; font-size:15px; color:#eee; font-weight:500;">
+                            ${escapeHtml(code.title)}
+                        </h3>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                            <span style="font-size:12px; color:#2196F3; border:1px solid rgba(33, 150, 243, 0.3); padding:1px 6px; border-radius:4px; background:rgba(33, 150, 243, 0.1);">
+                                ${code.language}
+                            </span>
+                            <span style="font-size:12px; color:#888;">
+                                ${new Date(code.created_at).toLocaleDateString()}
+                            </span>
+                        </div>
+                        <p style="margin:0; font-size:13px; color:#999; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            ${escapeHtml(code.desc || "無描述")}
+                        </p>
                     </div>
-                    <button class="btn-small">載入</button>
                 </div>
             `).join('');
 
         } catch(err) {
-            myCodesList.innerHTML = `<p style="color:red; text-align:center;">載入失敗: ${err.message}</p>`;
+            myCodesList.innerHTML = `<p style="color:#ff6b6b; text-align:center; padding:20px;">載入失敗: ${err.message}</p>`;
         }
     }
 
-    // XSS 防護小工具
+    // XSS 防護小工具 (保留)
     function escapeHtml(text) {
         if (!text) return "";
-        return text
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+        return text.replace(/&/g, "&amp;")
+                   .replace(/</g, "&lt;")
+                   .replace(/>/g, "&gt;")
+                   .replace(/"/g, "&quot;")
+                   .replace(/'/g, "&#039;");
     }
 
+    // ==========================================
     // --- 3. 載入單一程式碼 (全域函式) ---
-    // 這個函式需要掛在 window 上，因為上面的 HTML string 用了 onclick
+    // ==========================================
+    
+    // [修改] 劫持原本的載入函式，加上「自動收起側邊欄」的功能
+    const originalLoadCode = window.loadCodeToEditor; // 如果有的話先存起來，避免重複定義
+    
     window.loadCodeToEditor = async function(codeId) {
-        // 使用 confirm 保留互動確認 (這不是 alert，是瀏覽器原生對話框，符合需求)
-        //if(!confirm("確定要載入這份程式碼嗎？\n(當前編輯區的內容將被覆蓋)")) return;
-        
-        myCodesModal.style.display = "none"; 
-        
+        // (A) 核心載入邏輯 (Fetch + Set Editor)
         try {
             const token = localStorage.getItem('algo_jwt_token');
             const res = await fetch(`/api/codes/${codeId}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            
             if (!res.ok) throw new Error("讀取失敗");
             
             const data = await res.json();
@@ -1919,22 +1921,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            // [成功] 使用浮動通知 (Toast) 取代 alert
-            showToast(`已載入：${targetCode.title}`, "success");
+            // 成功提示
+            showToast(`✅ 已載入：${targetCode.title}`, "success");
             
         } catch(err) {
-            // [錯誤] 這裡保留 alert 或是也用 Toast，既然你說 "除非是錯誤"，這裡用 alert 比較保險，但也可用 Toast
-            showToast("載入錯誤: " + err.message, "error");
+            showToast("❌ 載入錯誤: " + err.message, "error");
         }
+
+        // (B) 載入後自動收起側邊欄 (如果你希望它保持開啟，請註解掉下面這行)
+        // if(myCodesSidebar) myCodesSidebar.classList.remove("active");
     };
 
+    // --- Checkbox 點擊優化 (保留) ---
     const checkboxGroup = document.querySelector('.checkbox-group');
     const checkboxInput = document.getElementById('saveInputCheckbox');
     if (checkboxGroup && checkboxInput) {
         checkboxGroup.onclick = function(e) {
-            // 防止重複觸發：
-            // 如果使用者是直接點 "小方框(INPUT)" 或 "文字(LABEL)"，瀏覽器原生就會處理，我們不用管。
-            // 我們只處理點到 "空白背景區域" 的情況。
             if (e.target !== checkboxInput && e.target.tagName !== 'LABEL') {
                 checkboxInput.checked = !checkboxInput.checked;
             }

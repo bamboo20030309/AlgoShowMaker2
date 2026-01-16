@@ -204,19 +204,21 @@
     </div>
   </div>
 
-  <div id="myCodesModal" class="modal">
-    <div class="modal-content" style="max-width: 600px;">
-        <span class="close-modal" id="closeMyCodesModal">&times;</span>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <h2 style="margin: 0;">📂 我的程式碼</h2>
-            <button id="refreshMyCodesBtn" class="btn-icon-refresh" title="重新整理">↻</button>
-        </div>
-
-        <div id="myCodesList" style="max-height: 400px; overflow-y: auto;">
-            <p style="text-align: center; color: #999;">載入中...</p>
-        </div>
+  <div id="myCodesSidebar" class="sidebar-panel">
+    <div class="sidebar-header">
+        <h3>📂 我的程式碼庫</h3>
+        <button id="closeMyCodesSidebar" class="btn-icon-close" title="關閉">×</button>
     </div>
-  </div> 
+
+    <div class="sidebar-toolbar">
+        <button id="refreshMyCodesBtn" class="btn-icon-refresh" title="重新整理">↻</button>
+        <span class="sidebar-hint">點擊項目以載入</span>
+    </div>
+
+    <div id="myCodesList" class="sidebar-content">
+        <p class="empty-msg">載入中...</p>
+    </div>
+  </div>
 
   <!-- 載入 Ace Editor -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.11.2/ace.js"></script>

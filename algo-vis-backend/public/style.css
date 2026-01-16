@@ -718,10 +718,10 @@ pre#debugArea::-webkit-scrollbar-thumb:hover {
   bottom: 0;              /* 延伸到底部 */
   
   width: 300px;           /* 面板寬度，可依需求調整 */
-  background-color: #fff; /* 白底 */
+  background-color: var(--bg-panel);
   
   /* 陰影與邊框 */
-  border-right: 1px solid #ddd;
+  border-right: 1px solid var(--border-color);
   box-shadow: 2px 0 10px rgba(0,0,0,0.1);
   
   /* [關鍵動畫] 預設往左推 100% (隱藏) */
@@ -740,14 +740,14 @@ pre#debugArea::-webkit-scrollbar-thumb:hover {
 /* --- 面板內部樣式 --- */
 .panel-header {
   padding: 15px 20px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #eee;
+  background-color: var(--bg-header); /* 頂部深色背景 (#333) */
+  border-bottom: 1px solid var(--border-color);
 }
 
 .panel-header h3 {
   margin: 0;
   font-size: 16px;
-  color: #333;
+  color: var(--text-bright);
 }
 
 #algoListContainer {
@@ -763,7 +763,7 @@ pre#debugArea::-webkit-scrollbar-thumb:hover {
   position: relative;
   padding: 8px 10px; /* 縮小一點 padding 比較像檔案列表 */
   cursor: pointer;
-  color: #555;
+  color: var(--text-main);
   font-size: 14px;
   border-bottom: 1px solid transparent; /* 拿掉底線，看起來比較乾淨 */
   
@@ -776,8 +776,8 @@ pre#debugArea::-webkit-scrollbar-thumb:hover {
 }
 
 .algo-item:hover {
-  background-color: #f0f0f0;
-  color: #333;
+  background-color: rgba(255, 255, 255, 0.1); /* 微亮背景 */
+  color: var(--text-bright); /* 變亮白 */
 }
 
 /* 2. 資料夾專屬樣式 */
@@ -793,7 +793,7 @@ pre#debugArea::-webkit-scrollbar-thumb:hover {
   content: "▶";
   font-size: 10px;
   margin-right: 8px;
-  color: #999;
+  color: #888;
   display: inline-block;
   transition: transform 0.2s;
   width: 12px; /* 固定寬度讓文字對齊 */
@@ -803,14 +803,14 @@ pre#debugArea::-webkit-scrollbar-thumb:hover {
 /* 當資料夾被打開時 (加上 .expanded class) */
 .algo-folder.expanded::before {
   transform: rotate(90deg); /* 箭頭轉向 */
-  color: #555;
+  color: #ccc;
 }
 
 /* 3. 子選單容器 (Submenu) */
 .algo-submenu {
   display: none; /* 預設隱藏 */
   padding-left: 20px; /* [關鍵] 往內縮排，營造階層感 */
-  border-left: 1px solid #eee; /* 左邊加條細線輔助視覺 */
+  border-left: 1px solid var(--border-color); /* 左邊加條細線輔助視覺 */
   margin-left: 5px;
 }
 
@@ -859,8 +859,10 @@ pre#debugArea::-webkit-scrollbar-thumb:hover {
 /* 測資列表容器 (預設隱藏) */
 .input-list-container {
   display: none; /* 平常看不見 */
-  background-color: #fafafa;
+  background-color: #181818;
+  border: 1px solid var(--border-color);
   border-left: 2px solid var(--success-green); /* 左邊加條綠線做區隔 */
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.5);
   margin-left: 15px; /* 縮排 */
 }
 
@@ -874,15 +876,15 @@ pre#debugArea::-webkit-scrollbar-thumb:hover {
 .input-item {
   padding: 6px 10px;
   font-size: 13px;
-  color: #666;
+  color: #aaa;
   cursor: pointer;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #333;
   display: flex;
   align-items: center;
 }
 
 .input-item:hover {
-  background-color: #e6fcf5;
+  background-color: #333;
   color: var(--success-green);
 }
 
@@ -890,6 +892,13 @@ pre#debugArea::-webkit-scrollbar-thumb:hover {
   content: "↳"; /* 子項目符號 */
   margin-right: 6px;
   color: #ccc;
+}
+
+/* 7. 載入中文字 */
+.loading-text {
+  color: #888;
+  text-align: center;
+  padding: 20px;
 }
 
 /* 簡單動畫 */
@@ -1200,4 +1209,92 @@ pre#debugArea::-webkit-scrollbar-thumb:hover {
   10% { opacity: 1; transform: translateY(0); }
   80% { opacity: 1; transform: translateY(0); }
   100% { opacity: 0; transform: translateY(-20px); }
+}
+
+/* 1. 側邊欄本體 */
+.sidebar-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;           /* 佔滿全高 */
+  width: 300px;            /* 側邊欄寬度 */
+  background-color: var(--bg-panel); /* 使用原本的面板背景色 */
+  border-right: 1px solid var(--border-color);
+  box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+  z-index: 2000;           /* 確保在最上層 (比編輯器高) */
+  
+  /* 動畫關鍵：預設往左藏起來 */
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  
+  display: flex;
+  flex-direction: column;
+}
+
+/* 2. 啟動狀態 (滑出來) */
+.sidebar-panel.active {
+  transform: translateX(0); /* 回到原位 */
+}
+
+/* 3. 標題區 */
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: var(--bg-header); /* 使用原本的頂部背景色 */
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-bright);
+}
+
+/* 4. 關閉按鈕 (X) */
+.btn-icon-close {
+  background: none;
+  border: none;
+  color: var(--text-main);
+  font-size: 24px;
+  cursor: pointer;
+  line-height: 1;
+}
+.btn-icon-close:hover { color: #fff; }
+
+/* 5. 工具列 (重新整理) */
+.sidebar-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 15px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: rgba(0,0,0,0.2);
+}
+
+.sidebar-hint {
+  font-size: 12px;
+  color: #666;
+}
+
+/* 6. 內容列表區 */
+.sidebar-content {
+  flex: 1; /* 佔滿剩餘空間 */
+  overflow-y: auto; /* 內容多時可捲動 */
+  padding: 10px;
+}
+
+/* 7. 列表項目微調 (適應側邊欄寬度) */
+.code-item {
+  flex-direction: column; /* 改成垂直排列，因為側邊欄比較窄 */
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  background-color: rgba(255,255,255,0.03);
+}
+
+.code-item .btn-small {
+  width: 100%; /* 按鈕變寬，方便點擊 */
+  text-align: center;
 }
