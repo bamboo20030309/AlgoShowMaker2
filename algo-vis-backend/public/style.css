@@ -348,6 +348,7 @@ button.auto-stepping:hover {
   border-radius: 5px;
   padding: 5px 14px;
   font-weight: bold;
+  cursor: pointer;
 }
 #runBtn.btn-run:hover { background-color: var(--hover-green); }
 
@@ -398,6 +399,7 @@ button.auto-stepping:hover {
   padding: 4px 10px;
   border-radius: 4px;
   font-size: 12px;
+  cursor: pointer;
   
   /* [新增] 過渡效果：讓背景、顏色、邊框變化有 0.3秒 的緩衝 */
   transition: all 0.3s ease;
