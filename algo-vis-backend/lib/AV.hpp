@@ -11,6 +11,61 @@ using namespace std;
 using array_style = pair<vector<string>, vector<int>>;
 using array2D_style = pair<vector<string>, vector<pair<int,int>>>;
 
+struct Pos {
+    bool isRelative;
+    int index;          // 1D 索引 (-1 代表整個物件)
+    int row, col;       // 2D 索引 (-1 代表整個物件)
+    double x, y;        // 絕對座標 或 相對偏移量 (dx, dy)
+    string refId;       // 目標物件 ID
+    string anchor;      // 錨點方位
+
+    // 建構子 1: 絕對位置 (x, y)
+    Pos(double _x, double _y) 
+        : x(_x), y(_y), isRelative(false), index(-1), row(-1), col(-1), refId(""), anchor("") {}
+
+    // 建構子 2: 相對位置 - 鎖定「整個物件」
+    // 用法: Pos("array", "top") 或 Pos("array")
+    Pos(string _id, string _anchor = "center", double _dx = 0, double _dy = 0) 
+        : refId(_id), anchor(_anchor), x(_dx), y(_dy), index(-1), row(-1), col(-1), isRelative(true) {}
+
+    // 建構子 3: 相對位置 - 鎖定「1D 格子」
+    // 用法: Pos("array", 5, "top") -> 鎖定 index 5
+    Pos(string _id, int _index, string _anchor = "center", double _dx = 0, double _dy = 0) 
+        : refId(_id), index(_index), anchor(_anchor), x(_dx), y(_dy), row(-1), col(-1), isRelative(true) {}
+
+    // 建構子 4: 相對位置 - 鎖定「2D 格子」 (新增!)
+    // 用法: Pos("matrix", 1, 2, "top") -> 鎖定 row 1, col 2
+    Pos(string _id, int _row, int _col, string _anchor = "center", double _dx = 0, double _dy = 0) 
+        : refId(_id), row(_row), col(_col), anchor(_anchor), x(_dx), y(_dy), index(-1), isRelative(true) {}
+
+    string toJson() const {
+        stringstream ss;
+        ss << "{";
+        if (isRelative) {
+            ss << "\"type\":\"rel\",";
+            ss << "\"ref\":\"" << refId << "\",";
+            
+            // 根據不同模式輸出對應的索引
+            if (row != -1 && col != -1) {
+                ss << "\"row\":" << row << ",";
+                ss << "\"col\":" << col << ",";
+            } else if (index != -1) {
+                ss << "\"index\":" << index << ",";
+            }
+
+            ss << "\"anchor\":\"" << anchor << "\",";
+            ss << "\"dx\":" << x << ",";
+            ss << "\"dy\":" << y;
+        } else {
+            ss << "\"type\":\"abs\",";
+            ss << "\"x\":" << x << ",";
+            ss << "\"y\":" << y;
+        }
+        ss << "}";
+        return ss.str();
+    }
+};
+
 class AV {
 public:
     AV() : _frameCount(0) {
@@ -160,7 +215,7 @@ public:
         return arr;
     }
 
-
+    /*
     static string relPos_to_absPos(const string& ID) {
         return "{ group: \"" + ID + "\", direction: \"center\" }";
     }
@@ -180,6 +235,7 @@ public:
     static string relPos_to_absPos(int x, int y) {
         return "{ x: " + to_string(x) + ", y: " + to_string(y) + " }";
     }
+    */
 
     void stop(){
         if (_frameCount > 0) {
@@ -279,28 +335,28 @@ public:
     }
 
     void arrow(
-        const string& startSpecJS,   // 例如 R"({ group: "BIT", index: 1 })"
-        const string& endSpecJS,     // 例如 R"({ group: "heap", index: 4 })"
+        const Pos startSpecJS,   // 例如 R"({ group: "BIT", index: 1 })"
+        const Pos endSpecJS,     // 例如 R"({ group: "heap", index: 4 })"
         const vector<pair<string,string>>& style = {}
     ) {
         _content += "                if (track === 0) {\n";
         _content += "                    drawArrow(";
-        _content += startSpecJS + ", ";
-        _content += endSpecJS   + ", ";
+        _content += startSpecJS.toJson() + ", ";
+        _content += endSpecJS.toJson()   + ", ";
         _content += "{ " + pair_string_to_object(style) + " }";
         _content += ");\n";
         _content += "                }\n";
     }
 
     void key_arrow(
-        const string& startSpecJS,   // 例如 R"({ group: "BIT", index: 1 })"
-        const string& endSpecJS,     // 例如 R"({ group: "heap", index: 4 })"
+        const Pos startSpecJS,   // 例如 R"({ group: "BIT", index: 1 })"
+        const Pos endSpecJS,     // 例如 R"({ group: "heap", index: 4 })"
         const vector<pair<string,string>>& style = {}
     ) {
         _content += "                if (track === 1) {\n";
         _content += "                    drawArrow(";
-        _content += startSpecJS + ", ";
-        _content += endSpecJS   + ", ";
+        _content += startSpecJS.toJson() + ", ";
+        _content += endSpecJS.toJson()   + ", ";
         _content += "{ " + pair_string_to_object(style) + " }";
         _content += ");\n";
         _content += "                }\n";

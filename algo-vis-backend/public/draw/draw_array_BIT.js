@@ -154,7 +154,7 @@
     
 
   // === BIT 專用：由 groupID + index 算出節點中心座標 ===
-  function getBITPosition(groupID, index) {
+  function getBITPosition(groupID, index, anchor) {
     const vp = window.getViewport && window.getViewport();
     if (!vp) return { x: 0, y: 0 };
 
@@ -185,11 +185,22 @@
       .split(',').map(Number);
 
     // BIT 裡 draw_block 是用 (x, y, w, baseBoxSize)
-    // 中心點 = 左上 + (w/2, baseBoxSize/2)
-    const cx = baseX + dx + xLocalLeft + w / 2;
-    const cy = baseY + dy + yLocalTop  + baseBoxSize / 2;
+    // 在本層的中心 x，與本層的 y（頂端）
+    const boxX = baseX + dx + xLocalLeft;
+    const boxY = baseY + dy + yLocalTop;
 
-    return { x: cx, y: cy };
+
+    const a = (anchor || 'center').toLowerCase();
+    
+    let finalX = boxX + w / 2; // 預設 Center
+    let finalY = boxY + baseBoxSize / 2; // 預設 Center
+
+    if (a.includes('left'))   finalX = boxX;
+    if (a.includes('right'))  finalX = boxX + w;
+    if (a.includes('top'))    finalY = boxY;
+    if (a.includes('bottom')) finalY = boxY + baseBoxSize;
+
+    return { x: finalX, y: finalY };
   }
 
   // 註冊到 ArrayLayout 表，讓 resolvePos 可以呼叫

@@ -153,7 +153,7 @@
   }
 
   // === heap 專用：由 groupID + index 算出節點中心座標 ===
-  function getHeapPosition(groupID, index) {
+  function getHeapPosition(groupID, index, anchor = "center") {
     const vp = window.getViewport && window.getViewport();
     if (!vp) return { x: 0, y: 0 };
 
@@ -174,22 +174,28 @@
     const w   = totalW / cnt;          // 此層每個節點的水平區塊寬度
     const pos = i - (cnt - 1);         // 此層中的第幾個（0-based）
 
-    // 在本層的中心 x，與本層的 y（頂端）
-    const xCenterLocal = pos * w + w / 2;
-    const yTopLocal    = lvl * rowH;
-
     // g 自己的 base-offset / translate（全局 / 拖曳）
     const [baseX, baseY] = (g.getAttribute('data-base-offset') || '0,0')
       .split(',').map(Number);
     const [dx, dy] = (g.getAttribute('data-translate') || '0,0')
       .split(',').map(Number);
 
-    // heap 的 draw_block 是用 (x - w/2, y, w, baseBoxSize)
-    // => 方塊中心 = (xCenterLocal, yTopLocal + baseBoxSize/2)
-    const cx = baseX + dx + xCenterLocal;
-    const cy = baseY + dy + yTopLocal + baseBoxSize / 2;
+    // 在本層的中心 x，與本層的 y（頂端）
+    const boxX = baseX + dx + pos * w;
+    const boxY = baseY + dy + lvl * rowH;
 
-    return { x: cx, y: cy };
+
+    const a = (anchor || 'center').toLowerCase();
+    
+    let finalX = boxX + w / 2; // 預設 Center
+    let finalY = boxY + baseBoxSize / 2; // 預設 Center
+
+    if (a.includes('left'))   finalX = boxX;
+    if (a.includes('right'))  finalX = boxX + w;
+    if (a.includes('top'))    finalY = boxY;
+    if (a.includes('bottom')) finalY = boxY + baseBoxSize;
+
+    return { x: finalX, y: finalY };
   }
 
   window.ArrayLayout = window.ArrayLayout || {};
