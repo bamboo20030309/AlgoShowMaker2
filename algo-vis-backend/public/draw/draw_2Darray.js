@@ -64,7 +64,7 @@
     style = {},
     range = {},
     draw_type = 'normal',
-    index = 3
+    index = 0
   ) {
     const vp = window.getViewport();
     if (!vp) return;
@@ -97,13 +97,24 @@
 
     const Max = getMaxNumericIn2DArray(matrix);
 
-    let highlight      = style.filter(s => s.type === "highlight");
-    let focus          = style.find(s => s.type === "focus")      ?.elements ?? [];
-    let point          = style.filter(s => s.type === "point");
-    let mark           = style.filter(s => s.type === "mark");
-    let background     = style.filter(s => s.type === "background");
-    let CDVS           = style.find(s => s.type === "CDVS")       ?.elements ?? [];
-    let noneNumber     = style.find(s => s.type === "noneNumber") ?.elements ?? [];
+    // 1. 先預設所有樣式變數為空陣列
+    let highlight  = [];
+    let focus      = [];
+    let point      = [];
+    let mark       = [];
+    let background = [];
+    let CDVS       = [];
+
+    // 2. 只有當 style 有內容時，才去執行篩選邏輯
+    if (Array.isArray(style) && style.length > 0) {
+        highlight      = style.filter(s => s.type === "highlight");
+        // focus 與 CDVS 比較特別，是用 .elements 取出陣列，若沒找到給空陣列
+        focus          = style.find(s => s.type === "focus")      ?.elements ?? [];
+        point          = style.filter(s => s.type === "point");
+        mark           = style.filter(s => s.type === "mark");
+        background     = style.filter(s => s.type === "background");
+        CDVS           = style.find(s => s.type === "CDVS")       ?.elements ?? [];
+    }
 
     // 取得或建立 g
     let g = vp.querySelector('#' + groupID);
@@ -140,7 +151,7 @@
     window.draw_array_outerframe(g, groupID, total_rows * baseBoxSize, total_cols * baseBoxSize);  //畫外框
 
 
-
+    const headerColor = 'rgba(111, 161, 255, 0.7)';
     // ========= 畫表頭 =========
     if (draw_type === 'normal') {
         if (isIndexX) {
@@ -237,8 +248,6 @@
     const [dx, dy]       = (g.getAttribute('data-translate') || '0,0').split(',').map(Number);
     const globalX = baseX + dx;
     const globalY = baseY + dy;
-
-    console.log("globalX, globalY:", globalX, globalY);
 
     // 3. 計算目標方塊的位置與大小 (Local Coordinates)
     let boxX = 0 + outerframe_padding, boxY = 0 + outerframe_padding, boxW = 0, boxH = 0;

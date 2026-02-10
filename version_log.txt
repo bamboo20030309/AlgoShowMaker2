@@ -219,7 +219,7 @@ AV_V3.15 2026/02/10
 1.arrow的錨點縮長度判定怪怪的                                                                              (已修正)
 2.arrow的箭頭尖端在不同寬度沒辦法貼齊
 3.bounce arrow效果不見了                                                                                  (已修正)
-4.draw_2Darray沒辦法直接draw
+4.draw_2Darray沒辦法直接draw                                                                              (已修正)
 5.arrow的箭頭 在有那格有彈跳箭頭的情況下沒辦法對齊(bbox的計算在搞)                                            (已修正)
 6.Outerframe的getPosition還沒改                                                                           (已修正)
 7.動畫在按到最前或最後時染色會有問題

@@ -31,8 +31,8 @@ void dfs(int x,int y,string now) {
             {{"highlight"},{{x+1,y+1}}}
         });
         av.frame_draw("ans",Pos(0,20),AV::to_vector(ans));
-        for(auto&v:_draw_LCS_path)av.arrow(Pos("LCS", v.f.f, v.f.s), Pos("LCS", v.s.f, v.s.s));
-        for(auto&v:AV::to_vector(_draw_stack_path))av.arrow(Pos("LCS", v.f.f, v.f.s), Pos("LCS", v.s.f, v.s.s), {{"color","rgba(55, 210, 97, 1)"}});
+        for(auto&v:_draw_LCS_path)av.arrow(Pos("LCS", v.f.f+1, v.f.s+1), Pos("LCS", v.s.f, v.s.s));
+        for(auto&v:AV::to_vector(_draw_stack_path))av.arrow(Pos("LCS", v.f.f+1, v.f.s+1), Pos("LCS", v.s.f, v.s.s), {{"color","rgba(55, 210, 97, 1)"}});
         av.key_text("如果儲存下來的字串跟LCS長度相同，那就算找到ㄧ組解了，把答案儲存下來",Pos(0,120));
         av.key_frame_draw("LCS",Pos(0,200),_draw_LCS,{
             {{"background","rgba(111, 161, 255, 0.7)"},AV::AtoB(1,0,S.size()+1,0)},
@@ -42,8 +42,8 @@ void dfs(int x,int y,string now) {
             {{"highlight"},{{x+1,y+1}}}
         });
         av.key_frame_draw("ans",Pos(0,20),AV::to_vector(ans));
-        for(auto&v:_draw_LCS_path)av.key_arrow(Pos("LCS", v.f.f, v.f.s), Pos("LCS", v.s.f, v.s.s));
-        for(auto&v:AV::to_vector(_draw_stack_path))av.key_arrow(Pos("LCS", v.f.f, v.f.s), Pos("LCS", v.s.f, v.s.s), {{"color","rgba(55, 210, 97, 1)"}});
+        for(auto&v:_draw_LCS_path)av.key_arrow(Pos("LCS", v.f.f+1, v.f.s+1), Pos("LCS", v.s.f, v.s.s));
+        for(auto&v:AV::to_vector(_draw_stack_path))av.key_arrow(Pos("LCS", v.f.f+1, v.f.s+1), Pos("LCS", v.s.f, v.s.s), {{"color","rgba(55, 210, 97, 1)"}});
         av.end_frame_draw();
         //}
         return;
@@ -60,9 +60,9 @@ void dfs(int x,int y,string now) {
             {{"CDVS"},AV::AtoB(1,1,S.size()+1,T.size()+1)},
             {{"highlight"},{{x+1,y+1}}}
         });
-        for(auto&v:_draw_LCS_path)av.arrow(Pos("LCS", v.f.f, v.f.s), Pos("LCS", v.s.f, v.s.s));
+        for(auto&v:_draw_LCS_path)av.arrow(Pos("LCS", v.f.f+1, v.f.s+1), Pos("LCS", v.s.f, v.s.s));
         _draw_stack_path.push( {{x,y},{x-1,y-1}} );
-        for(auto&v:AV::to_vector(_draw_stack_path))av.arrow(Pos("LCS", v.f.f, v.f.s), Pos("LCS", v.s.f, v.s.s), {{"color","rgba(55, 210, 97, 1)"}});
+        for(auto&v:AV::to_vector(_draw_stack_path))av.arrow(Pos("LCS", v.f.f+1, v.f.s+1), Pos("LCS", v.s.f, v.s.s), {{"color","rgba(55, 210, 97, 1)"}});
         av.end_frame_draw();
         //}
         dfs(x-1, y-1, now+S[x-1]);
@@ -80,10 +80,10 @@ void dfs(int x,int y,string now) {
             {{"CDVS"},AV::AtoB(1,1,S.size()+1,T.size()+1)},
             {{"highlight"},{{x+1,y+1}}}
         });
-        for(auto&v:_draw_LCS_path)av.arrow(Pos("LCS", v.f.f, v.f.s), Pos("LCS", v.s.f, v.s.s));
+        for(auto&v:_draw_LCS_path)av.arrow(Pos("LCS", v.f.f+1, v.f.s+1), Pos("LCS", v.s.f, v.s.s));
         _draw_stack_path.push( {{x,y},{x-1,y}} );
         _draw_stack_path.push( {{x,y},{x,y-1}} );
-        for(auto&v:AV::to_vector(_draw_stack_path))av.arrow(Pos("LCS", v.f.f, v.f.s), Pos("LCS", v.s.f, v.s.s), {{"color","rgba(55, 210, 97, 1)"}});
+        for(auto&v:AV::to_vector(_draw_stack_path))av.arrow(Pos("LCS", v.f.f+1, v.f.s+1), Pos("LCS", v.s.f, v.s.s), {{"color","rgba(55, 210, 97, 1)"}});
         av.end_frame_draw();
         //}
         dfs(x-1, y, now);
@@ -97,8 +97,8 @@ void dfs(int x,int y,string now) {
             {{"CDVS"},AV::AtoB(1,1,S.size()+1,T.size()+1)},
             {{"highlight"},{{x+1,y+1}}}
         });
-        for(auto&v:_draw_LCS_path)av.arrow(Pos("LCS", v.f.f, v.f.s), Pos("LCS", v.s.f, v.s.s));
-        for(auto&v:AV::to_vector(_draw_stack_path))av.arrow(Pos("LCS", v.f.f, v.f.s), Pos("LCS", v.s.f, v.s.s), {{"color","rgba(55, 210, 97, 1)"}});
+        for(auto&v:_draw_LCS_path)av.arrow(Pos("LCS", v.f.f+1, v.f.s+1), Pos("LCS", v.s.f, v.s.s));
+        for(auto&v:AV::to_vector(_draw_stack_path))av.arrow(Pos("LCS", v.f.f+1, v.f.s+1), Pos("LCS", v.s.f, v.s.s), {{"color","rgba(55, 210, 97, 1)"}});
         av.end_frame_draw();
         //} 
         dfs(x, y-1, now);
@@ -117,9 +117,9 @@ void dfs(int x,int y,string now) {
             {{"CDVS"},AV::AtoB(1,1,S.size()+1,T.size()+1)},
             {{"highlight"},{{x+1,y+1}}}
         });
-        for(auto&v:_draw_LCS_path)av.arrow(Pos("LCS", v.f.f, v.f.s), Pos("LCS", v.s.f, v.s.s));
+        for(auto&v:_draw_LCS_path)av.arrow(Pos("LCS", v.f.f+1, v.f.s+1), Pos("LCS", v.s.f, v.s.s));
         _draw_stack_path.push( {{x,y},{x-1,y}} );
-        for(auto&v:AV::to_vector(_draw_stack_path))av.arrow(Pos("LCS", v.f.f, v.f.s), Pos("LCS", v.s.f, v.s.s), {{"color","rgba(55, 210, 97, 1)"}});
+        for(auto&v:AV::to_vector(_draw_stack_path))av.arrow(Pos("LCS", v.f.f+1, v.f.s+1), Pos("LCS", v.s.f, v.s.s), {{"color","rgba(55, 210, 97, 1)"}});
         av.end_frame_draw();
         //}
         dfs(x-1, y, now);
@@ -137,9 +137,9 @@ void dfs(int x,int y,string now) {
             {{"CDVS"},AV::AtoB(1,1,S.size()+1,T.size()+1)},
             {{"highlight"},{{x+1,y+1}}}
         });
-        for(auto&v:_draw_LCS_path)av.arrow(Pos("LCS", v.f.f, v.f.s), Pos("LCS", v.s.f, v.s.s));
+        for(auto&v:_draw_LCS_path)av.arrow(Pos("LCS", v.f.f+1, v.f.s+1), Pos("LCS", v.s.f, v.s.s));
         _draw_stack_path.push( {{x,y},{x,y-1}} );
-        for(auto&v:AV::to_vector(_draw_stack_path))av.arrow(Pos("LCS", v.f.f, v.f.s), Pos("LCS", v.s.f, v.s.s), {{"color","rgba(55, 210, 97, 1)"}});
+        for(auto&v:AV::to_vector(_draw_stack_path))av.arrow(Pos("LCS", v.f.f+1, v.f.s+1), Pos("LCS", v.s.f, v.s.s), {{"color","rgba(55, 210, 97, 1)"}});
         av.end_frame_draw();
         //}                         
         dfs(x, y-1, now);
@@ -250,7 +250,7 @@ int main() {
                 {{"background","rgba(50, 191, 87, 0.7)"},{{5,0}}},
                 {{"highlight"},{{5,9}}}
             });
-            av.arrow(Pos("LCS",3,7), Pos("LCS",4,8), { {"color","rgba(50, 191, 87, 0.7)"} });
+            av.arrow(Pos("LCS",3+1,7+1), Pos("LCS",4+1,8+1), { {"color","rgba(50, 191, 87, 0.7)"} });
             av.end_frame_draw();
         }
         if(S=="abcdedcba" && T=="edcbabcde"){
@@ -305,11 +305,11 @@ int main() {
                 {{"highlight"},{{5,10}}}
             });
             if(_LCS[3][9]>=_LCS[4][8]) {
-                av.arrow(Pos("LCS",3,9), Pos("LCS",4,9), { {"color","rgba(50, 191, 87, 0.7)"} });
-                av.arrow(Pos("LCS",4,8), Pos("LCS",4,9));
+                av.arrow(Pos("LCS",3+1,9+1), Pos("LCS",4+1,9+1), { {"color","rgba(50, 191, 87, 0.7)"} });
+                av.arrow(Pos("LCS",4+1,8+1), Pos("LCS",4+1,9+1));
             } else {
-                av.arrow(Pos("LCS",3,9), Pos("LCS",4,9));
-                av.arrow(Pos("LCS",4,8), Pos("LCS",4,9), { {"color","rgba(50, 191, 87, 0.7)"} });
+                av.arrow(Pos("LCS",3+1,9+1), Pos("LCS",4+1,9+1), { {"color","rgba(50, 191, 87, 0.7)"} });
+                av.arrow(Pos("LCS",4+1,8+1), Pos("LCS",4+1,9+1));
             }
             av.end_frame_draw();
         }
@@ -346,7 +346,7 @@ int main() {
                     {{"background","rgba(50, 191, 87, 0.7)"},{{i+1,0},{0,j+1}}},
                     {{"highlight"},{{i+1,0},{0,j+1},{i+1,j+1}}}
                 });
-                av.arrow(Pos("LCS",i-1,j-1), Pos("LCS",i,j), { {"color","rgba(50, 191, 87, 0.7)"} });
+                av.arrow(Pos("LCS",i,j), Pos("LCS",i+1,j+1), { {"color","rgba(50, 191, 87, 0.7)"} });
                 if(j==T.size()) {
                     av.key_text("{加速...}",Pos(0,120));
                     av.key_frame_draw("LCS",Pos(0,200),_draw_LCS,{
@@ -355,7 +355,7 @@ int main() {
                         {{"background","rgba(50, 191, 87, 0.7)"},{{i+1,0},{0,j+1}}},
                         {{"highlight"},{{i+1,j+1}}}
                     });
-                    av.key_arrow(Pos("LCS",i-1,j-1), Pos("LCS",i,j), { {"color","rgba(50, 191, 87, 0.7)"} });
+                    av.key_arrow(Pos("LCS",i,j), Pos("LCS",i+1,j+1), { {"color","rgba(50, 191, 87, 0.7)"} });
                 }
                 av.end_frame_draw();
             } else {
@@ -368,11 +368,11 @@ int main() {
                     {{"highlight"},{{i+1,0},{0,j+1},{i+1,j+1}}}
                 });
                 if(LCS[i-1][j]>=LCS[i][j-1]) {
-                    av.arrow(Pos("LCS",i-1,j), Pos("LCS",i,j), { {"color","rgba(50, 191, 87, 0.7)"} });
-                    av.arrow(Pos("LCS",i,j-1), Pos("LCS",i,j));
+                    av.arrow(Pos("LCS",i,j+1), Pos("LCS",i+1,j+1), { {"color","rgba(50, 191, 87, 0.7)"} });
+                    av.arrow(Pos("LCS",i+1,j), Pos("LCS",i+1,j+1));
                 } else {
-                    av.arrow(Pos("LCS",i-1,j), Pos("LCS",i,j));
-                    av.arrow(Pos("LCS",i,j-1), Pos("LCS",i,j), { {"color","rgba(50, 191, 87, 0.7)"} });
+                    av.arrow(Pos("LCS",i,j+1), Pos("LCS",i+1,j+1));
+                    av.arrow(Pos("LCS",i+1,j), Pos("LCS",i+1,j+1), { {"color","rgba(50, 191, 87, 0.7)"} });
                 }
                 if(j==T.size()) {
                     av.key_text("{加速...}",Pos(0,120));
@@ -383,11 +383,11 @@ int main() {
                         {{"highlight"},{{i+1,j+1}}}
                     });
                     if(LCS[i-1][j]>=LCS[i][j-1]) {
-                        av.key_arrow(Pos("LCS",i-1,j), Pos("LCS",i,j), { {"color","rgba(50, 191, 87, 0.7)"} });
-                        av.key_arrow(Pos("LCS",i,j-1), Pos("LCS",i,j));
+                        av.key_arrow(Pos("LCS",i,j+1), Pos("LCS",i+1,j+1), { {"color","rgba(50, 191, 87, 0.7)"} });
+                        av.key_arrow(Pos("LCS",i+1,j), Pos("LCS",i+1,j+1));
                     } else {
-                        av.key_arrow(Pos("LCS",i-1,j), Pos("LCS",i,j));
-                        av.key_arrow(Pos("LCS",i,j-1), Pos("LCS",i,j), { {"color","rgba(50, 191, 87, 0.7)"} });
+                        av.key_arrow(Pos("LCS",i,j+1), Pos("LCS",i+1,j+1));
+                        av.key_arrow(Pos("LCS",i+1,j), Pos("LCS",i+1,j+1), { {"color","rgba(50, 191, 87, 0.7)"} });
                     }
                 }
                 av.end_frame_draw();
@@ -420,14 +420,14 @@ int main() {
             {{"background","rgba(111, 161, 255, 0.7)"},AV::AtoB(0,1,0,T.size()+1)},
             {{"CDVS"},AV::AtoB(1,1,S.size()+1,T.size()+1)}
         });
-        for(auto&v:_draw_LCS_path)av.arrow(Pos("LCS", v.f.f, v.f.s), Pos("LCS", v.s.f, v.s.s));
+        for(auto&v:_draw_LCS_path)av.arrow(Pos("LCS", v.f.f+1, v.f.s+1), Pos("LCS", v.s.f, v.s.s));
         av.key_colored_text({ {{"接下來講講如何把最長共同子序列的序列都找出{來:ㄌㄞˊ}\n先把每個是因為相同字元而取左上角值加ㄧ的格子全部畫上橋\n然後從最右下角開始回朔"}} },Pos(0,80));
         av.key_frame_draw("LCS",Pos(0,200),_draw_LCS,{
             {{"background","rgba(111, 161, 255, 0.7)"},AV::AtoB(1,0,S.size()+1,0)},
             {{"background","rgba(111, 161, 255, 0.7)"},AV::AtoB(0,1,0,T.size()+1)},
             {{"CDVS"},AV::AtoB(1,1,S.size()+1,T.size()+1)}
         });
-        for(auto&v:_draw_LCS_path)av.key_arrow(Pos("LCS", v.f.f, v.f.s), Pos("LCS", v.s.f, v.s.s));
+        for(auto&v:_draw_LCS_path)av.key_arrow(Pos("LCS", v.f.f+1, v.f.s+1), Pos("LCS", v.s.f, v.s.s));
         av.end_frame_draw();
         //}
         dfs(S.size(), T.size(), "");
@@ -440,14 +440,14 @@ int main() {
             {{"background","rgba(111, 161, 255, 0.7)"},AV::AtoB(0,1,0,T.size()+1)},
             {{"CDVS"},AV::AtoB(1,1,S.size()+1,T.size()+1)}
         });
-        for(auto&v:_draw_LCS_path)av.arrow(Pos("LCS", v.f.f, v.f.s), Pos("LCS", v.s.f, v.s.s));
+        for(auto&v:_draw_LCS_path)av.arrow(Pos("LCS", v.f.f+1, v.f.s+1), Pos("LCS", v.s.f, v.s.s));
         av.key_colored_text({ {{"這樣就找完所有的最大共同子序列了\n答案是 " + AV::array_to_string(AV::to_vector(ans))}} },Pos(0,100));
         av.key_frame_draw("LCS",Pos(0,200),_draw_LCS,{
             {{"background","rgba(111, 161, 255, 0.7)"},AV::AtoB(1,0,S.size()+1,0)},
             {{"background","rgba(111, 161, 255, 0.7)"},AV::AtoB(0,1,0,T.size()+1)},
             {{"CDVS"},AV::AtoB(1,1,S.size()+1,T.size()+1)}
         });
-        for(auto&v:_draw_LCS_path)av.key_arrow(Pos("LCS", v.f.f, v.f.s), Pos("LCS", v.s.f, v.s.s));
+        for(auto&v:_draw_LCS_path)av.key_arrow(Pos("LCS", v.f.f+1, v.f.s+1), Pos("LCS", v.s.f, v.s.s));
         av.end_frame_draw();
         //}
     }

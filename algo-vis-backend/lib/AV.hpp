@@ -340,11 +340,13 @@ public:
         const int code_line,
         const vector<vector<T>>& matrix = {}
     ) {
+        Pos pos=Pos(0,0);
         _content += "                if (track === 0) {\n";
         _content += "                    addEditorHighlight(" + to_string(code_line) + ");\n";
         _content += "                    ";
         _content += 
-            "draw2DArray(\'2Darray\', 0, 0," + 
+            "draw2DArray(\'array2D\', " + 
+            pos.toJson() + "," + 
             array2D_to_string(matrix) + ");\n";
         _content += "                }\n";
     }
@@ -380,11 +382,13 @@ public:
         const int code_line,
         const vector<T>& num = {}
     ) {
+        Pos pos=Pos(0,0);
         _content += "                if (track === 0) {\n";
         _content += "                    addEditorHighlight(" + to_string(code_line) + ");\n";
         _content += "                    ";
         _content += 
-            "drawArray(\'array\', 0, 0," + 
+            "drawArray(\'array\', " + 
+            pos.toJson() + ", " + 
             array_to_string(num) + ");\n";
         _content += "                }\n";
     }
@@ -432,11 +436,13 @@ public:
         const int code_line,
         const vector<vector<T>>& matrix = {}
     ) {
+        Pos pos=Pos(0,0);
         _content += "                if (track === 1) {\n";
         _content += "                    addEditorHighlight(" + to_string(code_line) + ");\n";
         _content += "                    ";
         _content += 
-            "draw2DArray(\'2Darray\', 0, 0," + 
+            "draw2DArray(\'array2D\', " + 
+            pos.toJson() + ", " +
             array2D_to_string(matrix) + ");\n";
         _content += "                }\n";
     }
@@ -473,11 +479,13 @@ public:
         const int code_line,
         const vector<T>& num = {}
     ) {
+        Pos pos=Pos(0,0);
         _content += "                if (track === 1) {\n";
         _content += "                    addEditorHighlight(" + to_string(code_line) + ");\n";
         _content += "                    ";
         _content += 
-            "drawArray(\'array\', 0, 0," + 
+            "drawArray(\'array\', " + 
+            pos.toJson() + ", " +
             array_to_string(num) + ");\n";
         _content += "                }\n";
     }
@@ -531,12 +539,14 @@ public:
         const int code_line,
         const vector<vector<T>>& matrix = {}
     ) {
+        Pos pos=Pos(0,0);
         _content += "            case " + to_string(_frameCount++) + ":\n";
         _content += "                if (track === 0) {\n";
         _content += "                    addEditorHighlight(" + to_string(code_line) + ");\n";
         _content += "                    ";
         _content += 
-            "draw2DArray(\'2Darray\', 0, 0," + 
+            "draw2DArray(\'array2D\', " + 
+            pos.toJson() + ", " +
             array2D_to_string(matrix) + ");\n";
         _content += "                }\n";
         _content += "                break;\n";
@@ -575,12 +585,14 @@ public:
         const int code_line,
         const vector<T>& num = {}
     ) {
+        Pos pos=Pos(0,0);
         _content += "            case " + to_string(_frameCount++) + ":\n";
         _content += "                if (track === 0) {\n";
         _content += "                    addEditorHighlight(" + to_string(code_line) + ");\n";
         _content += "                    ";
         _content += 
-            "drawArray(\'array\', 0, 0," + 
+            "drawArray(\'array\', " + 
+            pos.toJson() + ", " +
             array_to_string(num) + ");\n";
         _content += "                }\n";
         _content += "                break;\n";
