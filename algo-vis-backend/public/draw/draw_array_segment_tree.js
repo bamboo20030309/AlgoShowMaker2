@@ -3,6 +3,7 @@
   const NS = 'http://www.w3.org/2000/svg';
   const baseBoxSize = 40;   // 每個節點方塊的基本寬度（也當作高度）
   const indexBoxH   = 12;   // 索引區高度
+  const outerframe_padding = 8; // 外框與內容的間距
 
   /**
    * 在 SVG 群組 g 上，繪製 heap 模式的陣列視覺化。
@@ -120,8 +121,8 @@
       const cnt = 1 << lvl;
       const w   = totalW / cnt;
       const pos = i - (cnt - 1);
-      const x   = pos * w + w / 2;
-      const y   = lvl * hPerLevel;
+      const x   = pos * w + w / 2 + outerframe_padding;
+      const y   = lvl * hPerLevel + outerframe_padding;
 
       
       const haveFocus        =       focus.length  > 0 ?  focus.includes(i) : true;
@@ -241,8 +242,8 @@
       const cnt = 1 << lvl;
       const w   = totalW / cnt;
       const pos = i - (cnt - 1);
-      const x   = pos * w + w / 2;
-      const y   = lvl * hPerLevel;
+      const x   = pos * w + w / 2 + outerframe_padding;
+      const y   = lvl * hPerLevel + outerframe_padding;
 
       const haveHighlight    =   highlight.findLast(m => Array.isArray(m.elements) && m.elements.includes(i));
       const havePoint        =       point.findLast(m => Array.isArray(m.elements) && m.elements.includes(i));
@@ -279,8 +280,8 @@
         const cnt = 1 << lvl;                       // 此層節點數
         const w   = totalW / cnt;                   // 此節點寬度（像素）
         const pos = i - (cnt - 1);                  // 此節點在該層的索引(0-based)
-        const x   = pos * w + w / 2;                // 節點中心 x
-        const y   = lvl * hPerLevel;                // 節點頂部 y
+        const x   = pos * w + w / 2 + outerframe_padding;                // 節點中心 x
+        const y   = lvl * hPerLevel + outerframe_padding;                // 節點頂部 y
         const x0  = x - w / 2;                      // 節點左邊 x
 
         // 此節點覆蓋多少底層葉子（絕對座標系）
@@ -385,8 +386,8 @@
       .split(',').map(Number);
 
     // 在本層的中心 x，與本層的 y（頂端）
-    const boxX = baseX + dx + pos * w;
-    const boxY = baseY + dy + lvl * rowH;
+    const boxX = baseX + dx + pos * w + outerframe_padding;
+    const boxY = baseY + dy + lvl * rowH + outerframe_padding;
 
 
     const a = (anchor || 'center').toLowerCase();

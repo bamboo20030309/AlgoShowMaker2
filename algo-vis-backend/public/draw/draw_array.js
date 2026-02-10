@@ -38,8 +38,7 @@
 
   /**
    * @param {string}           groupID
-   * @param {number}           offsetX
-   * @param {number}           offsetY
+   * @param {Item}             Pos                  - { x: number, y: number }    
    * @param {Array}            array
    * @param {Array<StyleItem>} style                - 要繪製的輔助元素
    * @param {Array|number}     range      // [] 全部、n: [n,∞)、[n,m]: [n,m]
@@ -56,8 +55,7 @@
    */
   function drawArray(
     groupID,
-    offsetX = 0, 
-    offsetY = 0,
+    Pos,
     array,
     style = [],
     range,
@@ -171,18 +169,16 @@
         );
     }
 
+    const pos = window.resolvePos(Pos);
+
     // 1) 讀出拖曳偏移
-    const [dx, dy] = (g.getAttribute('data-translate') || '0,0')
-                      .split(',').map(Number);
+    const [dx, dy] = (g.getAttribute('data-translate') || '0,0').split(',').map(Number);
  
     // 2) 把 CodeScript 本幀的位移存在 data-base-offset
-    g.setAttribute('data-base-offset', `${offsetX},${offsetY}`);
+    g.setAttribute('data-base-offset', `${pos.x},${pos.y}`);
  
     // 3) 合併 base + 拖曳偏移，更新 transform
-    g.setAttribute(
-      'transform',
-      `translate(${offsetX + dx},${offsetY + dy})`
-    );
+    g.setAttribute('transform',`translate(${pos.x + dx},${pos.y + dy})`);
   }
 
   window.drawArray = drawArray;

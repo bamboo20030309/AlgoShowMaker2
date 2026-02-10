@@ -3,6 +3,7 @@
   const NS = 'http://www.w3.org/2000/svg';
   const baseBoxSize = 40;   // 每個節點方塊的基本寬度（也當作高度）
   const indexBoxH   = 12;   // 索引區高度
+  const outerframe_padding = 8; // 外框與內容的間距
 
   /**
    * 在 SVG 群組 g 上，繪製 BiTxt 模式的陣列視覺化。
@@ -84,9 +85,9 @@
       const widthUniTxts = idx & -idx;          // e.g. 1,2,4,8,...
       const layer = Math.log2(widthUniTxts);    // 層級 0-based
       const w = baseBoxSize * widthUniTxts;     // 寬度 = baseBoxSize × 單位數
-      const y = (rows - layer) * rowH;
+      const y = (rows - layer) * rowH + outerframe_padding  ;
       const idxInLayer = Math.floor(i / widthUniTxts);
-      const x = idxInLayer * w;
+      const x = idxInLayer * w + outerframe_padding;
 
       const haveFocus        =       focus.length  > 0 ?  focus.includes(i) : true;
       const haveBackground   =  background.findLast(m => Array.isArray(m.elements) && m.elements.includes(i));
@@ -125,9 +126,9 @@
       const widthUniTxts = idx & -idx;          // e.g. 1,2,4,8,...
       const layer = Math.log2(widthUniTxts);    // 層級 0-based
       const w = baseBoxSize * widthUniTxts;     // 寬度 = baseBoxSize × 單位數
-      const y = (rows - layer) * rowH;
+      const y = (rows - layer) * rowH + outerframe_padding  ;
       const idxInLayer = Math.floor(i / widthUniTxts);
-      const x = idxInLayer * w;
+      const x = idxInLayer * w + outerframe_padding;
 
       const haveHighlight    =   highlight.findLast(m => Array.isArray(m.elements) && m.elements.includes(i));
       const havePoint        =       point.findLast(m => Array.isArray(m.elements) && m.elements.includes(i));
@@ -186,8 +187,8 @@
 
     // BIT 裡 draw_block 是用 (x, y, w, baseBoxSize)
     // 在本層的中心 x，與本層的 y（頂端）
-    const boxX = baseX + dx + xLocalLeft;
-    const boxY = baseY + dy + yLocalTop;
+    const boxX = baseX + dx + xLocalLeft + outerframe_padding;
+    const boxY = baseY + dy + yLocalTop + outerframe_padding;
 
 
     const a = (anchor || 'center').toLowerCase();

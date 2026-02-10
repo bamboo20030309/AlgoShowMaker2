@@ -358,8 +358,7 @@ public:
     void frame_draw_impl(
         const int code_line,
         const string groupID,
-        const int offsetX = 0,
-        const int offsetY = 0,
+        const Pos pos,
         const vector<vector<T>>& matrix = {},
         const vector<array2D_style>& style = {},
         const vector<vector<int>>& range = {},
@@ -372,8 +371,7 @@ public:
         _content += 
             "draw2DArray(\'" + 
             groupID + "\', " + 
-            to_string(offsetX) + ", " + 
-            to_string(offsetY) + ", " + 
+            pos.toJson() + ", " + 
             array2D_to_string(matrix) + ",  " + 
             array2Dstyle_to_object(style) + ", " + 
             array2D_to_string(range) + ",  " + 
@@ -400,8 +398,7 @@ public:
     void frame_draw_impl(
         const int code_line,
         const string groupID,
-        const int offsetX = 0,
-        const int offsetY = 0,
+        const Pos pos,
         const vector<T>& num = {},
         const vector<array_style>& style = {},
         const vector<int>& range = {0},
@@ -420,8 +417,7 @@ public:
         _content += 
             "drawArray(\'" + 
             groupID + "\', " + 
-            to_string(offsetX) + ", " + 
-            to_string(offsetY) + ", " + 
+            pos.toJson() + ", " + 
             array_to_string(num) + ",  " + 
             arraystyle_to_object(style) + ", " + 
             array_to_string(range) + ", " + 

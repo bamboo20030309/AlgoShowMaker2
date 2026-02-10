@@ -3,6 +3,7 @@
   const NS = 'http://www.w3.org/2000/svg';
   const baseBoxSize = 40;
   const indexBoxH   = 12;
+  const outerframe_padding = 8;
 
   /**
    * 繪製陣列或堆疊樹的外框。
@@ -27,8 +28,8 @@
 
     // 背景大框
     const bg = document.createElementNS(NS, 'rect');
-    bg.setAttribute('x', frameX);
-    bg.setAttribute('y', -pad);
+    bg.setAttribute('x', frameX + outerframe_padding);
+    bg.setAttribute('y', -pad + outerframe_padding);
     bg.setAttribute('width', frameW);
     bg.setAttribute('height', height + pad * 2 + nameH);
     bg.setAttribute('fill', 'rgba(209,230,172,0.5)');
@@ -38,8 +39,8 @@
 
     // 底部名稱區
     const nb = document.createElementNS(NS, 'rect');
-    nb.setAttribute('x', frameX);
-    nb.setAttribute('y', height + pad);
+    nb.setAttribute('x', frameX + outerframe_padding);
+    nb.setAttribute('y', height + pad + outerframe_padding);
     nb.setAttribute('width', frameW);
     nb.setAttribute('height', nameH);
     nb.setAttribute('fill', 'none');
@@ -47,8 +48,8 @@
 
     // 群組名稱文字
     const label = document.createElementNS(NS, 'text');
-    label.setAttribute('x', frameX + frameW / 2);
-    label.setAttribute('y', height + pad + nameH / 2);
+    label.setAttribute('x', frameX + frameW / 2 + outerframe_padding);
+    label.setAttribute('y', height + pad + nameH / 2 + outerframe_padding);
     label.setAttribute('text-anchor', 'middle');
     label.setAttribute('dominant-baseline', 'middle');
     label.setAttribute('font-size', '14');

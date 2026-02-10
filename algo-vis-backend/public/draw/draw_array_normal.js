@@ -3,11 +3,12 @@
   const NS = 'http://www.w3.org/2000/svg';
   const baseBoxSize = 40;
   const indexBoxH   = 12;
+  const outerframe_padding = 8;
 
   /**
    * 在 SVG 群組 g 上，繪製 normal 模式的矩陣陣列。
    * @param {SVGGElement}      g
-   * @param {String}           groupID              - 陣列名稱
+   * @param {String}           groupID              - 陣列名稱 
    * @param {Array}            array                - 經過 range 過濾後的資料陣列
    * @param {Array<StyleItem>} style                - 要繪製的輔助元素
    * @param {Array[2]}         index_range          - 實際顯示的索引起點（通常等於 range[0]）固定兩格 左邊界及右邊界
@@ -75,6 +76,8 @@
     //把排版資訊記到 g 上，讓 getPosition 可以讀
     g.setAttribute('data-items-per-row', String(itemsPerRow));
     g.setAttribute('data-layout', 'normal');
+    g.setAttribute('data-index-start', String(index_range[0])); 
+    g.setAttribute('data-row-height', String(rowH));
 
     window.draw_array_outerframe(g, groupID, rows * rowH, cols * baseBoxSize);  //畫外框
 
@@ -83,8 +86,8 @@
     ranged_array.forEach((v, i) => {
       const r = Math.floor(i / itemsPerRow),
             c = i % itemsPerRow;
-      const x = c * baseBoxSize,
-            y = r * rowH;
+      const x = c * baseBoxSize + outerframe_padding,
+            y = r * rowH + outerframe_padding;
       
       const haveFocus        =       focus.length  > 0 ?  focus.includes(i) : true;
       const haveBackground   =  background.findLast(m => Array.isArray(m.elements) && m.elements.includes(i));
@@ -121,8 +124,8 @@
     ranged_array.forEach((v, i) => {
       const r = Math.floor(i / itemsPerRow),
             c = i % itemsPerRow;
-      const x = c * baseBoxSize,
-            y = r * rowH;
+      const x = c * baseBoxSize + outerframe_padding,
+            y = r * rowH + outerframe_padding;
 
       const haveHighlight    =   highlight.findLast(m => Array.isArray(m.elements) && m.elements.includes(i));
       const havePoint        =       point.findLast(m => Array.isArray(m.elements) && m.elements.includes(i));
@@ -177,8 +180,8 @@
     // 3. 計算該格子的「左上角」座標
     // X 軸間距固定是 baseBoxSize
     // Y 軸間距是 rowH (包含 index 高度)
-    const boxX = baseX + dx + (col * baseBoxSize);
-    const boxY = baseY + dy + (row * rowH);
+    const boxX = baseX + dx + (col * baseBoxSize) + outerframe_padding;
+    const boxY = baseY + dy + (row * rowH) + outerframe_padding;
 
     // 4. 根據 Anchor 計算最終位置
     // 注意：方格本身的大小是 baseBoxSize x baseBoxSize (不含下方的 index 標籤)

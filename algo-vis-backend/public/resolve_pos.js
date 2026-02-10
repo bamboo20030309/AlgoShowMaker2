@@ -46,23 +46,7 @@
       if (hasIndex) {
         if (layout && typeof layout.getPosition === 'function') {
           calculatedPos = layout.getPosition(refId, spec.index, anchor);
-        }/* else {
-          console.log("2 normal");
-          // 2. 沒有註冊 layout 的 fallback：用最原始的橫排算法
-          const [baseX, baseY] = (el.getAttribute('data-base-offset') || '0,0').split(',').map(Number);
-          const [dx, dy]       = (el.getAttribute('data-translate') || '0,0').split(',').map(Number);
-          
-          const box = parseInt(el.getAttribute("data-box-size") || "40", 10);
-          const perRow = parseInt(el.getAttribute("data-items-per-row") || "9999", 10);
-
-          const row = Math.floor(idx / perRow);
-          const col = idx % perRow;
-
-          calculatedPos = {
-            x: baseX + dx + col * box + box / 2,
-            y: baseY + dy + row * box + box / 2
-          };
-        }*/
+        }
       }
 
       // -----------------------------------------------------

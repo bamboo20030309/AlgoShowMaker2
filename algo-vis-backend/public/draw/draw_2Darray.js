@@ -3,6 +3,7 @@
 
   const NS = 'http://www.w3.org/2000/svg';
   const baseBoxSize = 40;   // 和其他 array 視覺一致
+  const outerframe_padding = 8;
 
   let initedDefs   = false;
 
@@ -49,8 +50,7 @@
    *  - 內部每格顯示 matrix[r][c] 的值
    *
    * @param {string}            groupID            - 這個 2D 陣列的群組名稱（也會是 <g> 的 id）
-   * @param {number}            offsetX            - 在畫布上的 X 位置
-   * @param {number}            offsetY            - 在畫布上的 Y 位置
+   * @param {Item}              Pos                  - { x: number, y: number }    
    * @param {Array<Array<any>>} matrix             - 二維陣列，例如 [[1,2,3],[4,5,6]]
    * @param {Array<StyleItem>}  style              - 額外設定（可省略）
    * @param {Array<Array<int>>} range              - 要畫的範圍，例如 [[1,1],[9,9]]
@@ -59,8 +59,7 @@
    */
   function draw2DArray(
     groupID,
-    offsetX = 0,
-    offsetY = 0,
+    Pos,
     matrix,
     style = {},
     range = {},
@@ -128,10 +127,10 @@
     const [dx, dy] = (g.getAttribute('data-translate') || '0,0').split(',').map(Number);
  
     // 2) 把 CodeScript 本幀的位移存在 data-base-offset
-    g.setAttribute('data-base-offset', `${offsetX},${offsetY}`);
+    g.setAttribute('data-base-offset', `${Pos.x},${Pos.y}`);
  
     // 3) 合併 base + 拖曳偏移，更新 transform
-    g.setAttribute('transform',`translate(${offsetX + dx},${offsetY + dy})`);
+    g.setAttribute('transform',`translate(${Pos.x + dx},${Pos.y + dy})`);
 
     // 每幀重畫前清空內容（保留 data-translate）
     while (g.firstChild) g.removeChild(g.firstChild);
@@ -141,20 +140,20 @@
     window.draw_array_outerframe(g, groupID, total_rows * baseBoxSize, total_cols * baseBoxSize);  //畫外框
 
 
-    
+
     // ========= 畫表頭 =========
     if (draw_type === 'normal') {
         if (isIndexX) {
             for (let r = startR; r < endR; r++) {
-                const x = 0;
-                const y = (r - startR + isIndexY) * cellH;
+                const x = 0 + outerframe_padding;
+                const y = (r - startR + isIndexY) * cellH + outerframe_padding;
                 window.draw_block(g, x, y, r, cellW, cellH, headerColor, `block-${groupID}-${r}-index`);
             }
         }
         if (isIndexY) {
             for (let c = startC; c < endC; c++) {
-                const x = (c - startC + isIndexX) * cellW;
-                const y = 0;
+                const x = (c - startC + isIndexX) * cellW + outerframe_padding;
+                const y = 0 + outerframe_padding;
                 window.draw_block(g, x, y, c, cellW, cellH, headerColor, `block-${groupID}-index-${c}`);
             }
         }
@@ -163,8 +162,8 @@
     // ========= 畫每一列：左側列索引 + 內部資料 =========
     for (let r = startR; r < endR; r++) {
       for (let c = startC; c < Math.min(endC,matrix[r].length); c++) {
-        const x = (c - startC + isIndexX) * cellW;
-        const y = (r - startR + isIndexY) * cellH;
+        const x = (c - startC + isIndexX) * cellW + outerframe_padding;
+        const y = (r - startR + isIndexY) * cellH + outerframe_padding;
         const value = (draw_type === 'clear') ? '' : matrix[r][c];
 
         const haveFocus        =       focus.length  > 0 ?  focus.some(([a, b]) => a === r && b === c) : true;
@@ -189,8 +188,8 @@
     // ========= 提示小元件 =========
     for (let r = startR; r < endR; r++) {
       for (let c = startC; c < Math.min(endC,matrix[r].length); c++) {
-        const x = (c - startC + isIndexX) * cellW;
-        const y = (r - startR + isIndexY) * cellH;
+        const x = (c - startC + isIndexX) * cellW + outerframe_padding;
+        const y = (r - startR + isIndexY) * cellH + outerframe_padding;
 
         const haveHighlight    =   highlight.findLast(m => Array.isArray(m.elements) && m.elements.some(([a, b]) => a === r && b === c));
         const havePoint        =       point.findLast(m => Array.isArray(m.elements) && m.elements.some(([a, b]) => a === r && b === c));
@@ -242,7 +241,7 @@
     console.log("globalX, globalY:", globalX, globalY);
 
     // 3. 計算目標方塊的位置與大小 (Local Coordinates)
-    let boxX = 0, boxY = 0, boxW = 0, boxH = 0;
+    let boxX = 0 + outerframe_padding, boxY = 0 + outerframe_padding, boxW = 0, boxH = 0;
     const cellW = baseBoxSize;
     const cellH = baseBoxSize;
 
@@ -255,14 +254,14 @@
         
         // 公式：(r - startR + isIndexY) * cellH
         // 需注意：如果 row < startR，它會跑到表格上方 (這在 partial render 時是合理的相對位置)
-        boxX = (col - startC + isIndexX) * cellW;
-        boxY = (row - startR + isIndexY) * cellH;
+        boxX = (col - startC + isIndexX) * cellW + outerframe_padding;
+        boxY = (row - startR + isIndexY) * cellH + outerframe_padding;
         boxW = cellW;
         boxH = cellH;
     } else {
         // === 針對整個表格 (Bounding Box) ===
-        boxX = 0;
-        boxY = 0;
+        boxX = 0 + outerframe_padding;
+        boxY = 0 + outerframe_padding;
         boxW = totalCols * cellW;
         boxH = totalRows * cellH;
     }
