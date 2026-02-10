@@ -734,7 +734,6 @@ document.addEventListener('DOMContentLoaded', () => {
   reloadAfterRun();
 
   // === 控制狀態 ===
-  let timer = null;
   let isPlaying = false;
 
   // === 元件參照 ===
@@ -1121,7 +1120,6 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('touchcancel', clearLongPressTimer, { passive: false });
   }
 
-
   // === 綁定各個按鈕 ===
 
   // 重來：點一下就好，不用長按模式
@@ -1132,12 +1130,34 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // 上一大步 / 下一大步：可長按切換自動模式
-  bindStepButton(prevKeyBtn, () => stepWithTween(() => CodeScript.prev_key_frame(), 300), -1);
-  bindStepButton(nextKeyBtn, () => stepWithTween(() => CodeScript.next_key_frame(), 300), +1);
+  bindStepButton(prevKeyBtn, () => {
+    // 如果不在第0幀，才允許往回跳 Key Frame
+    if (CodeScript && CodeScript.get_current_frame_index() > 0) {
+      stepWithTween(() => CodeScript.prev_key_frame(), 300);
+    }
+  }, -1);
+
+  bindStepButton(nextKeyBtn, () => {
+    // 如果還沒到最後一幀，才允許往下跳 Key Frame
+    if (CodeScript && CodeScript.get_current_frame_index() < CodeScript.get_frame_count() - 1) {
+      stepWithTween(() => CodeScript.next_key_frame(), 300);
+    }
+  }, +1);
 
   // 上一步 / 下一步：可長按切換自動模式
-  bindStepButton(prevBtn, () => stepWithTween(() => CodeScript.prev(), 300), -1);
-  bindStepButton(nextBtn, () => stepWithTween(() => CodeScript.next(), 300), +1);
+  bindStepButton(prevBtn, () => {
+    // 如果不在第0幀，才允許上一步
+    if (CodeScript && CodeScript.get_current_frame_index() > 0) {
+      stepWithTween(() => CodeScript.prev(), 300);
+    }
+  }, -1);
+
+  bindStepButton(nextBtn, () => {
+    // 如果還沒到最後一幀，才允許下一步
+    if (CodeScript && CodeScript.get_current_frame_index() < CodeScript.get_frame_count() - 1) {
+      stepWithTween(() => CodeScript.next(), 300);
+    }
+  }, +1);
 
   // 跳到最後：維持你目前的「跳到下一個 stopFrame」邏輯
   bindAction(finishBtn, () => gotoNextStopOrEnd());
@@ -1285,34 +1305,6 @@ restrictedIds.forEach(id => {
     }
   });
 })();
-
-/*
-// === TTS 按鈕：只控制「有聲 / 靜音」，不負責切幀 ===
-(function () {
-  function bindTTSToggleButton() {
-    const btn = document.getElementById('ttsAvBtn');
-    if (!btn) return;
-
-    btn.addEventListener('click', () => {
-      TTS_ENABLED = !TTS_ENABLED;
-
-      // 視覺效果：開聲音時亮起
-      btn.classList.toggle('active', TTS_ENABLED);
-
-      if (!TTS_ENABLED) {
-        // 關聲音就把正在播的聲音停掉（但不影響動畫）
-        try { window.speechSynthesis.cancel(); } catch {}
-      }
-    });
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bindTTSToggleButton);
-  } else {
-    bindTTSToggleButton();
-  }
-})();
-*/
 
 // front.js - 頂部選單擴充邏輯
 
