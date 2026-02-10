@@ -12,12 +12,24 @@
       const defs = document.createElementNS(NS, 'defs');
       defs.setAttribute('id', 'highlight-defs');
       const style = document.createElementNS(NS, 'style');
+      
+      // 補上 arrow-bounce 的動畫定義
       style.textContent = `
         @keyframes blink-stroke {
           0%,100% { stroke-opacity:1; }
           50% { stroke-opacity:0; }
         }
         .highlight-blink { animation: blink-stroke 1s infinite; }
+
+        @keyframes arrow-bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-5px); }
+        }
+        .arrow-bounce { 
+          animation: arrow-bounce 1s infinite ease-in-out; 
+          transform-box: fill-box; /* 重要：讓 transform 相對自身 */
+          transform-origin: center; 
+        }
       `;
       defs.appendChild(style);
       svg.insertBefore(defs, svg.firstChild);
