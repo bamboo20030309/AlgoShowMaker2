@@ -6,6 +6,14 @@
   let selectedFrames = new Set();
   let selectionAnchor = 0;
   let currentIndex = 0;
+  let availabilityRefreshFrame = 0;
+  const pendingAvailabilityFrames = new Set();
+  let thumbnailRenderFrame = 0;
+  let thumbnailRenderMode = '';
+  let thumbnailCullFrame = 0;
+  let pendingThumbnails = [];
+  const THUMBNAIL_CACHE_LIMIT = 24;
+  const thumbnailCache = new Map();
   let rail;
   let timeline;
   let inspector;
@@ -46,6 +54,8 @@
   let inspectorObjectPanel;
   let frameEventsEditor;
   let frameEventsList;
+  let frameFixedEditor;
+  let frameFixedList;
   let arrowFrom;
   let arrowTo;
   let arrowColor;
@@ -157,7 +167,20 @@
     trace.studio.objectStyles ||= {};
     trace.studio.eventStates ||= {};
     trace.studio.eventInstructionStates ||= {};
-    trace.studio.eventSettings ||= { gapMs: 500, defaultEnabled: {}, timelineTypes: {} };
+    trace.studio.eventSettings ||= { gapMs: 500, autoFixedEnabled: true, defaultEnabled: {}, timelineTypes: {} };
+    trace.studio.eventSettings.defaultEnabled ||= {};
+    trace.studio.eventSettings.timelineTypes ||= {};
+    if (typeof trace.studio.eventSettings.autoFixedEnabled !== 'boolean') {
+      trace.studio.eventSettings.autoFixedEnabled =
+        typeof trace.studio.eventSettings.defaultEnabled.fixed === 'boolean'
+          ? trace.studio.eventSettings.defaultEnabled.fixed
+          : true;
+    }
+    delete trace.studio.eventSettings.defaultEnabled.fixed;
+    delete trace.studio.eventSettings.timelineTypes.fixed;
+    Object.keys(trace.studio.eventInstructionStates).forEach(key => {
+      if (/^fixed:/.test(key)) delete trace.studio.eventInstructionStates[key];
+    });
     trace.studio.objects = Array.isArray(trace.studio.objects) ? trace.studio.objects : [];
     trace.studio.arrows = Array.isArray(trace.studio.arrows) ? trace.studio.arrows : [];
     trace.studio.cameraRules = Array.isArray(trace.studio.cameraRules) ? trace.studio.cameraRules : [];
@@ -333,13 +356,22 @@
     const resolvedIndex = resolvedIndices.length && resolvedIndices.every(value => Number.isInteger(Number(value)))
       ? resolvedIndices.map(Number).join(',')
       : indexExpression;
+    const requestedObjectKey = String(binding.targetObjectKey || '');
+    const keepObjectExists = requestedObjectKey && (trace?.snapshots || []).some(snapshot => (
+      String(snapshot?.objectId || snapshot?.id || '') === requestedObjectKey
+      && (frame?.snapshotIds || []).includes(snapshot.id)
+    ));
+    const objectTargetKey = requestedObjectKey && !keepObjectExists
+      && (trace?.studio?.objects || []).some(object => String(object?.id || '') === requestedObjectKey)
+      ? `studio:${requestedObjectKey}`
+      : requestedObjectKey;
     return {
       semanticText: Boolean(descriptor),
       semanticDirective: Boolean(objectBinding),
       descriptorLine: descriptor?.line || frame?.source?.line || 0,
       targetKey: binding.canvas
         ? '$canvas'
-        : `${binding.targetVariableId}${resolvedIndex ? `#${resolvedIndex}` : ''}`,
+        : `${binding.targetVariableId || objectTargetKey}${resolvedIndex ? `#${resolvedIndex}` : ''}`,
       sourceAnchor: objectBinding
         ? ([
           String(binding.anchor || '').includes('top') ? 'bottom' : String(binding.anchor || '').includes('bottom') ? 'top' : '',
@@ -378,9 +410,18 @@
     if (!descriptor || targetKey === '$canvas') return false;
     const targetId = bindingTargetVariableId(targetKey);
     const targetVariable = trace?.variables?.[targetId];
-    if (!targetVariable) return false;
+    const rawObjectKey = String(targetKey || '').split('#')[0];
+    const targetObjectKey = rawObjectKey.startsWith('studio:')
+      ? rawObjectKey.slice('studio:'.length)
+      : rawObjectKey;
+    const targetObjectExists = !targetVariable && (
+      (trace?.snapshots || []).some(snapshot => String(snapshot?.objectId || snapshot?.id || '') === targetObjectKey)
+      || (trace?.studio?.objects || []).some(object => String(object?.id || '') === targetObjectKey)
+    );
+    if (!targetVariable && !targetObjectExists) return false;
     const indexExpression = String(targetKey).match(/#([^:]+)/)?.[1] || '';
-    const targetExpression = `${targetVariable.name || targetId}${indexExpression ? `[${indexExpression}]` : ''}`;
+    const targetName = targetVariable?.name || targetId || targetObjectKey;
+    const targetExpression = `${targetVariable ? targetName : targetObjectKey}${indexExpression ? `[${indexExpression}]` : ''}`;
     const anchor = String(targetAnchor || 'center').replace(/\s+/g, '-').toLowerCase();
     const sourcePlacement = window.ASMTraceRenderers?.currentPlacement?.(textObjectKey(sourceKey), false);
     const targetPlacement = window.ASMTraceRenderers?.currentPlacement?.(targetKey, false);
@@ -401,8 +442,8 @@
     const nextBinding = {
       type: 'semantic',
       targetExpression,
-      targetName: targetVariable.name || targetId,
-      targetVariableId: targetId,
+      targetName: targetVariable ? targetName : targetObjectKey,
+      ...(targetVariable ? { targetVariableId: targetId } : { targetObjectKey }),
       indexExpressions: indexExpression ? [indexExpression] : [],
       anchor,
       offsetX,
@@ -502,6 +543,10 @@
   function objectDisplayName(key) {
     if (!key) return '';
     if (trace?.variables?.[key]) return trace.variables[key].name || key;
+    const kept = (trace?.snapshots || []).find(snapshot => (
+      snapshot.id === key || String(snapshot.objectId || snapshot.id) === key
+    ));
+    if (kept) return kept.label || kept.objectId || key;
     if (key.startsWith('text:')) {
       const selectedSegment = textSegmentForKey(key);
       if (selectedSegment?.kind === 'expression') return `變數 ${selectedSegment.source || `\${${selectedSegment.expression}}`}`;
@@ -833,7 +878,7 @@
     activeTextStyleKeys = textSegmentForKey(activeObjectKey) ? [activeObjectKey] : [];
     if (activeObjectKey) inspectorMode = 'object';
     else if (hadActiveObject && inspectorMode === 'object') {
-      inspectorMode = inspectorEventsForFrame().length ? 'events' : 'camera';
+      inspectorMode = hasEventInspectorContent() ? 'events' : 'camera';
     }
     renderObjectStateEditor();
     renderTransitionEditor();
@@ -1401,10 +1446,7 @@
   }
 
   function cameraRuleForFrame(frame) {
-    return trace.studio.cameraRules.filter(rule => {
-      if (Array.isArray(rule.frameIds) && rule.frameIds.length && !rule.frameIds.includes(frame.id)) return false;
-      return window.ASMTraceRules.conditionMatches(frame, rule.condition);
-    }).at(-1) || null;
+    return window.ASMTraceCamera.ruleForFrame(trace, frame);
   }
 
   function replaceCameraRuleForScope(rule) {
@@ -1442,65 +1484,13 @@
     renderCameraFrame();
   }
 
-  function applyCameraForFrame(index, animate = true, delay = 70, previousFrame = null) {
+  function applyCameraForFrame(index, animate = false, delay = 0, previousFrame = null) {
     clearTimeout(cameraTimer);
     const frame = trace?.frames?.[index];
     if (!frame) return;
     cameraTimer = setTimeout(() => {
       if (trace?.frames?.[currentIndex]?.id !== frame.id) return;
-      const rule = cameraRuleForFrame(frame);
-      const cameraTransition = previousFrame
-        ? window.ASMTraceTransitions?.resolve?.(trace, previousFrame, frame, '$camera', new Set(['$camera']))
-        : null;
-      const animateCamera = animate && cameraTransition?.mode !== 'instant';
-      const cameraDuration = Number(cameraTransition?.duration) || 400;
-      if (rule?.manualFrame && Number.isFinite(Number(rule.centerX)) && Number.isFinite(Number(rule.centerY))) {
-        const cameraTargetKey = window.ASMTraceRenderers?.cameraObjectKey?.(rule.binding?.targetKey);
-        const anchor = cameraTargetKey
-          ? window.ASMTraceRenderers?.currentAnchorForKey?.(
-            cameraTargetKey,
-            rule.binding.targetAnchor || 'center',
-            true
-          )
-          : null;
-        window.setCamera?.(
-          anchor ? anchor.x + (Number(rule.binding.dx) || 0) : Number(rule.centerX),
-          anchor ? anchor.y + (Number(rule.binding.dy) || 0) : Number(rule.centerY),
-          Number(rule.zoom) || 0.92,
-          animateCamera,
-          cameraDuration
-        );
-        return;
-      }
-      const focus = rule?.target ? window.ASMTraceRenderers?.currentAnchor?.(rule.target) : null;
-      const bounds = focus ? window.ASMTraceRenderers?.currentBounds?.() : null;
-      const followX = focus && bounds ? focus.x - bounds.centerX : 0;
-      const followY = focus && bounds ? focus.y - bounds.centerY : 0;
-      if (rule && rule.autoCapture === false) {
-        const currentView = window.getCameraViewport?.(Number(rule.zoom) || 0.92);
-        window.setCamera?.(
-          (focus?.x ?? currentView?.centerX ?? 0) + (Number(rule.offsetX) || 0),
-          (focus?.y ?? currentView?.centerY ?? 0) + (Number(rule.offsetY) || 0),
-          Number(rule.zoom) || 0.92,
-          animateCamera,
-          cameraDuration
-        );
-        return;
-      }
-      const target = window.ASMTraceRenderers?.fitCurrentObjectsCamera?.(
-        Number(rule?.zoom) || 0.92,
-        animateCamera,
-        cameraDuration,
-        (Number(rule?.offsetX) || 0) + followX,
-        (Number(rule?.offsetY) || 0) + followY,
-        true
-      ) || window.setAutoCamera?.(
-        Number(rule?.zoom) || 0.92,
-        animateCamera,
-        (Number(rule?.offsetX) || 0) + followX,
-        (Number(rule?.offsetY) || 0) + followY,
-        cameraDuration
-      );
+      const target = window.ASMTraceCamera.apply(trace, frame, previousFrame, animate);
       syncCameraFrameToAutoTarget(target);
     }, delay);
   }
@@ -1534,9 +1524,7 @@
       dot.style.background = eventColorFor(event);
       const label = EVENT_LABELS[event.type] || event.type;
       const autoDisabled = event.autoAnimationDisabled === true;
-      dot.title = autoDisabled
-        ? `${label}（需要的變數未顯示，動畫已自動關閉）`
-        : label;
+      dot.title = label;
       dot.classList.toggle('is-disabled', autoDisabled);
       dots.append(dot);
     });
@@ -1565,7 +1553,7 @@
       if (operation && compactTarget && compactOperation.includes(compactTarget)) return operation;
       return `${target} ${operation}`.trim();
     }
-    if (event?.type === 'fixed') return expression(targets[0]);
+    if (event?.type === 'fixed') return targets.map(expression).filter(Boolean).join('、');
     if (event?.type === 'condition') return event.conditionKind || '條件判斷';
     if (event?.type === 'call') return event.expression || event.callee || '';
     if (event?.type === 'function-enter' || event?.type === 'function-exit') return event.function || '';
@@ -1575,7 +1563,30 @@
   function setInstructionEventEnabled(event, enabled) {
     if (!trace || !event) return;
     const key = window.ASMTraceEvents?.instructionKey?.(event) || event.signature || event.type;
+    const canonical = window.ASMTraceEvents?.canonicalInstructionKey;
+    if (canonical) {
+      Object.keys(trace.studio.eventInstructionStates).forEach(savedKey => {
+        if (savedKey !== key && canonical(savedKey) === key) {
+          delete trace.studio.eventInstructionStates[savedKey];
+        }
+      });
+    }
     trace.studio.eventInstructionStates[key] = Boolean(enabled);
+    window.ASMTraceEvents?.applyEnabledStates?.(trace);
+    recordHistory();
+    renderFrameEventsEditor();
+    renderRail();
+    renderTimeline();
+    renderPlayerFrame(currentIndex, { animateEvents: false, animatePositions: false });
+  }
+
+  function setFrameFixedEnabled(frame, event, index, enabled) {
+    if (!trace || !frame || !event) return;
+    ensureStudioData();
+    const key = window.ASMTraceEvents?.eventKey?.(frame.events || [], index)
+      || event.signature || event.id;
+    trace.studio.eventStates[frame.id] ||= {};
+    trace.studio.eventStates[frame.id][key] = Boolean(enabled);
     window.ASMTraceEvents?.applyEnabledStates?.(trace);
     recordHistory();
     renderFrameEventsEditor();
@@ -1601,19 +1612,27 @@
   }
 
   function renderFrameEventsEditor() {
-    if (!frameEventsEditor || !frameEventsList) return;
+    if (!frameEventsEditor || !frameEventsList || !frameFixedEditor || !frameFixedList) return;
     const frame = trace?.frames?.[currentIndex];
     const events = frame?.events || [];
     const inspectorEvents = inspectorEventsForFrame(frame);
     frameEventsEditor.hidden = false;
     frameEventsList.replaceChildren();
+    frameFixedList.replaceChildren();
     if (!inspectorEvents.length) {
       frameEventsList.append(el('div', 'trace-studio-empty', '本幀沒有事件'));
     }
     inspectorEvents.forEach(({ event, index }, orderedIndex) => {
       const row = el('div', 'trace-studio-frame-event');
       const autoDisabled = event.autoAnimationDisabled === true;
-      row.classList.toggle('is-disabled', event.enabled === false || autoDisabled);
+      const control = window.ASMTraceEvents?.controlState?.(event)
+        || { checked: event.enabled !== false, available: !autoDisabled };
+      const availability = window.ASMTraceEvents?.availabilityKind?.(event)
+        || (autoDisabled ? 'missing-target' : 'available');
+      row.classList.toggle('is-disabled', !control.checked);
+      row.classList.toggle('is-unavailable', !control.available);
+      row.classList.toggle('is-missing-target', availability === 'missing-target');
+      row.classList.toggle('is-unrenderable', availability === 'unrenderable');
       const sequence = el('span', 'trace-studio-frame-event-order', String(orderedIndex + 1));
       sequence.title = `第 ${orderedIndex + 1} 個事件`;
       const swatch = el('i', 'trace-studio-frame-event-swatch');
@@ -1625,16 +1644,38 @@
       const toggle = el('label', 'trace-studio-event-switch');
       const input = document.createElement('input');
       input.type = 'checkbox';
-      input.checked = event.enabled !== false && !autoDisabled;
-      input.disabled = autoDisabled;
+      input.checked = control.checked;
       input.setAttribute('aria-label', `${EVENT_LABELS[event.type] || event.type}事件`);
-      input.title = autoDisabled
-        ? '事件需要的變數未顯示，當幀動畫已自動關閉'
-        : (input.checked ? '關閉此指令的所有事件動畫' : '開啟此指令的所有事件動畫');
+      input.title = input.checked
+        ? '關閉此指令的所有事件動畫'
+        : '開啟此指令的所有事件動畫';
       input.addEventListener('change', () => setInstructionEventEnabled(event, input.checked));
       toggle.append(input, el('span'));
       row.append(sequence, swatch, copy, toggle);
       frameEventsList.append(row);
+    });
+    const fixedEvents = fixedEventsForFrame(frame);
+    if (!fixedEvents.length) {
+      frameFixedList.append(el('div', 'trace-studio-empty', '本幀沒有新增固定格子'));
+    }
+    fixedEvents.forEach(({ event, index }) => {
+      const row = el('div', 'trace-studio-fixed-batch');
+      row.classList.toggle('is-disabled', event.enabled === false);
+      const icon = el('span', 'trace-studio-fixed-batch-icon', '✓');
+      const copy = el('span', 'trace-studio-frame-event-copy');
+      copy.append(el('strong', '', '完成格子'));
+      const summary = eventSummary(event);
+      if (summary) copy.append(el('small', '', summary));
+      const toggle = el('label', 'trace-studio-event-switch');
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.checked = event.enabled !== false;
+      input.setAttribute('aria-label', '本幀自動固定格子');
+      input.title = input.checked ? '隱藏本幀固定標記' : '顯示本幀固定標記';
+      input.addEventListener('change', () => setFrameFixedEnabled(frame, event, index, input.checked));
+      toggle.append(input, el('span'));
+      row.append(icon, copy, toggle);
+      frameFixedList.append(row);
     });
     renderInspectorNavigation();
   }
@@ -1644,7 +1685,19 @@
     const ordered = window.ASMTraceEvents?.orderedEntries?.(events)
       || events.map((event, index) => ({ event, index }));
     return ordered
+      .filter(({ event }) => window.ASMTraceEvents?.showInspector?.(event, trace) !== false)
       .filter(({ event }) => window.ASMTraceEvents?.showTag?.(event.type, trace) !== false);
+  }
+
+  function fixedEventsForFrame(frame = trace?.frames?.[currentIndex]) {
+    const events = frame?.events || [];
+    const ordered = window.ASMTraceEvents?.orderedEntries?.(events)
+      || events.map((event, index) => ({ event, index }));
+    return ordered.filter(({ event }) => event.type === 'fixed');
+  }
+
+  function hasEventInspectorContent(frame = trace?.frames?.[currentIndex]) {
+    return inspectorEventsForFrame(frame).length > 0 || fixedEventsForFrame(frame).length > 0;
   }
 
   function setInspectorMode(mode) {
@@ -1656,7 +1709,9 @@
   function renderInspectorNavigation() {
     if (!inspectorToolbar) return;
     const eventCount = inspectorEventsForFrame().length;
-    if (inspectorMode === 'object' && !activeObjectKey) inspectorMode = eventCount ? 'events' : 'camera';
+    if (inspectorMode === 'object' && !activeObjectKey) {
+      inspectorMode = hasEventInspectorContent() ? 'events' : 'camera';
+    }
     inspectorEventButton.disabled = false;
     inspectorEventCount.textContent = String(eventCount);
     inspectorEventCount.hidden = !eventCount;
@@ -1694,13 +1749,201 @@
     }
     currentIndex = next;
     if (!activeObjectKey && inspectorMode === 'object') {
-      inspectorMode = inspectorEventsForFrame(trace.frames[next]).length ? 'events' : 'camera';
+      inspectorMode = hasEventInspectorContent(trace.frames[next]) ? 'events' : 'camera';
     }
     renderPlayerFrame(next);
     renderSelection();
   }
 
+  function cancelThumbnailRendering() {
+    if (thumbnailRenderFrame) {
+      if (thumbnailRenderMode === 'idle' && typeof window.cancelIdleCallback === 'function') {
+        window.cancelIdleCallback(thumbnailRenderFrame);
+      } else {
+        cancelAnimationFrame(thumbnailRenderFrame);
+      }
+    }
+    thumbnailRenderFrame = 0;
+    thumbnailRenderMode = '';
+    pendingThumbnails = [];
+  }
+
+  function cancelThumbnailCulling() {
+    if (thumbnailCullFrame) cancelAnimationFrame(thumbnailCullFrame);
+    thumbnailCullFrame = 0;
+  }
+
+  function thumbnailWithinViewport(itemTop, itemBottom, viewportTop, viewportBottom, overscan = 0) {
+    return itemBottom >= viewportTop - overscan && itemTop <= viewportBottom + overscan;
+  }
+
+  function thumbnailPriority(itemTop, itemBottom, viewportTop, viewportBottom, overscan, isCurrent = false) {
+    if (thumbnailWithinViewport(itemTop, itemBottom, viewportTop, viewportBottom, 0)) {
+      return isCurrent ? 'current' : 'visible';
+    }
+    if (thumbnailWithinViewport(itemTop, itemBottom, viewportTop, viewportBottom, overscan)) {
+      return isCurrent ? 'current' : 'buffer';
+    }
+    return '';
+  }
+
+  function clearThumbnailCache() {
+    thumbnailCache.clear();
+  }
+
+  function cacheThumbnail(frameId, preview) {
+    if (!frameId || !preview) return;
+    thumbnailCache.delete(frameId);
+    thumbnailCache.set(frameId, preview);
+    while (thumbnailCache.size > THUMBNAIL_CACHE_LIMIT) {
+      thumbnailCache.delete(thumbnailCache.keys().next().value);
+    }
+  }
+
+  function takeCachedThumbnail(frameId) {
+    const preview = thumbnailCache.get(frameId) || null;
+    if (preview) thumbnailCache.delete(frameId);
+    return preview;
+  }
+
+  function thumbnailPlaceholder() {
+    const preview = el('span', 'trace-studio-frame-preview');
+    preview.setAttribute('aria-label', '縮圖載入中');
+    preview.setAttribute('aria-busy', 'true');
+    return preview;
+  }
+
+  function shouldRenderThumbnail(button, list) {
+    const itemRect = button.getBoundingClientRect();
+    const viewportRect = list.getBoundingClientRect();
+    const overscan = Math.min(180, Math.max(0, button.offsetHeight || 160));
+    return Boolean(thumbnailPriority(
+      itemRect.top,
+      itemRect.bottom,
+      viewportRect.top,
+      viewportRect.bottom,
+      overscan,
+      Number(button.dataset.frameIndex) === currentIndex
+    ));
+  }
+
+  function installThumbnail(preview, placeholder, frame, fromCache = false) {
+    preview.dataset.thumbnailRendered = 'true';
+    if (fromCache) preview.dataset.thumbnailCacheHit = 'true';
+    else delete preview.dataset.thumbnailCacheHit;
+    placeholder.replaceWith(preview);
+    window.ASMTraceRenderers?.refreshThumbnailCamera?.(preview, trace, frame);
+    if (cameraFrameState && selectedFrames.has(frame.id)) {
+      window.ASMTraceRenderers.showMainCameraFrameInThumbnail?.(preview, cameraFrameState);
+    }
+  }
+
+  function renderThumbnailJob(job) {
+    const { frame, index, placeholder, button } = job || {};
+    const list = typeof rail?.querySelector === 'function'
+      ? rail.querySelector('.trace-studio-frame-list')
+      : null;
+    if (!frame || !placeholder?.isConnected || (button && list && !shouldRenderThumbnail(button, list))) {
+      return false;
+    }
+    const preview = window.ASMTraceRenderers.createThumbnail(trace, frame, trace.frames[index - 1] || null);
+    installThumbnail(preview, placeholder, frame, false);
+    return true;
+  }
+
+  function refreshThumbnailCulling() {
+    thumbnailCullFrame = 0;
+    if (!rail || !trace || !document.body.classList.contains('asm-trace-studio-open')) return;
+    const list = rail.querySelector('.trace-studio-frame-list');
+    if (!list) return;
+    cancelThumbnailRendering();
+    const viewportRect = list.getBoundingClientRect();
+    const viewportCenter = (viewportRect.top + viewportRect.bottom) / 2;
+    const jobs = [];
+    list.querySelectorAll('.trace-studio-frame').forEach((button, index) => {
+      const preview = button.querySelector('.trace-studio-frame-preview');
+      if (!preview) return;
+      const itemRect = button.getBoundingClientRect();
+      const overscan = Math.min(180, Math.max(0, button.offsetHeight || 160));
+      const frameIndex = Number(button.dataset.frameIndex);
+      const frame = trace.frames[frameIndex];
+      const priority = thumbnailPriority(
+        itemRect.top,
+        itemRect.bottom,
+        viewportRect.top,
+        viewportRect.bottom,
+        overscan,
+        frameIndex === currentIndex
+      );
+      if (!priority) {
+        if (preview.dataset.thumbnailRendered === 'true') {
+          cacheThumbnail(button.dataset.frameId, preview);
+          preview.replaceWith(thumbnailPlaceholder());
+        }
+        return;
+      }
+      if (preview.dataset.thumbnailRendered === 'true') return;
+      if (!frame) return;
+      const cached = takeCachedThumbnail(frame.id);
+      if (cached) {
+        installThumbnail(cached, preview, frame, true);
+        return;
+      }
+      jobs.push({
+        frame,
+        index: frameIndex,
+        placeholder: preview,
+        button,
+        priority,
+        distance: Math.abs(((itemRect.top + itemRect.bottom) / 2) - viewportCenter)
+      });
+    });
+    const priorityRank = { current: 0, visible: 1, buffer: 2 };
+    jobs.sort((left, right) => priorityRank[left.priority] - priorityRank[right.priority]
+      || left.distance - right.distance || left.index - right.index);
+    if (jobs[0]?.priority === 'current') renderThumbnailJob(jobs.shift());
+    pendingThumbnails = jobs;
+    scheduleThumbnailRendering();
+  }
+
+  function scheduleThumbnailCulling() {
+    if (thumbnailCullFrame) return;
+    thumbnailCullFrame = requestAnimationFrame(refreshThumbnailCulling);
+  }
+
+  function scheduleThumbnailRendering() {
+    if (thumbnailRenderFrame || !pendingThumbnails.length) return;
+    const priority = pendingThumbnails[0]?.priority || 'visible';
+    if (priority === 'buffer' && typeof window.requestIdleCallback === 'function') {
+      thumbnailRenderMode = 'idle';
+      thumbnailRenderFrame = window.requestIdleCallback(renderThumbnailBatch, { timeout: 500 });
+      return;
+    }
+    thumbnailRenderMode = 'frame';
+    thumbnailRenderFrame = requestAnimationFrame(() => renderThumbnailBatch(null));
+  }
+
+  function renderThumbnailBatch(deadline = null) {
+    thumbnailRenderFrame = 0;
+    thumbnailRenderMode = '';
+    if (!trace || !document.body.classList.contains('asm-trace-studio-open')) {
+      pendingThumbnails = [];
+      return;
+    }
+    // Heap thumbnails perform synchronous SVG layout and getBBox calls. Doing
+    // several in one animation frame made the freshly opened Studio stutter.
+    if (deadline && !deadline.didTimeout && deadline.timeRemaining() < 6) {
+      scheduleThumbnailRendering();
+      return;
+    }
+    renderThumbnailJob(pendingThumbnails.shift());
+    scheduleThumbnailRendering();
+  }
+
   function renderRail() {
+    cancelThumbnailCulling();
+    cancelThumbnailRendering();
+    clearThumbnailCache();
     const list = rail.querySelector('.trace-studio-frame-list');
     const scrollTop = list.scrollTop;
     list.replaceChildren();
@@ -1723,12 +1966,13 @@
         '',
         `${directiveName ? `${directiveName} · ` : ''}${frame.source?.function || 'global'}:${frame.source?.line || '-'}`
       );
-      const preview = window.ASMTraceRenderers.createThumbnail(trace, frame, trace.frames[index - 1] || null);
+      const preview = thumbnailPlaceholder();
       button.append(header, source, preview);
       button.addEventListener('click', event => selectFrame(index, event));
       list.append(button);
     });
     list.scrollTop = scrollTop;
+    scheduleThumbnailCulling();
   }
 
   function syncCurrentThumbnail() {
@@ -1762,6 +2006,7 @@
     if (currentRect.top < listRect.top || currentRect.bottom > listRect.bottom) {
       current.scrollIntoView({ block: 'nearest' });
     }
+    scheduleThumbnailCulling();
   }
 
   function scheduleThumbnailSync() {
@@ -1785,6 +2030,31 @@
       marker.addEventListener('click', event => selectFrame(index, event));
       track.append(marker);
     });
+  }
+
+  function cancelEventAvailabilityRefresh() {
+    if (availabilityRefreshFrame) cancelAnimationFrame(availabilityRefreshFrame);
+    availabilityRefreshFrame = 0;
+    pendingAvailabilityFrames.clear();
+  }
+
+  function refreshEventAvailability() {
+    availabilityRefreshFrame = 0;
+    const frameIds = new Set(pendingAvailabilityFrames);
+    pendingAvailabilityFrames.clear();
+    if (!trace || !document.body.classList.contains('asm-trace-studio-open')) return;
+    const frames = new Map(trace.frames.filter(frame => frameIds.has(frame.id))
+      .map(frame => [frame.id, frame]));
+    // Rendering a thumbnail evaluates event availability. Never redraw scenes in
+    // response to that notification: doing so rebuilds every SVG for every frame.
+    [rail, timeline].forEach(container => {
+      container?.querySelectorAll('[data-frame-id]').forEach(item => {
+        const frame = frames.get(item.dataset.frameId);
+        if (!frame) return;
+        item.querySelector('.trace-studio-event-dots')?.replaceWith(eventDots(frame));
+      });
+    });
+    if (frameIds.has(trace.frames[currentIndex]?.id)) renderFrameEventsEditor();
   }
 
   function renderSelection() {
@@ -2524,9 +2794,14 @@
     inspector.append(inspectorEventsPanel, inspectorCameraPanel, inspectorObjectPanel);
 
     frameEventsEditor = section('本幀事件');
+    frameEventsEditor.classList.add('trace-studio-frame-events-section');
     frameEventsList = el('div', 'trace-studio-frame-events');
     frameEventsEditor.append(frameEventsList);
-    inspectorEventsPanel.append(frameEventsEditor);
+    frameFixedEditor = section('自動固定');
+    frameFixedEditor.classList.add('trace-studio-fixed-section');
+    frameFixedList = el('div', 'trace-studio-fixed-batches');
+    frameFixedEditor.append(frameFixedList);
+    inspectorEventsPanel.append(frameEventsEditor, frameFixedEditor);
     renderFrameEventsEditor();
 
     objectStateEditor = section('物件狀態');
@@ -2881,6 +3156,9 @@
   }
 
   function closeStudio() {
+    cancelThumbnailCulling();
+    cancelThumbnailRendering();
+    cancelEventAvailabilityRefresh();
     endBoundObjectDrag();
     closeCanvasShortcutMenu();
     flushAutoSave();
@@ -2915,6 +3193,7 @@
     close.addEventListener('click', closeStudio);
     railHeader.append(historyControls, close);
     const frameList = el('div', 'trace-studio-frame-list');
+    frameList.addEventListener('scroll', scheduleThumbnailCulling, { passive: true });
     rail.append(railHeader, frameList);
 
     inspector = buildInspector();
@@ -2927,6 +3206,7 @@
     main.insertBefore(rail, vizPanel);
     main.append(inspector);
     vizPanel.append(timeline);
+    window.addEventListener('resize', scheduleThumbnailCulling);
 
     const canvas = document.getElementById('arraySvg');
     canvas?.addEventListener('pointerdown', beginTextSelection, true);
@@ -2957,6 +3237,8 @@
   }
 
   function open(source) {
+    cancelThumbnailRendering();
+    cancelEventAvailabilityRefresh();
     trace = source || window.ASMTracePlayer?.getDocument?.();
     if (!trace?.frames?.length) return;
     const canvasTab = document.querySelector('.tab-btn[data-tab="tab-canvas"]');
@@ -2968,7 +3250,7 @@
     currentIndex = Math.max(0, window.ASMTracePlayer?.getCurrentFrame?.() || 0);
     activeBinding = null;
     activeObjectKey = '';
-    inspectorMode = inspectorEventsForFrame(trace.frames[currentIndex]).length ? 'events' : 'camera';
+    inspectorMode = hasEventInspectorContent(trace.frames[currentIndex]) ? 'events' : 'camera';
     selectedFrames = new Set([trace.frames[currentIndex].id]);
     scopeSelect.value = window.ASMTraceViewSource?.directiveName?.(trace.frames[currentIndex])
       || String(trace.frames[currentIndex]?.source?.statementId || '').startsWith('manual-frame:')
@@ -2982,8 +3264,8 @@
     renderSelection();
     renderObjectStateEditor();
     renderBindingEditor();
-    renderPlayerFrame(currentIndex);
-    applyCameraForFrame(currentIndex, true);
+    renderPlayerFrame(currentIndex, { animateEvents: false, animatePositions: false });
+    applyCameraForFrame(currentIndex, false);
   }
 
   function installDragHook() {
@@ -3077,7 +3359,7 @@
     renderSelection();
     renderObjectStateEditor();
     renderBindingEditor();
-    applyCameraForFrame(currentIndex, true, 70, event.detail?.previousFrame || null);
+    applyCameraForFrame(currentIndex, Boolean(event.detail?.previousFrame), 0, event.detail?.previousFrame || null);
     if (studioRenderDepth === 0) revealCurrentFrameInRail();
   });
 
@@ -3098,11 +3380,12 @@
   });
 
   window.addEventListener('asm:trace-event-availability-changed', event => {
-    if (!trace || event.detail?.document !== trace) return;
-    renderFrameEventsEditor();
-    renderRail();
-    renderTimeline();
-    renderInspectorNavigation();
+    if (!trace || event.detail?.document !== trace
+      || !document.body.classList.contains('asm-trace-studio-open')) return;
+    pendingAvailabilityFrames.add(event.detail.frameId);
+    if (!availabilityRefreshFrame) {
+      availabilityRefreshFrame = requestAnimationFrame(refreshEventAvailability);
+    }
   });
 
   window.addEventListener('asm:trace-event-gap-input', event => {
@@ -3140,11 +3423,29 @@
       renderFrameEventsEditor();
       renderInspectorNavigation();
     },
+    refreshViewport() {
+      if (!trace || !document.body.classList.contains('asm-trace-studio-open')) return;
+      applyCameraForFrame(currentIndex, false);
+      scheduleThumbnailCulling();
+      if (cameraFrameState) {
+        const viewport = window.getCameraViewport?.(cameraFrameState.zoom);
+        if (viewport) {
+          cameraFrameState.width = viewport.width;
+          cameraFrameState.height = viewport.height;
+          cameraFrameState.aspect = viewport.aspect;
+        }
+        renderCameraFrame();
+      }
+    },
     bindPosition,
     unbindPosition,
     moveBoundObjects,
     endBoundObjectDrag,
-    flushSourceSettings: writeSourceSettings,
+    flushSourceSettings() {
+      flushAutoSave();
+      closeCameraFrame(true);
+      return writeSourceSettings();
+    },
     getBinding: key => frameBinding(trace?.frames?.[currentIndex]?.id, key),
     getBindings: () => trace?.studio?.bindings || {}
   };

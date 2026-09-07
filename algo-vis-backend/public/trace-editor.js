@@ -14,10 +14,11 @@
   let accountEventSettingsToken = '';
   let renderedEventSettingsTrace = null;
   let renderedEventSettingsFingerprint = '';
+  let useSavedEventSettings = false;
   const embedMode = new URLSearchParams(window.location.search).get('asmEmbed');
 
   const EVENT_SETTING_TYPES = [
-    'declare', 'read', 'write', 'assign', 'compare', 'condition', 'swap', 'fixed',
+    'declare', 'read', 'write', 'assign', 'compare', 'condition', 'swap',
     'call', 'function-enter', 'function-exit'
   ];
   const DEFAULT_EVENT_GAP_MS = 500;
@@ -30,19 +31,23 @@
       gapMs: Number.isFinite(Number(value.gapMs))
         ? Math.max(0, Math.min(2000, Number(value.gapMs)))
         : DEFAULT_EVENT_GAP_MS,
+      autoFixedEnabled: typeof value.autoFixedEnabled === 'boolean'
+        ? value.autoFixedEnabled
+        : (typeof value.defaultEnabled?.fixed === 'boolean' ? value.defaultEnabled.fixed : true),
       defaultEnabled: cleanFlags(value.defaultEnabled),
       timelineTypes: cleanFlags(value.timelineTypes)
     };
   }
 
   function applyAccountEventSettings() {
-    if (!currentTrace) return;
+    if (!currentTrace || useSavedEventSettings) return;
     currentTrace.studio ||= {};
     currentTrace.studio.eventSettings = cleanEventSettings(accountEventSettings || { gapMs: DEFAULT_EVENT_GAP_MS });
     window.ASMTraceEvents?.applyEnabledStates?.(currentTrace);
   }
 
   async function loadAccountEventSettings(force = false) {
+    if (useSavedEventSettings) return currentTrace?.studio?.eventSettings;
     const token = localStorage.getItem('algo_jwt_token') || '';
     if (!token) {
       accountEventSettings = cleanEventSettings({ gapMs: DEFAULT_EVENT_GAP_MS });
@@ -141,6 +146,13 @@
     const settings = currentTrace.studio.eventSettings ||= {};
     settings.defaultEnabled ||= {};
     settings.timelineTypes ||= {};
+    if (typeof settings.autoFixedEnabled !== 'boolean') {
+      settings.autoFixedEnabled = typeof settings.defaultEnabled.fixed === 'boolean'
+        ? settings.defaultEnabled.fixed
+        : true;
+    }
+    delete settings.defaultEnabled.fixed;
+    delete settings.timelineTypes.fixed;
     if (!Number.isFinite(Number(settings.gapMs))) settings.gapMs = DEFAULT_EVENT_GAP_MS;
     return settings;
   }
@@ -168,7 +180,7 @@
       && renderedEventSettingsFingerprint === fingerprint
       && list.childElementCount) return;
     list.replaceChildren();
-    window.ASMTraceEvents.definitions.forEach(definition => {
+    window.ASMTraceEvents.definitions.filter(definition => definition.category !== 'state').forEach(definition => {
       const row = document.createElement('div');
       row.className = 'trace-event-settings-row';
       const name = document.createElement('strong');
@@ -188,7 +200,7 @@
       timeline.type = 'checkbox';
       timeline.checked = Object.hasOwn(settings.timelineTypes, definition.type)
         ? settings.timelineTypes[definition.type]
-        : window.ASMTraceEvents.animation(definition.type) !== 'none';
+        : definition.timelineByDefault === true;
       timeline.title = '顯示在事件時間線';
       timeline.addEventListener('change', () => {
         settings.timelineTypes[definition.type] = timeline.checked;
@@ -197,6 +209,8 @@
       row.append(name, enabled, timeline);
       list.append(row);
     });
+    const autoFixed = eventSettingsPanel.querySelector('.trace-auto-fixed-toggle');
+    autoFixed.checked = settings.autoFixedEnabled !== false;
     const gap = eventSettingsPanel.querySelector('.trace-event-gap');
     gap.value = String(settings.gapMs);
     gap.title = `間隔時間 ${settings.gapMs} ms`;
@@ -213,6 +227,23 @@
     head.innerHTML = '<strong>事件設定</strong><span>預設動畫</span><span>列入事件線</span>';
     const list = document.createElement('div');
     list.className = 'trace-event-settings-list';
+    const autoFixedRow = document.createElement('label');
+    autoFixedRow.className = 'trace-auto-fixed-settings';
+    const autoFixedCopy = document.createElement('span');
+    const autoFixedTitle = document.createElement('strong');
+    autoFixedTitle.textContent = '自動固定';
+    const autoFixedHint = document.createElement('small');
+    autoFixedHint.textContent = '依本次執行中物件格子的最後使用位置，自動顯示完成標記';
+    autoFixedCopy.append(autoFixedTitle, autoFixedHint);
+    const autoFixed = document.createElement('input');
+    autoFixed.className = 'trace-auto-fixed-toggle';
+    autoFixed.type = 'checkbox';
+    autoFixed.title = '顯示自動固定格子';
+    autoFixed.addEventListener('change', () => {
+      ensureEventSettings().autoFixedEnabled = autoFixed.checked;
+      saveEventSettings();
+    });
+    autoFixedRow.append(autoFixedCopy, autoFixed);
     const gapRow = document.createElement('label');
     gapRow.className = 'trace-event-settings-gap';
     gapRow.append(document.createTextNode('間隔時間'));
@@ -235,7 +266,7 @@
     const gapValue = document.createElement('output');
     gapValue.className = 'trace-event-gap-value';
     gapRow.append(gap, gapValue);
-    panel.append(head, list, gapRow);
+    panel.append(head, list, autoFixedRow, gapRow);
     document.body.append(panel);
     return panel;
   }
@@ -283,7 +314,7 @@
     };
   }
 
-  function applyTraceDocument(trace) {
+  function applyTraceDocument(trace, options = {}) {
     const skins = Object.fromEntries(Object.entries(trace.skins || {}).map(([variableId, skin]) => [variableId, {
       ...skin,
       renderer: originalRendererName(skin?.renderer, trace.variables?.[variableId])
@@ -291,8 +322,9 @@
 
     const incomingStudio = trace.studio && Object.keys(trace.studio).length
       ? { ...trace.studio }
-      : currentTrace?.studio || {};
-    delete incomingStudio.eventSettings;
+      : { ...(currentTrace?.studio || {}) };
+    useSavedEventSettings = Boolean(options.preserveEventSettings && incomingStudio.eventSettings);
+    if (!useSavedEventSettings) delete incomingStudio.eventSettings;
     currentTrace = window.ASMTraceModel.normalizeTraceDocument({ ...trace, skins, studio: incomingStudio });
     applyAccountEventSettings();
     currentTrace = window.asmApplyTraceDocument(currentTrace);
@@ -311,6 +343,7 @@
   }
 
   function loadAnimation(animation = {}) {
+    animation = window.ASMAlgorithmAnimation.normalize(animation);
     mode = animation.mode === 'trace' || animation.traceDocument ? 'trace' : 'manual';
     sliceMode = animation.sliceMode === 'manual' ? 'manual' : animation.sliceMode === 'full' ? 'full' : 'auto';
     if (animation.traceDocument?.frames?.length) {
@@ -319,15 +352,17 @@
         sliceMode: animation.sliceMode || animation.traceDocument.sliceMode,
         skins: animation.skins || animation.traceDocument.skins,
         rules: animation.rules || animation.traceDocument.rules
-      });
+      }, { preserveEventSettings: true });
     } else {
       currentTrace = null;
       updateStudioButton();
     }
+    window.dispatchEvent(new CustomEvent('asm:trace-loaded'));
   }
 
   function snapshot() {
     const traceVariables = currentTrace?.variables || {};
+    const savedTrace = window.ASMTraceViewSource?.compactTraceForSave?.(currentTrace) || currentTrace;
     const watches = Object.entries(traceVariables).map(([id, variable]) => ({
       id,
       name: variable.name,
@@ -338,9 +373,9 @@
       mode,
       sliceMode,
       watches,
-      skins: currentTrace?.skins || {},
-      rules: currentTrace?.rules || [],
-      traceDocument: currentTrace
+      skins: savedTrace?.skins || {},
+      rules: savedTrace?.rules || [],
+      traceDocument: savedTrace
     };
   }
 

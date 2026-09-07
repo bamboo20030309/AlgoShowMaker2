@@ -3,8 +3,6 @@
   const NS = 'http://www.w3.org/2000/svg';
   const baseBoxSize = 40;      // Normal 模式下正方形邊長
   const indexBoxH   = 12;
-  let initedDefs   = false;
-
   function ensureDefs() {
     const svg = window.getViewport().ownerSVGElement;
     if (!svg) return;
@@ -118,7 +116,11 @@
 
     const vp = window.getViewport();
     if (!vp) return;
-    if (!initedDefs) { ensureDefs(); initedDefs = true; }
+    // Trace Studio thumbnails and the main canvas use different SVG roots.
+    // Each root must own its animation definitions; a process-wide latch made
+    // whichever SVG rendered first (usually a thumbnail) disable point and
+    // highlight animation everywhere else.
+    ensureDefs();
 
     if (itemsPerRow <= 0) {
       itemsPerRow = array.length;

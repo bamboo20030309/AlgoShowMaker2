@@ -660,6 +660,7 @@
     { name: 'AV_orange', hex: 'orange' },
     { name: 'AV_node_green', hex: '#e8f5e9' },
     { name: 'AV_node_red', hex: '#ef9a9a' },
+    { name: 'AV_grey', hex: '#cccccc' },
     { name: 'AV_node_grey', hex: '#cccccc' },
     { name: 'AV_black', hex: 'black' },
     { name: 'AV_white', hex: 'white' }
@@ -2695,6 +2696,7 @@
     'AV_orange': 'orange',
     'AV_node_green': '#e8f5e9',
     'AV_node_red': '#ef9a9a',
+    'AV_grey': '#cccccc',
     'AV_node_grey': '#cccccc',
     'AV_black': 'black',
     'AV_white': 'white',

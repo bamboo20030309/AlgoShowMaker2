@@ -483,6 +483,19 @@
     } else if (style?.styleTypes) {
       next.styleTypes = { ...(current.styleTypes || {}), ...style.styleTypes };
     }
+    const sourceStyleId = String(extra?.sourceStyleId || '').trim();
+    if (styleType && sourceStyleId) {
+      next.sourceStyleIds = {
+        ...(current.sourceStyleIds || {}),
+        ...(style.sourceStyleIds || {}),
+        [styleType]: sourceStyleId
+      };
+    } else if (style?.sourceStyleIds) {
+      next.sourceStyleIds = {
+        ...(current.sourceStyleIds || {}),
+        ...style.sourceStyleIds
+      };
+    }
     return next;
   }
 
@@ -523,6 +536,7 @@
       AV_orange: 'orange',
       AV_node_green: '#e8f5e9',
       AV_node_red: '#ef9a9a',
+      AV_grey: '#cccccc',
       AV_node_grey: '#cccccc',
       AV_black: '#111827',
       AV_white: '#ffffff'
@@ -532,19 +546,25 @@
       const entry = frame?.state?.[variableId];
       if (!variableId || !entry) continue;
       const items = Array.isArray(entry.data?.items) ? entry.data.items : [entry.data];
-      let indices = items.map((_, index) => index);
-      if (style.selector?.type === 'index') {
-        const index = Number(resolveExpression(document, frame, style.selector.indexExpression));
-        indices = Number.isInteger(index) ? [index] : [];
-      } else if (style.selector?.type === 'range') {
-        const start = Number(resolveExpression(document, frame, style.selector.startExpression));
-        const end = Number(resolveExpression(document, frame, style.selector.endExpression));
-        if (!Number.isInteger(start) || !Number.isInteger(end)) indices = [];
-        else {
-          const stop = end + (style.selector.endInclusive ? 1 : 0);
-          indices = indices.filter(index => index >= start && index < stop);
+      const allIndices = items.map((_, index) => index);
+      const selectorIndices = selector => {
+        if (selector?.type === 'index') {
+          const index = Number(resolveExpression(document, frame, selector.indexExpression));
+          return Number.isInteger(index) ? [index] : [];
         }
-      }
+        if (selector?.type === 'range') {
+          const start = Number(resolveExpression(document, frame, selector.startExpression));
+          const end = Number(resolveExpression(document, frame, selector.endExpression));
+          if (!Number.isInteger(start) || !Number.isInteger(end)) return [];
+          const stop = end + (selector.endInclusive ? 1 : 0);
+          return allIndices.filter(index => index >= start && index < stop);
+        }
+        return allIndices;
+      };
+      const selectors = style.selector?.type === 'segments'
+        ? style.selector.segments || []
+        : [style.selector];
+      const indices = [...new Set(selectors.flatMap(selectorIndices))];
       indices.forEach(index => {
         if (index < 0 || index >= items.length) return;
         const value = window.ASMTraceModel.scalarValue(items[index]);

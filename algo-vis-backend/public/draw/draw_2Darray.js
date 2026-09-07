@@ -109,8 +109,7 @@
     // 2. 只有當 style 有內容時，才去執行篩選邏輯
     if (Array.isArray(style) && style.length > 0) {
         highlight      = style.filter(s => s.type === "highlight");
-        // focus 與 CDVS 比較特別，是用 .elements 取出陣列，若沒找到給空陣列
-        focus          = style.find(s => s.type === "focus")      ?.elements ?? [];
+        focus          = style.filter(s => s.type === "focus");
         point          = style.filter(s => s.type === "point");
         mark           = style.filter(s => s.type === "mark");
         background     = style.filter(s => s.type === "background");
@@ -174,11 +173,15 @@
         const cellValue = matrix[r][c];
         const value = (draw_type === 'clear' || draw_type === 'binary') ? '' : cellValue;
 
-        const haveFocus = focus.length > 0 ? focus.some(([a, b]) => a === r && b === c) : true;
+        const haveFocus = focus.length > 0
+          ? focus.some(item => Array.isArray(item.elements)
+            && item.elements.some(([a, b]) => a === r && b === c))
+          : true;
+        const dimColor = focus.findLast(item => item?.color?.trim())?.color.trim() || '#ccc';
         const haveBackground = background.findLast(m => Array.isArray(m.elements) && m.elements.some(([a, b]) => a === r && b === c));
         const background_color = (background.findLast(m => Array.isArray(m.elements) && m.elements.some(([a, b]) => a === r && b === c))?.color?.trim() || "") || "rgb(231, 144, 255)";
 
-        let fillColor = haveFocus ? '#fff' : '#ccc';
+        let fillColor = haveFocus ? '#fff' : dimColor;
         
         if (draw_type === 'binary') {
           fillColor = (cellValue >= 1) ? '#000' : '#fff';

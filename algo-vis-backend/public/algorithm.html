@@ -5,10 +5,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>AlgoShowMaker</title>
-  <link rel="stylesheet" href="style.css?v=syntax-2" />
+  <link rel="stylesheet" href="style.css?v=freshness-1" />
   <link rel="stylesheet" href="slides-embed.css?v=random-id-5" />
-  <link rel="stylesheet" href="trace.css?v=trace-14" />
-  <link rel="stylesheet" href="trace-studio.css?v=trace-39" />
+  <link rel="stylesheet" href="trace.css?v=trace-20" />
+  <link rel="stylesheet" href="trace-studio.css?v=trace-43" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 
@@ -127,6 +127,8 @@
             </svg>
           </button>
           <button id="ttsAvBtn" class="btn-tts" title="播放聲音">🔊</button>
+          <span id="traceFreshnessNotice" class="trace-freshness-dot" data-status="empty"
+            role="status" aria-live="polite" aria-label="動畫尚未更新" title="動畫尚未更新"></span>
           <div id="frameTimeline">
             <div id="frameBars"></div>
             <div id="frameInfo">0 / 0</div>
@@ -296,51 +298,59 @@
   </div>
 
   <!-- 載入 Ace Editor -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.11.2/ace.js"></script>
+  <script src="vendor/ace/ace.js"></script>
+  <script src="vendor/ace/mode-c_cpp.js"></script>
+  <script src="vendor/ace/theme-monokai.js"></script>
   <!-- 載入開源的高級選色與透明度套件 iro.js -->
   <script src="vendor/iro/iro.min.js"></script>
-  <script src="trace-events.js?v=trace-18"></script>
+  <script src="trace-events.js?v=trace-27"></script>
   <script src="trace-color-picker.js?v=trace-6"></script>
   <!-- 底層繪圖與互動腳本 -->
-  <script src="canva.js?v=trace-9"></script>
-  <script src="interaction.js?v=trace-37"></script>
-  <script src="trace-view-source.js?v=trace-8"></script>
-  <script src="trace-model.js?v=trace-15"></script>
-  <script src="trace-rules.js?v=trace-9"></script>
+  <script src="canva.js?v=trace-12"></script>
+  <script src="interaction.js?v=trace-38"></script>
+  <script src="trace-view-source.js?v=trace-14"></script>
+  <script src="trace-model.js?v=trace-20"></script>
+  <script src="trace-code-model.js?v=code-5"></script>
+  <script src="trace-rules.js?v=trace-12"></script>
   <script src="trace-transitions.js?v=trace-5"></script>
-  <script src="trace-frame-tween.js?v=trace-94"></script>
-  <script src="trace-renderer.js?v=trace-115"></script>
-  <script src="trace-player.js?v=trace-15"></script>
-  <script src="trace-editor.js?v=trace-12"></script>
+  <script src="trace-frame-tween.js?v=trace-109"></script>
+  <script src="trace-camera.js?v=trace-2"></script>
+  <script src="trace-code-presenter.js?v=code-4"></script>
+  <script src="trace-renderer.js?v=trace-136"></script>
+  <script src="trace-player.js?v=trace-19"></script>
+  <script src="trace-provenance.js?v=trace-2"></script>
+  <script src="algorithm-animation.js?v=animation-2"></script>
+  <script src="trace-editor.js?v=trace-17"></script>
+  <script src="trace-freshness.js?v=trace-2"></script>
   <script src="syntax-tree.js?v=syntax-2"></script>
-  <script src="compile.js?v=syntax-3"></script>
+  <script src="compile.js?v=syntax-5"></script>
   <script src="tts.js?v=10"></script>
   <script src="resolve_pos.js"></script>
   <script src="animation.js?v=trace-5"></script>
-  <script src="front.js?v=random-id-28"></script>
+  <script src="front.js?v=random-id-29"></script>
   <script src="draw/draw_array_outerframe.js"></script>
-  <script src="draw/draw_array_hintWidget.js"></script>
+  <script src="draw/draw_array_hintWidget.js?v=trace-4"></script>
   <script src="draw/draw_array_utils.js"></script>
   <script src="draw/draw_block.js"></script>
   <script src="draw/draw_arrow.js"></script>
-  <script src="draw/draw_array_segment_tree.js"></script>
-  <script src="draw/draw_array_normal.js"></script>
-  <script src="draw/draw_array_heap.js"></script>
-  <script src="draw/draw_array_BIT.js"></script>
-  <script src="draw/draw_array_disk.js"></script>
-  <script src="draw/draw_array_stack.js"></script>
-  <script src="draw/draw_array_queue.js"></script>
-  <script src="draw/draw_array.js"></script>
-  <script src="draw/draw_2Darray.js"></script>
+  <script src="draw/draw_array_segment_tree.js?v=focus-2"></script>
+  <script src="draw/draw_array_normal.js?v=focus-2"></script>
+  <script src="draw/draw_array_heap.js?v=focus-2"></script>
+  <script src="draw/draw_array_BIT.js?v=focus-2"></script>
+  <script src="draw/draw_array_disk.js?v=focus-2"></script>
+  <script src="draw/draw_array_stack.js?v=focus-2"></script>
+  <script src="draw/draw_array_queue.js?v=focus-2"></script>
+  <script src="draw/draw_array.js?v=trace-2"></script>
+  <script src="draw/draw_2Darray.js?v=focus-2"></script>
   <script src="draw/draw_circle.js"></script>
   <script src="draw/draw_triangle.js"></script>
   <script src="draw/draw_word.js"></script>
-  <script src="draw/draw_text.js?v=2"></script>
+  <script src="draw/draw_text.js?v=3"></script>
   <!-- GUI 編輯器 -->
   <link rel="stylesheet" href="gui_editor.css" />
-  <script src="gui_editor.js?v=trace-2"></script>
-  <script src="trace-studio.js?v=trace-81"></script>
-  <script src="slides-embed.js?v=random-id-3"></script>
+  <script src="gui_editor.js?v=trace-3"></script>
+  <script src="trace-studio.js?v=trace-94"></script>
+  <script src="slides-embed.js?v=trace-7"></script>
 </body>
 
 </html>

@@ -135,6 +135,41 @@ body:not([class*="asm-embed-"]) .trace-mode-controls {
   accent-color: #1d8f83;
 }
 
+.trace-auto-fixed-settings {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 32px;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-top: 6px solid #202629;
+  border-bottom: 1px solid #343c41;
+  background: #222a27;
+}
+
+.trace-auto-fixed-settings > span {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.trace-auto-fixed-settings strong {
+  color: #8bd48e;
+  font-size: 12px;
+}
+
+.trace-auto-fixed-settings small {
+  color: #9facb2;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.trace-auto-fixed-settings input {
+  width: 16px;
+  height: 16px;
+  justify-self: center;
+  accent-color: #4caf50;
+}
+
 .trace-event-settings-gap {
   display: grid;
   grid-template-columns: 58px minmax(0, 1fr) 54px;
@@ -434,6 +469,29 @@ body.asm-trace-studio-open .asm-trace-object.selected {
   transform: none;
 }
 
+/* Trace renderers can draw into the main canvas or any number of thumbnail
+   SVGs. Keep presentation animations in document CSS so every SVG root gets
+   the same behavior regardless of which one rendered first. */
+@keyframes blink-stroke {
+  0%, 100% { stroke-opacity: 1; }
+  50% { stroke-opacity: 0; }
+}
+
+.highlight-blink {
+  animation: blink-stroke 1s infinite;
+}
+
+@keyframes arrow-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.arrow-bounce {
+  animation: arrow-bounce 1s infinite ease-in-out;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
 @keyframes asm-trace-lift {
   from { opacity: 0.45; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
@@ -499,4 +557,158 @@ body.asm-trace-studio-open *::-webkit-scrollbar-button {
 body.asm-trace-mode *::-webkit-scrollbar-corner,
 body.asm-trace-studio-open *::-webkit-scrollbar-corner {
   background: #15191c;
+}
+
+.asm-trace-code-panel {
+  position: absolute;
+  z-index: 8;
+  left: 24px;
+  top: 24px;
+  width: max-content;
+  max-width: min(48%, 680px);
+  max-height: min(78%, 620px);
+  overflow: visible;
+  pointer-events: auto;
+  color: #1f2328;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  font-family: Consolas, "Cascadia Code", "Noto Sans Mono", monospace;
+  font-size: clamp(11px, 0.95vw, 14px);
+  line-height: 1.58;
+}
+
+.asm-trace-code-panel.is-dragging {
+  z-index: 12;
+  cursor: grabbing;
+}
+
+.asm-trace-code-panel[hidden] {
+  display: none !important;
+}
+
+.asm-trace-code-body.ace-tm {
+  position: relative;
+  width: max-content;
+  max-width: 100%;
+  max-height: min(78vh, 620px);
+  padding: 9px 12px;
+  overflow: hidden;
+  color: #1f2328;
+  background: rgba(255, 255, 255, 0.84);
+  border-radius: 5px;
+  box-shadow: none;
+}
+
+.asm-trace-code-page {
+  position: relative;
+  width: max-content;
+  max-width: 100%;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 420ms ease, transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.asm-trace-code-page.is-leaving {
+  position: absolute;
+  inset: 9px 12px auto;
+  pointer-events: none;
+}
+
+.asm-trace-code-page.is-entering.from-below {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.asm-trace-code-page.is-entering.from-above {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
+.asm-trace-code-page.is-leaving.to-above.has-left {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
+.asm-trace-code-page.is-leaving.to-below.has-left {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.asm-trace-code-fragment-divider,
+.asm-trace-code-ellipsis {
+  padding-left: 1.35em;
+  color: #6a737d;
+  line-height: 1.15;
+}
+
+.asm-trace-code-fragment-divider {
+  margin: 4px 0;
+  border: 0;
+  text-align: left;
+}
+
+.asm-trace-code-line {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  min-height: 1.58em;
+  padding: 0;
+}
+
+.asm-trace-code-line code {
+  display: block;
+  overflow: hidden;
+  color: inherit;
+  font: inherit;
+  text-overflow: clip;
+  white-space: pre;
+}
+
+.asm-trace-code-event-span {
+  border-radius: 3px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  transition: background-color 100ms linear, box-shadow 100ms linear;
+}
+
+.asm-trace-code-event-span.is-complete:not(.is-active) {
+  background: rgba(100, 116, 139, 0.18);
+}
+
+.ace-tm .asm-trace-code-event-span.is-active {
+  background-color: rgba(255, 214, 10, 0.48);
+  border-radius: 0;
+  box-shadow: inset 0 -2px 0 rgba(217, 164, 0, 0.72);
+}
+
+.asm-trace-code-event-span.is-active-first {
+  border-radius: 3px 0 0 3px;
+}
+
+.asm-trace-code-event-span.is-active-last {
+  border-radius: 0 3px 3px 0;
+}
+
+.asm-trace-code-event-span.is-active-first.is-active-last {
+  border-radius: 3px;
+}
+
+@media (max-width: 760px) {
+  .asm-trace-code-panel {
+    left: 8px;
+    top: 12px;
+    max-width: min(56%, 360px);
+    font-size: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .asm-trace-code-page {
+    transition: none;
+  }
 }

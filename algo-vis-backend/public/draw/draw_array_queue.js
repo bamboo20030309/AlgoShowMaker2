@@ -32,6 +32,7 @@
     }
 
     let highlight = normalize(style.filter(s => s.type === "highlight"));
+    let focus = normalize(style.filter(s => s.type === "focus"));
     let point = normalize(style.filter(s => s.type === "point"));
     let mark = normalize(style.filter(s => s.type === "mark"));
     let background = normalize(style.filter(s => s.type === "background"));
@@ -125,9 +126,14 @@
       const x = i * cellStepW + outerframe_padding + sideSpace;
       const y = outerframe_padding + container_gap;
 
+      const haveFocus = focus.length > 0
+        ? focus.some(item => Array.isArray(item.elements) && item.elements.includes(i))
+        : true;
+      const dimColor = focus.findLast(item => item?.color?.trim())?.color.trim() || '#ccc';
       const haveBackground = background.findLast(m => Array.isArray(m.elements) && m.elements.includes(i));
       const background_color = (haveBackground?.color?.trim() || "") || "rgba(200, 255, 200, 0.8)";
-      let fillColor = haveBackground ? background_color : '#fff';
+      let fillColor = haveFocus ? '#fff' : dimColor;
+      fillColor = haveBackground ? background_color : fillColor;
 
       window.draw_block(g, x, y, v, baseBoxSize, baseBoxSize, fillColor, `cell-${groupID}-${i}`, nodeMap);
     });

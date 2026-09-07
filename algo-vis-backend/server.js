@@ -14,6 +14,7 @@ const jwt = require('jsonwebtoken');        //webtoken套件
 const nodemailer = require('nodemailer');          //重置密碼email套件
 const { analyzeSource, buildSyntaxTree, findFrameDirectives, instrumentSource } = require('./trace-instrumenter');
 const TraceViewSource = require('./public/trace-view-source');
+const TraceProvenance = require('./public/trace-provenance');
 
 // 優先讀取環境變數，如果沒讀到才用後面的預設值
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key';
@@ -116,7 +117,8 @@ const PORT = process.env.PORT || 3000;
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 分鐘內
   max: 20, // 每個 IP 最多只能送 20 次請求
-  message: { error: '請求過於頻繁，請稍後再試' }
+  message: { error: '請求過於頻繁，請稍後再試' },
+  skip: () => process.env.ASM_REGRESSION === '1'
 });
 
 // 3. 套用限制器到 /compile
@@ -393,7 +395,7 @@ app.get('/api/auth/me', authenticateToken, (req, res) => {
 });
 
 const EVENT_SETTING_TYPES = [
-  'declare', 'read', 'write', 'assign', 'compare', 'condition', 'swap', 'fixed',
+  'declare', 'read', 'write', 'assign', 'compare', 'condition', 'swap',
   'call', 'function-enter', 'function-exit'
 ];
 const DEFAULT_EVENT_GAP_MS = 500;
@@ -406,6 +408,9 @@ function cleanEventSettings(value = {}) {
     gapMs: Number.isFinite(Number(value.gapMs))
       ? Math.max(0, Math.min(2000, Number(value.gapMs)))
       : DEFAULT_EVENT_GAP_MS,
+    autoFixedEnabled: typeof value.autoFixedEnabled === 'boolean'
+      ? value.autoFixedEnabled
+      : (typeof value.defaultEnabled?.fixed === 'boolean' ? value.defaultEnabled.fixed : true),
     defaultEnabled: cleanFlags(value.defaultEnabled),
     timelineTypes: cleanFlags(value.timelineTypes)
   };
@@ -797,6 +802,21 @@ function materializeKeepSnapshots(frames) {
   const snapshots = [];
   const activeSnapshotIds = [];
   const counts = new Map();
+  const usedObjectIds = new Set(frames.flatMap(frame => [
+    ...Object.keys(frame.state || {}),
+    String(frame.source?.objectId || '').trim()
+  ]).filter(Boolean));
+  function allocateObjectId(requested) {
+    const base = String(requested || 'Snapshot').trim() || 'Snapshot';
+    let id = base;
+    let suffix = 1;
+    while (usedObjectIds.has(id)) {
+      id = `${base}_${suffix}`;
+      suffix += 1;
+    }
+    usedObjectIds.add(id);
+    return id;
+  }
   function variableRenderState(frame, variableId, identity = '') {
     if (!frame) return null;
     let sourceVariableId = frame.state?.[variableId] ? variableId : '';
@@ -805,9 +825,18 @@ function materializeKeepSnapshots(frames) {
         .find(([, entry]) => String(entry?.identity || '') === String(identity))?.[0] || '';
     }
     if (!sourceVariableId) return null;
+    const binding = (frame.objectBindings || []).find(item => (
+      item?.sourceVariableId === sourceVariableId
+    ));
     return {
+      frameId: frame.id,
+      sourceVariableId,
       renderer: String(frame.renderers?.[sourceVariableId] || ''),
-      rendererOptions: JSON.parse(JSON.stringify(frame.rendererOptions?.[sourceVariableId] || {}))
+      rendererOptions: JSON.parse(JSON.stringify(frame.rendererOptions?.[sourceVariableId] || {})),
+      binding: binding ? JSON.parse(JSON.stringify(binding)) : null,
+      styles: (frame.styles || [])
+        .filter(style => style.targetVariableId === sourceVariableId)
+        .map(style => JSON.parse(JSON.stringify(style)))
     };
   }
   const materializedFrames = frames.map((frame, frameIndex) => {
@@ -816,22 +845,26 @@ function materializeKeepSnapshots(frames) {
       if (event.mode === 'last') {
         const previousFrame = frames[frameIndex - 1];
         if (!previousFrame) return;
+        const preserveStyle = event.preserveStyle !== false;
         const count = (counts.get('$frame') || 0) + 1;
         counts.set('$frame', count);
         const id = `snapshot:frame:${count}`;
-        const label = String(event.label || `Frame ${frameIndex}`).trim() || `Frame ${frameIndex}`;
+        const objectId = allocateObjectId(event.label || 'Frame');
         snapshots.push({
           id,
+          objectId,
           kind: 'frame',
           createdFrameId: frame.id,
           sourceFrameId: previousFrame.id,
-          label,
+          label: objectId,
+          binding: event.binding ? JSON.parse(JSON.stringify(event.binding)) : null,
           frame: {
             ...JSON.parse(JSON.stringify(previousFrame)),
             renderers: JSON.parse(JSON.stringify(previousFrame.renderers || {})),
             rendererOptions: JSON.parse(JSON.stringify(previousFrame.rendererOptions || {})),
             events: (previousFrame.events || []).filter(item => item.type !== 'keep'),
             texts: [],
+            styles: preserveStyle ? JSON.parse(JSON.stringify(previousFrame.styles || [])) : [],
             snapshotIds: []
           }
         });
@@ -847,19 +880,27 @@ function materializeKeepSnapshots(frames) {
       const identity = String(entry?.identity || '');
       const renderState = variableRenderState(frames[frameIndex - 1], variableId, identity)
         || variableRenderState(frame, variableId, identity)
-        || { renderer: '', rendererOptions: {} };
+        || { frameId: '', sourceVariableId: variableId, renderer: '', rendererOptions: {}, binding: null, styles: [] };
+      const preserveStyle = event.preserveStyle !== false;
       const count = (counts.get(variableId) || 0) + 1;
       counts.set(variableId, count);
       const id = `snapshot:${variableId}:${count}`;
       const labelBase = String(event.label || event.name || entry.name || 'Snapshot').trim() || 'Snapshot';
+      const objectId = allocateObjectId(labelBase);
       snapshots.push({
         id,
+        objectId,
         sourceVariableId: variableId,
+        sourceFrameId: renderState.frameId,
         createdFrameId: frame.id,
-        label: `${labelBase} ${count}`,
+        label: objectId,
+        binding: event.binding
+          ? JSON.parse(JSON.stringify(event.binding))
+          : renderState.binding,
         data: JSON.parse(JSON.stringify(capturedData ?? entry.data)),
         renderer: renderState.renderer,
-        rendererOptions: renderState.rendererOptions
+        rendererOptions: renderState.rendererOptions,
+        styles: preserveStyle ? renderState.styles : []
       });
       activeSnapshotIds.push(id);
     });
@@ -1006,9 +1047,13 @@ function resolveFrameRendererOptions(frame, directive) {
 }
 
 function appendFixedEvents(frames, variables = []) {
-  if (!Array.isArray(frames) || frames.length < 2) return frames;
+  if (!Array.isArray(frames) || !frames.length) return frames;
   const variableKinds = new Map(variables.map(variable => [variable.id, variable.kind]));
   const accesses = new Map();
+
+  frames.forEach(frame => {
+    frame.events = (frame.events || []).filter(event => event.type !== 'fixed');
+  });
 
   frames.forEach((frame, frameIndex) => {
     (frame.events || []).filter(event => FIXED_ACCESS_EVENTS.has(event.type)).forEach(event => {
@@ -1018,17 +1063,30 @@ function appendFixedEvents(frames, variables = []) {
         const data = entry?.data;
         const kind = variableKinds.get(variableId) || data?.kind;
         if (!variableId || !FIXED_EVENT_KINDS.has(kind) || !Array.isArray(data?.items)) return;
-        const index = resolveTraceIndexExpression(frame, target.indexExpression);
+        const index = target.resolvedIndex != null
+          && target.resolvedIndex !== ''
+          && Number.isInteger(Number(target.resolvedIndex))
+          ? Number(target.resolvedIndex)
+          : resolveTraceIndexExpression(frame, target.indexExpression);
         if (index == null || index < 0 || index >= data.items.length) return;
-        const key = `${variableId}#${index}`;
+        // References in main, heap_sort and recursive heapify calls have
+        // different source IDs but the same runtime identity. Fixed means the
+        // last use of the actual object, not the last use of one alias.
+        const runtimeIdentity = String(entry?.identity || '');
+        const objectIdentity = runtimeIdentity || `variable:${variableId}`;
+        const key = `${objectIdentity}#${index}`;
         const access = accesses.get(key) || {
           variableId,
           variableName: entry.name || variableId,
+          runtimeIdentity,
+          objectIdentity,
           index,
           lastAccessFrameIndex: frameIndex,
           lastEventId: event.id || '',
           lastEventOrder: Number(event.order) || 0
         };
+        access.variableId = variableId;
+        access.variableName = entry.name || variableId;
         access.lastAccessFrameIndex = frameIndex;
         access.lastEventId = event.id || access.lastEventId;
         access.lastEventOrder = Number.isFinite(Number(event.order))
@@ -1039,31 +1097,51 @@ function appendFixedEvents(frames, variables = []) {
     });
   });
 
+  const groups = new Map();
   accesses.forEach(access => {
-    // The complete trace proves that this is the final touch. Keep the fixed
-    // event in that frame so the renderer can reveal it after the frame's
-    // read/write/assign/swap animation, instead of leaking into the next step.
-    const fixedFrameIndex = access.lastAccessFrameIndex;
+    const key = `${access.lastAccessFrameIndex}#${access.objectIdentity}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(access);
+  });
+
+  groups.forEach(group => {
+    group.sort((left, right) => left.index - right.index);
+    const fixedFrameIndex = group[0].lastAccessFrameIndex;
     const frame = frames[fixedFrameIndex];
-    const indexExpression = String(access.index);
-    const signature = `fixed:${access.variableId}:${indexExpression}`;
+    const lastAccess = group.reduce((latest, access) => (
+      access.lastEventOrder >= latest.lastEventOrder ? access : latest
+    ), group[0]);
+    const stableVariableId = String(lastAccess.variableId || '').replace(/@\d+$/, '');
+    const signature = `fixed:auto:${stableVariableId}:${group.map(access => access.index).join(',')}`;
     frame.events ||= [];
-    if (frame.events.some(event => event.type === 'fixed' && event.signature === signature)) return;
     frame.events.push({
       id: signature,
       type: 'fixed',
       signature,
+      autoFixed: true,
+      stateChange: true,
+      persistent: true,
+      runtimeIdentity: group[0].runtimeIdentity,
       line: Number(frame.source?.line) || 0,
-      order: access.lastEventOrder + 0.001,
+      order: lastAccess.lastEventOrder + 0.001,
       phase: 'after',
-      afterEventId: access.lastEventId,
-      targets: [{
+      afterEventId: lastAccess.lastEventId,
+      targets: group.map(access => ({
         role: 'target',
         variableId: access.variableId,
-        expression: `${access.variableName}[${indexExpression}]`,
-        indexExpression
-      }]
+        runtimeIdentity: access.runtimeIdentity,
+        expression: `${access.variableName}[${access.index}]`,
+        indexExpression: String(access.index),
+        resolvedIndex: access.index
+      }))
     });
+  });
+
+  frames.forEach(frame => {
+    frame.events.sort((left, right) => (
+      (Number(left?.order) || 0) - (Number(right?.order) || 0)
+      || String(left?.signature || left?.id || '').localeCompare(String(right?.signature || right?.id || ''))
+    ));
   });
 
   return frames;
@@ -1077,7 +1155,29 @@ function readTraceDocument(tracePath, variables, traceRequest = {}) {
     .split(/\r?\n/)
     .filter(Boolean)
     .map(line => JSON.parse(line));
-  const allFrames = records.filter(record => record.record === 'frame');
+  const keepDirectives = Array.isArray(traceRequest.keepDirectives)
+    ? traceRequest.keepDirectives
+    : [];
+  const keepDirectiveByStatementId = new Map(keepDirectives.map((directive, index) => {
+    const functionName = directive.functionName || 'global';
+    const statementId = `manual-keep:${functionName}:${directive.line}:${directive.index ?? index}`;
+    return [statementId, directive];
+  }));
+  const eventSources = traceRequest.eventSources && typeof traceRequest.eventSources === 'object'
+    ? traceRequest.eventSources
+    : {};
+  const allFrames = records.filter(record => record.record === 'frame').map(frame => ({
+    ...frame,
+    events: (frame.events || []).map(event => {
+      const source = eventSources[event.signature];
+      const enriched = source ? { ...event, source: JSON.parse(JSON.stringify(source)) } : event;
+      if (event.type !== 'keep') return enriched;
+      const directive = keepDirectiveByStatementId.get(enriched.signature);
+      return directive?.binding
+        ? { ...enriched, binding: JSON.parse(JSON.stringify(directive.binding)) }
+        : enriched;
+    })
+  }));
   const frameDirectives = Array.isArray(traceRequest.frameDirectives)
     ? traceRequest.frameDirectives
     : [];
@@ -1095,6 +1195,9 @@ function readTraceDocument(tracePath, variables, traceRequest = {}) {
       source: {
         ...(frame.source || {}),
         directiveName: directive?.name || '',
+        directiveKey: directive?.sourceKey || '',
+        logicalDirectiveKey: directive?.logicalSourceKey || '',
+        directiveKeyAliases: directive?.sourceKeyAliases || [],
         objectId: directive?.objectId || '',
         primaryVariableId: directive?.variableIds?.[0] || '',
         when: directive?.when || null
@@ -1147,6 +1250,7 @@ function readTraceDocument(tracePath, variables, traceRequest = {}) {
   return {
     schemaVersion: '1.0',
     generatedAt: new Date().toISOString(),
+    sourceCode: typeof traceRequest.sourceCode === 'string' ? traceRequest.sourceCode : '',
     sliceMode,
     variables: variableMap,
     frames: keepSnapshots.frames,
@@ -1194,6 +1298,8 @@ app.post('/compile', (req, res) => {
   let sourceCode = code;
   let traceVariables = [];
   let traceFrameDirectives = [];
+  let traceKeepDirectives = [];
+  let traceEventSources = {};
   let traceSliceMode = trace?.sliceMode;
   let traceWarning = '';
   let asmView = null;
@@ -1211,6 +1317,9 @@ app.post('/compile', (req, res) => {
         line: directive.line,
         name: directive.name || '',
         objectId: directive.objectId || '',
+        sourceKey: directive.sourceKey || '',
+        logicalSourceKey: directive.logicalSourceKey || '',
+        sourceKeyAliases: directive.sourceKeyAliases || [],
         names: directive.names,
         variableIds: directive.variables.map(variable => variable.id),
         captureOnlyVariableIds: directive.captureOnlyVariableIds || [],
@@ -1225,6 +1334,15 @@ app.post('/compile', (req, res) => {
         styles: directive.styles || [],
         segments: directive.segments || []
       }));
+      traceKeepDirectives = instrumented.keepDirectives.map((directive, index) => ({
+        line: directive.line,
+        mode: directive.mode,
+        label: directive.label || '',
+        binding: directive.binding || null,
+        functionName: directive.functionName || directive.variable?.functionName || 'global',
+        index: directive.index ?? index
+      }));
+      traceEventSources = instrumented.eventSources || {};
       if (instrumented.frameDirectives.length) traceSliceMode = 'manual';
       logDebug(`Trace instrumentation enabled for ${traceVariables.length} variables`);
     } catch (err) {
@@ -1235,6 +1353,8 @@ app.post('/compile', (req, res) => {
       sourceCode = code;
       traceVariables = [];
       traceFrameDirectives = [];
+      traceKeepDirectives = [];
+      traceEventSources = {};
       traceWarning = `追蹤分析未完成，已使用一般執行：${err.message}`;
       logDebug(traceWarning);
     }
@@ -1445,8 +1565,11 @@ app.post('/compile', (req, res) => {
         try {
           traceDocument = readTraceDocument(tracePath, traceVariables, {
             ...trace,
+            sourceCode: code,
             sliceMode: traceSliceMode,
             frameDirectives: traceFrameDirectives,
+            keepDirectives: traceKeepDirectives,
+            eventSources: traceEventSources,
             asmView
           });
         } catch (err) {
@@ -1466,6 +1589,8 @@ app.post('/compile', (req, res) => {
       else if (codeRun !== 0 || signal) finalError = (runErr && runErr.trim() !== '') ? runErr : `Runtime Error`;
 
       if (forced) logDebug('強制回收：進程未能及時關閉，已先行回傳結果。');
+
+      if (traceDocument && !finalError) traceDocument.provenance = TraceProvenance.create(code, input);
 
       res.json({
         output: runOut,

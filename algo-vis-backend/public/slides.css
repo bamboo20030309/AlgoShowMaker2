@@ -2765,6 +2765,7 @@ body:not(.asm-edit-mode) .asm-slide-frame-content {
 }
 
 .algorithm-editor-dialog {
+  position: relative;
   display: flex;
   flex-direction: column;
   width: min(1840px, 99vw);
@@ -2819,6 +2820,23 @@ body:not(.asm-edit-mode) .asm-slide-frame-content {
   width: 100%;
   border: 0;
   background: #ffffff;
+}
+
+.algorithm-editor-modal.is-loading #algorithmEditorFrame {
+  visibility: hidden;
+}
+
+.algorithm-editor-modal.is-loading .algorithm-editor-dialog::after {
+  content: "正在載入動畫…";
+  position: absolute;
+  inset: 52px 0 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  background: #fbfcfa;
+  color: #4e716d;
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .code-editor-modal {

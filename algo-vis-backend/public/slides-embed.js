@@ -3,21 +3,40 @@
   if (!mode) return;
 
   document.body.classList.add(`asm-embed-${mode}`);
-  let currentAnimation = {
-    mode: 'legacy',
-    code: '',
-    input: '',
-    scriptContent: '',
-    sliceMode: 'auto',
-    watches: [],
-    skins: {},
-    rules: [],
-    traceDocument: null
-  };
+  const normalize = window.ASMAlgorithmAnimation.normalize;
+  let currentAnimation = normalize();
+
+  function settleAnimationVisuals() {
+    // Event tweens use temporary SVG layers (moving values, comparison cards,
+    // arrows and resize ghosts). A save/load may happen while one is active,
+    // so settle and remove those layers before taking or applying a snapshot.
+    window.ASMTraceFrameTween?.cancel?.();
+    window.resetArrows?.();
+  }
+
+  function notifyAnimationApplied() {
+    if (window.parent === window) return;
+    const notify = () => window.parent.postMessage({
+      type: 'asm-animation-applied',
+      mode
+    }, window.location.origin);
+    if (typeof window.requestAnimationFrame !== 'function') {
+      setTimeout(notify, 0);
+      return;
+    }
+    // Let the initial canvas render and Trace Studio layout settle before the
+    // parent reveals the editor iframe. This prevents partially built scenes
+    // and thumbnail layers from flashing while the modal opens.
+    window.requestAnimationFrame(() => window.requestAnimationFrame(notify));
+  }
 
   function snapshotAnimation() {
+    window.ASMTraceStudio?.flushSourceSettings?.();
     const input = document.getElementById('inputArea');
     const traceSettings = window.ASMTraceEditor?.snapshot?.() || {};
+    // TraceEditor.snapshot() already returns a compact, detached trace and
+    // postMessage performs the cross-frame structured clone. Avoid cloning the
+    // same large frame list once more inside the editor before sending it.
     return {
       mode: traceSettings.mode || currentAnimation.mode || 'legacy',
       code: typeof aceEditor !== 'undefined' ? aceEditor.getValue() : currentAnimation.code,
@@ -32,33 +51,22 @@
   }
 
   function applyAnimation(animation = {}) {
-    currentAnimation = {
-      mode: animation.mode === 'trace' ? 'trace' : 'legacy',
-      code: typeof animation.code === 'string' ? animation.code : '',
-      input: typeof animation.input === 'string' ? animation.input : '',
-      scriptContent: typeof animation.scriptContent === 'string' ? animation.scriptContent : '',
-      sliceMode: animation.sliceMode === 'manual' ? 'manual' : animation.sliceMode === 'full' ? 'full' : 'auto',
-      watches: Array.isArray(animation.watches) ? animation.watches : [],
-      skins: animation.skins && typeof animation.skins === 'object' ? animation.skins : {},
-      rules: Array.isArray(animation.rules) ? animation.rules : [],
-      traceDocument: animation.traceDocument && typeof animation.traceDocument === 'object' ? animation.traceDocument : null
-    };
-    if (animation.code && typeof aceEditor !== 'undefined') {
-      window.__asmEmbeddedAnimationPayload = animation;
-      aceEditor.setValue(animation.code, -1);
+    settleAnimationVisuals();
+    currentAnimation = normalize(animation);
+    if (typeof aceEditor !== 'undefined') {
+      window.__asmEmbeddedAnimationPayload = currentAnimation;
+      aceEditor.setValue(currentAnimation.code, -1);
       if (typeof foldDrawBlocks === 'function') setTimeout(foldDrawBlocks, 0);
     }
     const input = document.getElementById('inputArea');
-    if (input && typeof animation.input === 'string') input.value = animation.input;
+    if (input) input.value = currentAnimation.input;
     window.ASMTraceEditor?.loadAnimation?.(currentAnimation);
-    if (!window.ASMTraceEditor && currentAnimation.mode === 'trace' && currentAnimation.traceDocument && typeof window.asmApplyTraceDocument === 'function') {
-      window.asmApplyTraceDocument({
-        ...currentAnimation.traceDocument,
-        skins: currentAnimation.skins,
-        rules: currentAnimation.rules
-      });
-    } else if (animation.scriptContent && typeof window.asmApplyAnimationScript === 'function') {
-      window.asmApplyAnimationScript(animation.scriptContent);
+    if (currentAnimation.traceDocument?.frames?.length) {
+      if (!window.ASMTraceEditor) window.asmApplyTraceDocument?.(currentAnimation.traceDocument);
+      return;
+    }
+    if (currentAnimation.scriptContent && typeof window.asmApplyAnimationScript === 'function') {
+      window.asmApplyAnimationScript(currentAnimation.scriptContent);
     }
   }
 
@@ -66,9 +74,11 @@
     if (event.origin !== window.location.origin || !event.data) return;
     if (event.data.type === 'asm-load-animation') {
       applyAnimation(event.data.animation);
+      notifyAnimationApplied();
       return;
     }
     if (event.data.type === 'asm-request-save-animation' && mode === 'editor' && window.parent !== window) {
+      settleAnimationVisuals();
       window.parent.postMessage({
         type: 'asm-save-animation',
         animation: snapshotAnimation()
@@ -78,17 +88,7 @@
 
   window.addEventListener('asm:compiled-animation', event => {
     if (mode !== 'editor' || window.parent === window) return;
-    currentAnimation = {
-      mode: event.detail?.mode === 'trace' ? 'trace' : 'legacy',
-      code: typeof event.detail?.code === 'string' ? event.detail.code : '',
-      input: typeof event.detail?.input === 'string' ? event.detail.input : '',
-      scriptContent: typeof event.detail?.scriptContent === 'string' ? event.detail.scriptContent : '',
-      sliceMode: event.detail?.sliceMode === 'manual' ? 'manual' : event.detail?.sliceMode === 'full' ? 'full' : 'auto',
-      watches: Array.isArray(event.detail?.watches) ? event.detail.watches : [],
-      skins: event.detail?.skins && typeof event.detail.skins === 'object' ? event.detail.skins : {},
-      rules: Array.isArray(event.detail?.rules) ? event.detail.rules : [],
-      traceDocument: event.detail?.traceDocument && typeof event.detail.traceDocument === 'object' ? event.detail.traceDocument : null
-    };
+    currentAnimation = normalize(event.detail || {});
     window.parent.postMessage({
       type: 'asm-animation-compiled',
       animation: currentAnimation

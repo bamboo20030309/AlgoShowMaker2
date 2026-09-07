@@ -73,6 +73,55 @@ function compactExpression(value) {
   return String(value || '').replace(/\s+/g, ' ').trim().slice(0, 240);
 }
 
+function stableSourceHash(value) {
+  let hash = 2166136261;
+  for (const character of String(value || '')) {
+    hash ^= character.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(36);
+}
+
+function canonicalFrameIdentity(directive) {
+  const name = String(directive?.name || '').trim();
+  if (name) return `name:${name}`;
+  const frameSpec = String(directive?.frameSpec || '')
+    .replace(/\s+/g, '')
+    .toLowerCase();
+  const renderer = String(directive?.renderer || '');
+  const rendererOptions = JSON.stringify(directive?.rendererOptions || {}).replace(/\s+/g, '');
+  const when = String(directive?.when?.expression || '').replace(/\s+/g, '');
+  return `frame:${frameSpec}|render:${renderer}|with:${rendererOptions}|when:${when}`;
+}
+
+function logicalFrameIdentity(directive) {
+  const name = String(directive?.name || '').trim();
+  if (name) return `name:${name}`;
+  return `frame:${String(directive?.frameSpec || '').replace(/\s+/g, '').toLowerCase()}`;
+}
+
+function legacyFrameTextVariants(value) {
+  const text = compactExpression(value);
+  const match = text.match(/^(\/\/\s*(?:[A-Za-z_][A-Za-z0-9_.-]*\s*:\s*)?@frame\b)\s*(.*?)\s*$/i);
+  if (!match) return [text];
+  const payload = match[2] || '';
+  const positions = topLevelModifierPositions(payload);
+  if (!positions.length) return [text];
+  const base = payload.slice(0, positions[0].index).trim();
+  const modifiers = positions.map((position, index) => (
+    payload.slice(position.index, positions[index + 1]?.index ?? payload.length).trim()
+  ));
+  const variants = new Set();
+  const prefix = [match[1], base].filter(Boolean).join(' ');
+  const count = 1 << modifiers.length;
+  for (let mask = 0; mask < count; mask += 1) {
+    const selected = modifiers.filter((_, index) => mask & (1 << index));
+    variants.add(compactExpression([prefix, ...selected].filter(Boolean).join(' ')));
+  }
+  variants.add(text);
+  return [...variants];
+}
+
 function syntaxNodeEventType(node, source) {
   const name = String(node?.name || '');
   if (name === 'FunctionDefinition') return 'function-enter';
@@ -461,7 +510,7 @@ function splitTopLevel(value, delimiter = ',') {
   return { parts, valid: true };
 }
 
-const DIRECTIVE_MODIFIERS = new Set(['as', 'at', 'when', 'offset', 'render', 'with']);
+const DIRECTIVE_MODIFIERS = new Set(['as', 'at', 'when', 'offset', 'render', 'with', 'without']);
 const DIRECTIVE_ANCHORS = new Set([
   'top-left', 'top', 'top-right', 'left', 'center', 'right',
   'bottom-left', 'bottom', 'bottom-right'
@@ -616,7 +665,7 @@ function parseAtBinding(value, line, directiveName, offsetX = 0, offsetY = 0) {
     throw new Error(`第 ${line} 行的 ${directiveName} 定位錨點無效：${anchor}`);
   }
   const canvasTarget = targetExpression.toLowerCase() === 'canvas';
-  const target = targetExpression.match(/^([A-Za-z_]\w*)((?:\s*\[[^\]]+\])*)$/);
+  const target = targetExpression.match(/^([A-Za-z_][A-Za-z0-9_.-]*)((?:\s*\[[^\]]+\])*)$/);
   if (!canvasTarget && !target) {
     throw new Error(`第 ${line} 行的 ${directiveName} 定位目標無效：${targetExpression}`);
   }
@@ -712,6 +761,72 @@ function parseDirectiveModifiers(payload, line, directiveName) {
     ? parseRendererOptions(values.get('with'), line, directiveName)
     : {};
   return { payload: base, objectId, binding, when, renderer, rendererOptions };
+}
+
+function parseKeepModifiers(payload, line) {
+  const source = String(payload || '').trim();
+  const positions = topLevelModifierPositions(source);
+  if (!positions.length) return { payload: source, label: '', binding: null, preserveStyle: true };
+
+  const allowed = new Set(['as', 'at', 'offset', 'without']);
+  const unsupported = positions.find(position => !allowed.has(position.name));
+  if (unsupported) {
+    throw new Error(`第 ${line} 行的 @keep 不支援 ${unsupported.name}`);
+  }
+  const base = source.slice(0, positions[0].index).trim();
+  const values = new Map();
+  positions.forEach((position, index) => {
+    if (values.has(position.name)) {
+      throw new Error(`第 ${line} 行的 @keep 重複使用 ${position.name}`);
+    }
+    const end = positions[index + 1]?.index ?? source.length;
+    const value = source.slice(position.index + position.length, end).trim();
+    if (!value) throw new Error(`第 ${line} 行的 @keep 缺少 ${position.name} 內容`);
+    values.set(position.name, value);
+  });
+
+  let label = '';
+  if (values.has('as')) {
+    const raw = values.get('as');
+    if (raw.startsWith('"')) {
+      try {
+        label = JSON.parse(raw);
+      } catch {
+        throw new Error(`第 ${line} 行的 @keep as 名稱格式無效：${raw}`);
+      }
+    } else {
+      const singleQuoted = raw.match(/^'([^']*)'$/s);
+      if (singleQuoted) label = singleQuoted[1];
+      else if (/^[A-Za-z_][A-Za-z0-9_.-]*$/.test(raw)) label = raw;
+      else throw new Error(`第 ${line} 行的 @keep as 名稱格式無效：${raw}`);
+    }
+    label = String(label).trim();
+    if (!label) throw new Error(`第 ${line} 行的 @keep as 名稱不可為空白`);
+  }
+
+  let offsetX = 0;
+  let offsetY = 0;
+  if (values.has('offset')) {
+    const offset = values.get('offset').match(/^\(\s*([+-]?(?:\d+(?:\.\d+)?|\.\d+))\s*,\s*([+-]?(?:\d+(?:\.\d+)?|\.\d+))\s*\)$/);
+    if (!offset) throw new Error(`第 ${line} 行的 @keep offset 格式無效`);
+    offsetX = Number(offset[1]) || 0;
+    offsetY = Number(offset[2]) || 0;
+  }
+  const binding = values.has('at')
+    ? parseAtBinding(values.get('at'), line, '@keep', offsetX, offsetY)
+    : null;
+  if (values.has('offset') && !binding) {
+    throw new Error(`第 ${line} 行的 @keep 使用 offset 時必須同時指定 at`);
+  }
+  let preserveStyle = true;
+  if (values.has('without')) {
+    const feature = values.get('without').trim().toLowerCase();
+    if (feature !== 'style') {
+      throw new Error(`第 ${line} 行的 @keep without 只支援 style`);
+    }
+    preserveStyle = false;
+  }
+  return { payload: base, label, binding, preserveStyle };
 }
 
 function parseFrameSpec(raw) {
@@ -916,11 +1031,22 @@ function attachTextDirectives(source, analysis, frameDirectives) {
     const previous = frames.filter(frame => frame.from < text.from).at(-1) || null;
     const target = previous;
     if (!target) throw new Error(`第 ${text.line} 行的 @text 前面找不到可套用的 @frame`);
+    let bindingTargetVariable = null;
+    if (text.binding && !text.binding.canvas) {
+      bindingTargetVariable = resolveVariable(text.binding.targetName, text.from);
+      if (bindingTargetVariable) {
+        text.binding.targetVariableId = bindingTargetVariable.id;
+      } else {
+        // @keep aliases and Trace Studio object IDs are canvas object keys,
+        // not C++ variables. They are resolved against rendered placements.
+        text.binding.targetObjectKey = text.binding.targetName;
+      }
+    }
     const bindingIdentifiers = text.binding?.canvas
       ? []
-      : [text.binding?.targetName, ...(text.binding?.indexExpressions || []).flatMap(expression => (
+      : (text.binding?.indexExpressions || []).flatMap(expression => (
         parseFrameExpression(expression).identifiers || []
-      ))].filter(Boolean);
+      ));
     const identifiers = [...new Set([
       ...text.segments.flatMap(segment => segment.identifiers || []),
       ...bindingIdentifiers,
@@ -933,12 +1059,12 @@ function attachTextDirectives(source, analysis, frameDirectives) {
       if (!alreadyCaptured) target.variables.push(variable);
       if (!alreadyCaptured && !target.names.includes(name)) target.captureOnlyVariableIds.push(variable.id);
     });
-    if (text.binding && !text.binding.canvas) {
-      const targetVariable = resolveVariable(text.binding.targetName, text.from);
-      if (!targetVariable) {
-        throw new Error(`第 ${text.line} 行的 @text 找不到定位變數：${text.binding.targetName}`);
+    if (bindingTargetVariable) {
+      const alreadyCaptured = target.variables.some(existing => existing.id === bindingTargetVariable.id);
+      if (!alreadyCaptured) target.variables.push(bindingTargetVariable);
+      if (!alreadyCaptured && !target.names.includes(bindingTargetVariable.name)) {
+        target.captureOnlyVariableIds.push(bindingTargetVariable.id);
       }
-      text.binding.targetVariableId = targetVariable.id;
     }
     target.texts.push(text);
   });
@@ -949,35 +1075,43 @@ const TRACE_STYLE_LOCALS = new Set(['value', 'index']);
 
 function parseStyleTarget(raw, line) {
   const source = String(raw || '').trim();
-  const range = source.match(/^([A-Za-z_]\w*)\[\s*(.*?)\s*[:,]\s*(.*?)\s*(\)|\])$/);
-  if (range) {
-    const startExpression = range[2].trim() || '0';
-    const endExpression = range[3].trim();
-    if (!endExpression) throw new Error(`第 ${line} 行的 @style 範圍缺少結束位置`);
-    for (const expression of [startExpression, endExpression]) {
-      if (!parseFrameExpression(expression).valid) {
-        throw new Error(`第 ${line} 行的 @style 範圍運算式無效：${expression}`);
-      }
-    }
-    return {
-      targetName: range[1],
-      selector: {
-        type: 'range',
-        startExpression,
-        endExpression,
-        endInclusive: range[4] === ']'
-      }
-    };
-  }
-  const indexed = source.match(/^([A-Za-z_]\w*)\[\s*(.*?)\s*]$/);
+  const indexed = source.match(/^([A-Za-z_]\w*)\[\s*(.*?)\s*(\)|\])$/);
   if (indexed) {
-    const indexExpression = indexed[2].trim();
-    if (!indexExpression || !parseFrameExpression(indexExpression).valid) {
-      throw new Error(`第 ${line} 行的 @style 索引運算式無效：${indexExpression}`);
+    const split = splitTopLevel(indexed[2]);
+    if (!split.valid || split.parts.some(part => !part)) {
+      throw new Error(`第 ${line} 行的 @style 索引分段無效：${indexed[2].trim()}`);
     }
+    const segments = split.parts.map(part => {
+      const range = splitTopLevel(part, ':');
+      if (!range.valid || range.parts.length > 2 || range.parts.some((value, index) => index > 0 && !value)) {
+        throw new Error(`第 ${line} 行的 @style 範圍無效：${part}`);
+      }
+      if (range.parts.length === 2) {
+        const startExpression = range.parts[0].trim() || '0';
+        const endExpression = range.parts[1].trim();
+        for (const expression of [startExpression, endExpression]) {
+          if (!parseFrameExpression(expression).valid) {
+            throw new Error(`第 ${line} 行的 @style 範圍運算式無效：${expression}`);
+          }
+        }
+        return {
+          type: 'range',
+          startExpression,
+          endExpression,
+          endInclusive: indexed[3] === ']'
+        };
+      }
+      const indexExpression = part.trim();
+      if (!parseFrameExpression(indexExpression).valid) {
+        throw new Error(`第 ${line} 行的 @style 索引運算式無效：${indexExpression}`);
+      }
+      return { type: 'index', indexExpression };
+    });
     return {
       targetName: indexed[1],
-      selector: { type: 'index', indexExpression }
+      selector: segments.length === 1
+        ? segments[0]
+        : { type: 'segments', segments }
     };
   }
   if (!/^[A-Za-z_]\w*$/.test(source)) {
@@ -999,14 +1133,18 @@ function styleDirectivesForSource(source, analysis) {
         if (modifiers.binding) throw new Error(`第 ${line} 行的 @style 不支援 at，請把 at 寫在物件指令上`);
         if (modifiers.renderer) throw new Error(`第 ${line} 行的 @style 不支援 render`);
         if (Object.keys(modifiers.rendererOptions || {}).length) throw new Error(`第 ${line} 行的 @style 不支援 with`);
-        const styleMatch = modifiers.payload.match(/^(.*?)\s+(highlight|focus|mark|point|background)\s+(.+)$/i);
+        const styleMatch = modifiers.payload.match(/^(.*?)\s+(highlight|focus|mark|point|background)(?:\s+(.+))?$/i);
         if (!styleMatch) {
-          throw new Error(`第 ${line} 行的 @style 格式應為：目標 樣式 顏色`);
+          throw new Error(`第 ${line} 行的 @style 格式應為：目標 樣式 顏色（focus 可省略顏色）`);
         }
         const styleType = styleMatch[2].toLowerCase();
-        const color = styleMatch[3].trim();
+        const specifiedColor = String(styleMatch[3] || '').trim();
+        const color = specifiedColor || (styleType === 'focus' ? 'AV_grey' : '');
         if (!TRACE_STYLE_TYPES.has(styleType)) {
           throw new Error(`第 ${line} 行的 @style 樣式無效：${styleType}`);
+        }
+        if (!color) {
+          throw new Error(`第 ${line} 行的 @style ${styleType} 必須指定顏色`);
         }
         if (!/^(?:AV_[A-Za-z0-9_]+|#[0-9A-Fa-f]{3,8}|(?:rgb|rgba|hsl|hsla)\([^)]*\)|[A-Za-z]+)$/.test(color)) {
           throw new Error(`第 ${line} 行的 @style 顏色無效：${color}`);
@@ -1067,9 +1205,12 @@ function attachStyleDirectives(source, analysis, frameDirectives) {
     };
 
     ensureCaptured(style.targetName, true);
-    const selectorExpressions = style.selector.type === 'range'
-      ? [style.selector.startExpression, style.selector.endExpression]
-      : style.selector.type === 'index' ? [style.selector.indexExpression] : [];
+    const selectors = style.selector.type === 'segments'
+      ? style.selector.segments || []
+      : [style.selector];
+    const selectorExpressions = selectors.flatMap(selector => selector?.type === 'range'
+      ? [selector.startExpression, selector.endExpression]
+      : selector?.type === 'index' ? [selector.indexExpression] : []);
     selectorExpressions.forEach(expression => {
       (parseFrameExpression(expression).identifiers || []).forEach(name => ensureCaptured(name));
     });
@@ -1232,8 +1373,13 @@ function findFrameDirectives(source, suppliedAnalysis = null) {
           (option.identifiers || []).forEach(includeDependency);
         });
         if (modifiers.binding && !modifiers.binding.canvas) {
-          const targetVariable = includeDependency(modifiers.binding.targetName);
-          modifiers.binding.targetVariableId = targetVariable?.id || '';
+          const targetVariable = resolveVariable(modifiers.binding.targetName, node.from);
+          if (targetVariable) {
+            includeDependency(modifiers.binding.targetName);
+            modifiers.binding.targetVariableId = targetVariable.id;
+          } else {
+            modifiers.binding.targetObjectKey = modifiers.binding.targetName;
+          }
           (modifiers.binding.indexExpressions || []).forEach(expression => {
             (parseFrameExpression(expression).identifiers || []).forEach(includeDependency);
           });
@@ -1254,6 +1400,7 @@ function findFrameDirectives(source, suppliedAnalysis = null) {
           line,
           name: match[1] || '',
           objectId,
+          frameSpec,
           names,
           variables,
           captureOnlyVariableIds,
@@ -1319,34 +1466,49 @@ function findKeepDirectives(source, suppliedAnalysis = null) {
     if (node.name === 'LineComment') {
       const text = source.slice(node.from, node.to);
       if (/^\/\/\s*@keep\b/.test(text)) {
-        const lastMatch = text.match(/^\/\/\s*@keep\s+last(?:\s+as\s+(?:"([^"]*)"|'([^']*)'|([A-Za-z_]\w*)))?\s*$/);
-        if (lastMatch) {
+        const line = analysis.lineAt(node.from);
+        const modifiers = parseKeepModifiers(text.replace(/^\/\/\s*@keep\b/i, ''), line);
+        if (modifiers.payload === 'last') {
           const enclosing = analysis.variables
             .filter(variable => variable.scopeFrom <= node.from && node.from < variable.scopeTo)
             .sort((left, right) => (left.scopeTo - left.scopeFrom) - (right.scopeTo - right.scopeFrom))[0];
+          if (modifiers.binding && !modifiers.binding.canvas) {
+            const targetVariable = resolveVariable(modifiers.binding.targetName, node.from);
+            if (targetVariable) modifiers.binding.targetVariableId = targetVariable.id;
+            else modifiers.binding.targetObjectKey = modifiers.binding.targetName;
+          }
           directives.push({
             from: node.from,
             to: node.to,
-            line: analysis.lineAt(node.from),
+            line,
             mode: 'last',
-            label: lastMatch[1] ?? lastMatch[2] ?? lastMatch[3] ?? '',
+            label: modifiers.label,
+            binding: modifiers.binding,
+            preserveStyle: modifiers.preserveStyle,
             functionName: enclosing?.functionName || 'global',
             variable: null
           });
           return;
         }
-        const match = text.match(/^\/\/\s*@keep\s+([A-Za-z_]\w*)(?:\s+as\s+(?:"([^"]*)"|'([^']*)'|([A-Za-z_]\w*)))?\s*$/);
-        if (!match) throw new Error(`第 ${analysis.lineAt(node.from)} 行的 @keep 語法無效`);
+        const match = modifiers.payload.match(/^([A-Za-z_]\w*)$/);
+        if (!match) throw new Error(`第 ${line} 行的 @keep 語法無效`);
         const name = match[1];
         const variable = resolveVariable(name, node.from);
-        if (!variable) throw new Error(`第 ${analysis.lineAt(node.from)} 行的 @keep 找不到可見變數：${name}`);
+        if (!variable) throw new Error(`第 ${line} 行的 @keep 找不到可見變數：${name}`);
+        if (modifiers.binding && !modifiers.binding.canvas) {
+          const targetVariable = resolveVariable(modifiers.binding.targetName, node.from);
+          if (targetVariable) modifiers.binding.targetVariableId = targetVariable.id;
+          else modifiers.binding.targetObjectKey = modifiers.binding.targetName;
+        }
         directives.push({
           from: node.from,
           to: node.to,
-          line: analysis.lineAt(node.from),
+          line,
           mode: 'variable',
           name,
-          label: match[2] ?? match[3] ?? match[4] ?? '',
+          label: modifiers.label,
+          binding: modifiers.binding,
+          preserveStyle: modifiers.preserveStyle,
           functionName: variable.functionName || 'global',
           variable
         });
@@ -1368,6 +1530,18 @@ function instrumentSource(source, watchIds = []) {
   frameDirectives.forEach(directive => directive.variables.forEach(variable => selectedIds.add(variable.id)));
   keepDirectives.forEach(directive => {
     if (directive.variable?.id) selectedIds.add(directive.variable.id);
+    if (directive.binding?.targetVariableId) selectedIds.add(directive.binding.targetVariableId);
+    (directive.binding?.indexExpressions || []).forEach(expression => {
+      (parseFrameExpression(expression).identifiers || []).forEach(name => {
+        const variable = analysis.variables
+          .filter(item => item.name === name
+            && item.declarationTo <= directive.from
+            && item.scopeFrom <= directive.from
+            && directive.from < item.scopeTo)
+          .sort((left, right) => (left.scopeTo - left.scopeFrom) - (right.scopeTo - right.scopeFrom))[0];
+        if (variable?.id) selectedIds.add(variable.id);
+      });
+    });
   });
   // Manual frames control what is drawn, not what can be resolved by events.
   // Keep every visible variable in the captured state and hide the extras.
@@ -1381,11 +1555,26 @@ function instrumentSource(source, watchIds = []) {
   }
   const selected = analysis.variables.filter(variable => selectedIds.has(variable.id));
   const declarationPositions = new Set(analysis.variables.map(variable => variable.nameFrom));
+  const sourceKeyOccurrences = new Map();
+  const logicalSourceKeyOccurrences = new Map();
+  const legacySourceKeyOccurrences = new Map();
   const indexedFrameDirectives = frameDirectives.map((directive, index) => {
     const functionName = directive.variables[0]?.functionName
       || analysis.variables.find(variable => variable.scopeFrom <= directive.from
         && directive.from < variable.scopeTo)?.functionName
       || 'global';
+    const sourceKeyBase = `${functionName}\u0000${canonicalFrameIdentity(directive)}`;
+    const sourceKeyOccurrence = sourceKeyOccurrences.get(sourceKeyBase) || 0;
+    sourceKeyOccurrences.set(sourceKeyBase, sourceKeyOccurrence + 1);
+    const logicalSourceKeyBase = `${functionName}\u0000${logicalFrameIdentity(directive)}`;
+    const logicalSourceKeyOccurrence = logicalSourceKeyOccurrences.get(logicalSourceKeyBase) || 0;
+    logicalSourceKeyOccurrences.set(logicalSourceKeyBase, logicalSourceKeyOccurrence + 1);
+    const sourceKeyAliases = legacyFrameTextVariants(source.slice(directive.from, directive.to)).map(directiveText => {
+      const legacyBase = `${functionName}\u0000${directiveText}`;
+      const occurrence = legacySourceKeyOccurrences.get(legacyBase) || 0;
+      legacySourceKeyOccurrences.set(legacyBase, occurrence + 1);
+      return `manual-frame:${stableSourceHash(legacyBase)}:${occurrence}`;
+    });
     const explicitIds = new Set(directive.variables.map(variable => variable.id));
     const visible = selected.filter(variable => variable.functionName === functionName
       && variable.declarationTo <= directive.from
@@ -1400,7 +1589,10 @@ function instrumentSource(source, watchIds = []) {
       variables: [...directive.variables, ...visible.filter(variable => !explicitIds.has(variable.id))],
       captureOnlyVariableIds: [...captureOnlyVariableIds],
       index,
-      functionName
+      functionName,
+      sourceKey: `manual-frame:${stableSourceHash(sourceKeyBase)}:${sourceKeyOccurrence}`,
+      logicalSourceKey: `manual-frame-logical:${stableSourceHash(logicalSourceKeyBase)}:${logicalSourceKeyOccurrence}`,
+      sourceKeyAliases: [...new Set(sourceKeyAliases)]
     };
   });
   const directiveByPosition = new Map(indexedFrameDirectives.map(directive => [directive.from, directive]));
@@ -1410,6 +1602,61 @@ function instrumentSource(source, watchIds = []) {
     functionName: directive.functionName || directive.variable?.functionName || 'global'
   }));
   const keepDirectiveByPosition = new Map(indexedKeepDirectives.map(directive => [directive.from, directive]));
+  const eventSources = {};
+
+  function sourcePoint(offset) {
+    const safeOffset = Math.max(0, Math.min(source.length, Number(offset) || 0));
+    const line = analysis.lineAt(safeOffset);
+    const lineStart = source.lastIndexOf('\n', Math.max(0, safeOffset - 1)) + 1;
+    return { line, column: safeOffset - lineStart + 1 };
+  }
+
+  function sourceContexts(node) {
+    const contexts = [];
+    const supported = new Set([
+      'FunctionDefinition', 'ForStatement', 'IfStatement', 'WhileStatement',
+      'DoStatement', 'SwitchStatement'
+    ]);
+    for (let current = node?.parent; current; current = current.parent) {
+      if (!supported.has(current.name)) continue;
+      const children = childrenOf(current);
+      const body = children.find(child => child.name === 'CompoundStatement')
+        || [...children].reverse().find(child => child.name.endsWith('Statement') && child !== current);
+      const headerTo = body ? body.from : current.to;
+      contexts.push({
+        type: current.name,
+        functionName: functionNameAt(current),
+        from: current.from,
+        to: current.to,
+        headerFrom: current.from,
+        headerTo: Math.max(current.from, headerTo),
+        openLine: analysis.lineAt(current.from),
+        closeLine: analysis.lineAt(Math.max(current.from, current.to - 1))
+      });
+    }
+    return contexts.reverse();
+  }
+
+  function recordEventSource(eventSignature, node, from = node?.from, to = node?.to, force = false) {
+    const signatureText = String(eventSignature || '');
+    const start = Math.max(0, Math.min(source.length, Number(from) || 0));
+    const end = Math.max(start, Math.min(source.length, Number(to) || start));
+    if (!signatureText || end <= start || (!force && eventSources[signatureText])) return eventSignature;
+    const startPoint = sourcePoint(start);
+    const endPoint = sourcePoint(end);
+    eventSources[signatureText] = {
+      functionName: functionNameAt(node),
+      from: start,
+      to: end,
+      line: startPoint.line,
+      column: startPoint.column,
+      endLine: endPoint.line,
+      endColumn: endPoint.column,
+      text: source.slice(start, end),
+      contexts: sourceContexts(node)
+    };
+    return eventSignature;
+  }
 
   function watchAt(name, position) {
     return selected
@@ -1435,7 +1682,8 @@ function instrumentSource(source, watchIds = []) {
   }
 
   function signature(type, node) {
-    return `${type}:${functionNameAt(node)}:${analysis.lineAt(node.from)}:${compactExpression(source.slice(node.from, node.to))}`;
+    const value = `${type}:${functionNameAt(node)}:${analysis.lineAt(node.from)}:${compactExpression(source.slice(node.from, node.to))}`;
+    return recordEventSource(value, node);
   }
 
   function targetDescriptor(node) {
@@ -1498,21 +1746,22 @@ function instrumentSource(source, watchIds = []) {
     const functionName = functionNameAt(node);
     const statementId = `manual-keep:${functionName}:${directive.line}:${directive.index}`;
     if (directive.mode === 'last') {
-      return `::asm_trace::event_keep_last(${directive.line}, ${cppString(statementId)}, ${cppString(directive.label)});`;
+      return `::asm_trace::event_keep_last(${directive.line}, ${cppString(statementId)}, ${cppString(directive.label)}, ${directive.preserveStyle !== false ? 'true' : 'false'});`;
     }
     const variable = directive.variable;
-    return `::asm_trace::event_keep(${directive.line}, ${cppString(statementId)}, ${cppString(variable.id)}, ${cppString(variable.name)}, ${cppString(directive.label)}, (${variable.name}));`;
+    return `::asm_trace::event_keep(${directive.line}, ${cppString(statementId)}, ${cppString(variable.id)}, ${cppString(variable.name)}, ${cppString(directive.label)}, (${variable.name}), ${directive.preserveStyle !== false ? 'true' : 'false'});`;
   }
 
   function targetArgs(target) {
     return `${cppString(target.variableId)}, ${cppString(target.expression)}, ${cppString(target.indexExpression)}`;
   }
 
-  function compareTargetArgs(target) {
+  function indexedTargetArgs(target) {
     const indexExpression = String(target.indexExpression || '').trim();
     const canCaptureIndex = indexExpression
       && /^[A-Za-z0-9_+\-*/%()\s]+$/.test(indexExpression)
-      && !/(?:\+\+|--)/.test(indexExpression);
+      && !/(?:\+\+|--)/.test(indexExpression)
+      && !/[A-Za-z0-9_)]\s*\(/.test(indexExpression);
     const resolvedIndex = canCaptureIndex
       ? `static_cast<long long>(${indexExpression})`
       : '0LL';
@@ -1529,7 +1778,8 @@ function instrumentSource(source, watchIds = []) {
       `${source.slice(leftNode.from, leftNode.to)} ${operator} ${source.slice(rightNode.from, rightNode.to)}`
     );
     const eventSignature = `compare:${functionNameAt(signatureNode)}:${line}:${expression}`;
-    return `::asm_trace::event_compare(${line}, ${cppString(eventSignature)}, ${compareTargetArgs(leftTarget)}, ${compareTargetArgs(rightTarget)}, ${cppString(operator)}, [&]()->decltype(auto){ return (${left}); }, [&]()->decltype(auto){ return (${right}); }, [](const auto& __asm_l, const auto& __asm_r){ return __asm_l ${operator} __asm_r; })`;
+    recordEventSource(eventSignature, signatureNode, leftNode.from, rightNode.to);
+    return `::asm_trace::event_compare(${line}, ${cppString(eventSignature)}, ${indexedTargetArgs(leftTarget)}, ${indexedTargetArgs(rightTarget)}, ${cppString(operator)}, [&]()->decltype(auto){ return (${left}); }, [&]()->decltype(auto){ return (${right}); }, [](const auto& __asm_l, const auto& __asm_r){ return __asm_l ${operator} __asm_r; })`;
   }
 
   function trailingLogicalOperand(node) {
@@ -1562,12 +1812,16 @@ function instrumentSource(source, watchIds = []) {
         const declarator = childrenOf(node).find(child => child.name === 'InitDeclarator'
           && variable.nameFrom >= child.from && variable.nameFrom < child.to);
         if (!declarator) {
+          const eventSignature = `declare:${variable.functionName}:${variable.line}:${variable.name}`;
+          recordEventSource(eventSignature, node, variable.declarationFrom, variable.declarationTo);
           return [
-            `::asm_trace::event_declare_uninitialized(${variable.line}, ${cppString(`declare:${variable.functionName}:${variable.line}:${variable.name}`)}, ${cppString(variable.id)}, ${cppString(variable.name)}, ${cppString(variable.kind)});`
+            `::asm_trace::event_declare_uninitialized(${variable.line}, ${cppString(eventSignature)}, ${cppString(variable.id)}, ${cppString(variable.name)}, ${cppString(variable.kind)});`
           ];
         }
+        const declareSignature = `declare:${variable.functionName}:${variable.line}:${variable.name}`;
+        recordEventSource(declareSignature, declarator, node.from, node.to);
         const events = [
-          `::asm_trace::event_declare(${variable.line}, ${cppString(`declare:${variable.functionName}:${variable.line}:${variable.name}`)}, ${cppString(variable.id)}, ${cppString(variable.name)}, ${cppString(variable.kind)}, (${variable.name}));`
+          `::asm_trace::event_declare(${variable.line}, ${cppString(declareSignature)}, ${cppString(variable.id)}, ${cppString(variable.name)}, ${cppString(variable.kind)}, (${variable.name}));`
         ];
         const declaratorChildren = childrenOf(declarator);
         const initializer = declaratorChildren.length > 1
@@ -1576,9 +1830,11 @@ function instrumentSource(source, watchIds = []) {
         if (!initializer) return events;
         const sourceTarget = targetDescriptor(initializer);
         const assignment = `${variable.name} = ${compactExpression(source.slice(initializer.from, initializer.to))}`;
+        const assignSignature = `assign:${variable.functionName}:${variable.line}:${assignment}`;
+        recordEventSource(assignSignature, declarator, variable.nameFrom, initializer.to);
         const target = { variableId: variable.id, expression: variable.name, indexExpression: '' };
         events.push(
-          `::asm_trace::event_initialized_assign(${variable.line}, ${cppString(`assign:${variable.functionName}:${variable.line}:${assignment}`)}, ${targetArgs(target)}, ${targetArgs(sourceTarget)}, ${cppString(assignment)}, (${variable.name}));`
+          `::asm_trace::event_initialized_assign(${variable.line}, ${cppString(assignSignature)}, ${indexedTargetArgs(target)}, ${indexedTargetArgs(sourceTarget)}, ${cppString(assignment)}, (${variable.name}));`
         );
         return events;
       })
@@ -1590,7 +1846,11 @@ function instrumentSource(source, watchIds = []) {
       .filter(variable => variable.declarationKind === 'parameter'
         && variable.functionName === functionName
         && variable.scopeFrom === bodyNode.from)
-      .map(variable => `::asm_trace::event_declare(${variable.line}, ${cppString(`declare:${variable.functionName}:${variable.line}:${variable.name}`)}, ${cppString(variable.id)}, ${cppString(variable.name)}, ${cppString(variable.kind)}, (${variable.name}));`)
+      .map(variable => {
+        const eventSignature = `declare:${variable.functionName}:${variable.line}:${variable.name}`;
+        recordEventSource(eventSignature, bodyNode, variable.nameFrom, variable.nameTo);
+        return `::asm_trace::event_declare(${variable.line}, ${cppString(eventSignature)}, ${cppString(variable.id)}, ${cppString(variable.name)}, ${cppString(variable.kind)}, (${variable.name}));`;
+      })
       .join('\n');
   }
 
@@ -1651,9 +1911,11 @@ function instrumentSource(source, watchIds = []) {
       if (expressionNode) {
         const expression = rebuild(expressionNode, nestedContext);
         const conditionKind = node.parent?.name || 'Condition';
+        const eventSignature = signature('condition', node);
+        recordEventSource(eventSignature, expressionNode, expressionNode.from, expressionNode.to, true);
         rendered = suppressEvents
           ? expression
-          : `(::asm_trace::event_condition(${analysis.lineAt(node.from)}, ${cppString(signature('condition', node))}, ${cppString(conditionKind)}, [&](){ return static_cast<bool>(${expression}); }))`;
+          : `(::asm_trace::event_condition(${analysis.lineAt(node.from)}, ${cppString(eventSignature)}, ${cppString(conditionKind)}, [&](){ return static_cast<bool>(${expression}); }))`;
       }
     } else if (node.name === 'AssignmentExpression' || node.name === 'UpdateExpression') {
       const targetNode = node.name === 'AssignmentExpression' ? children[0] : children.find(child => containsSelectedReference(child));
@@ -1680,14 +1942,14 @@ function instrumentSource(source, watchIds = []) {
           && assignmentOperator === '='
           && node.parent?.name === 'ExpressionStatement';
         if (animatedAssignment || (forHeaderWrite && node.name === 'AssignmentExpression' && assignmentOperator === '=')) {
-          rendered = `::asm_trace::event_assign(${analysis.lineAt(node.from)}, ${cppString(signature('assign', node))}, ${targetArgs(target)}, ${targetArgs(sourceTarget)}, ${cppString(sourceExpression)}, [&]()->decltype(auto){ return (${targetAccess}); }, [&](){ ${expression}; }, [&]()->decltype(auto){ return (${targetAccess}); })`;
+          rendered = `::asm_trace::event_assign(${analysis.lineAt(node.from)}, ${cppString(signature('assign', node))}, ${indexedTargetArgs(target)}, ${indexedTargetArgs(sourceTarget)}, ${cppString(sourceExpression)}, [&]()->decltype(auto){ return (${targetAccess}); }, [&](){ ${expression}; }, [&]()->decltype(auto){ return (${targetAccess}); })`;
         } else if (node.name === 'UpdateExpression') {
-          const update = `::asm_trace::event_update(${analysis.lineAt(node.from)}, ${cppString(signature('write', node))}, ${targetArgs(target)}, ${cppString(sourceExpression)}, [&]()->decltype(auto){ return (${targetAccess}); }, [&](){ ${expression}; }, [&]()->decltype(auto){ return (${targetAccess}); })`;
+          const update = `::asm_trace::event_update(${analysis.lineAt(node.from)}, ${cppString(signature('write', node))}, ${indexedTargetArgs(target)}, ${cppString(sourceExpression)}, [&]()->decltype(auto){ return (${targetAccess}); }, [&](){ ${expression}; }, [&]()->decltype(auto){ return (${targetAccess}); })`;
           rendered = forHeaderWrite
             ? update
             : `(::asm_trace::event_read(${analysis.lineAt(node.from)}, ${cppString(signature('read', node))}, ${targetArgs(target)}), ${update})`;
         } else {
-          rendered = `::asm_trace::event_write(${analysis.lineAt(node.from)}, ${cppString(signature('write', node))}, ${targetArgs(target)}, ${cppString(sourceExpression)}, [&](){ ${expression}; }, true)`;
+          rendered = `::asm_trace::event_write(${analysis.lineAt(node.from)}, ${cppString(signature('write', node))}, ${indexedTargetArgs(target)}, ${cppString(sourceExpression)}, [&](){ ${expression}; }, true)`;
         }
       } else {
         rendered = expression;
@@ -1734,10 +1996,10 @@ function instrumentSource(source, watchIds = []) {
       } else if (/(?:^|::)swap$/.test(callee) && node.parent?.name === 'ExpressionStatement' && args.length >= 2) {
         const leftTarget = targetDescriptor(args[0]);
         const rightTarget = targetDescriptor(args[1]);
-        rendered = `::asm_trace::event_swap(${analysis.lineAt(node.from)}, ${cppString(signature('swap', node))}, ${compareTargetArgs(leftTarget)}, ${compareTargetArgs(rightTarget)}, [&](){ ${expression}; })`;
+        rendered = `::asm_trace::event_swap(${analysis.lineAt(node.from)}, ${cppString(signature('swap', node))}, ${indexedTargetArgs(leftTarget)}, ${indexedTargetArgs(rightTarget)}, [&](){ ${expression}; })`;
       } else if (mutationTarget?.variableId && MUTATING_METHODS.has(method)
         && node.parent?.name === 'ExpressionStatement') {
-        rendered = `::asm_trace::event_write(${analysis.lineAt(node.from)}, ${cppString(signature('write', node))}, ${targetArgs(mutationTarget)}, ${cppString(method)}, [&](){ ${expression}; })`;
+        rendered = `::asm_trace::event_write(${analysis.lineAt(node.from)}, ${cppString(signature('write', node))}, ${indexedTargetArgs(mutationTarget)}, ${cppString(method)}, [&](){ ${expression}; })`;
       } else {
         rendered = `(::asm_trace::event_call(${analysis.lineAt(node.from)}, ${cppString(signature('call', node))}, ${cppString(callee)}, ${cppString(compactExpression(source.slice(node.from, node.to)))}), (${expression}))`;
       }
@@ -1763,8 +2025,12 @@ function instrumentSource(source, watchIds = []) {
         const parameters = parameterEvents(node, info.name);
         const enterCapture = manualFrames ? '' : captureCall(node, 'function-enter');
         const exitCapture = manualFrames ? '' : captureCall(node, 'function-exit');
-        const enter = `\n::asm_trace::event_function(${analysis.lineAt(node.parent.from)}, ${cppString(signature('function-enter', node.parent))}, ${cppString(info.name)}, true);\n${parameters ? `${parameters}\n` : ''}${enterCapture}\n`;
-        const exit = `\n::asm_trace::event_function(${analysis.lineAt(node.to - 1)}, ${cppString(signature('function-exit', node.parent))}, ${cppString(info.name)}, false);\n${exitCapture}\n`;
+        const enterSignature = signature('function-enter', node.parent);
+        const exitSignature = signature('function-exit', node.parent);
+        recordEventSource(enterSignature, node.parent, node.parent.from, node.from + 1, true);
+        recordEventSource(exitSignature, node.parent, Math.max(node.from, node.to - 1), node.to, true);
+        const enter = `\n::asm_trace::event_function(${analysis.lineAt(node.parent.from)}, ${cppString(enterSignature)}, ${cppString(info.name)}, true);\n${parameters ? `${parameters}\n` : ''}${enterCapture}\n`;
+        const exit = `\n::asm_trace::event_function(${analysis.lineAt(node.to - 1)}, ${cppString(exitSignature)}, ${cppString(info.name)}, false);\n${exitCapture}\n`;
         rendered = `${rendered.slice(0, openOffset + 1)}${enter}${rendered.slice(openOffset + 1, closeOffset)}${exit}${rendered.slice(closeOffset)}`;
       }
     }
@@ -1788,7 +2054,8 @@ function instrumentSource(source, watchIds = []) {
     variables: selected,
     allVariables: analysis.variables,
     frameDirectives: indexedFrameDirectives,
-    keepDirectives: indexedKeepDirectives
+    keepDirectives: indexedKeepDirectives,
+    eventSources
   };
 }
 

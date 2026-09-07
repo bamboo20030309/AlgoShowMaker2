@@ -84,6 +84,7 @@ document.getElementById('runBtn').addEventListener('click', async () => {
   try {
     const t0 = performance.now();
     const sourceCode = aceEditor.getValue();
+    const sourceInput = inputEl ? inputEl.value : '';
     window.ASMSyntaxTree?.refresh?.(sourceCode);
     let traceConfig = { enabled: true, sliceMode: 'auto', watches: [], skins: {}, rules: [] };
     let traceAnalyzeWarning = '';
@@ -104,7 +105,7 @@ document.getElementById('runBtn').addEventListener('click', async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         code: sourceCode,                         // 保留原本欄位名 code
-        input: inputEl ? inputEl.value : '',      // stdin
+        input: sourceInput,                      // stdin captured with this RUN
         trace: traceConfig
       })
     });
@@ -197,16 +198,17 @@ document.getElementById('runBtn').addEventListener('click', async () => {
           ? window.ASMTraceEditor.applyTraceDocument(data.traceDocument)
           : window.asmApplyTraceDocument(data.traceDocument);
         const traceSettings = window.ASMTraceEditor?.snapshot?.() || {};
+        const savedTraceDocument = traceSettings.traceDocument || traceDocument;
         window.dispatchEvent(new CustomEvent('asm:compiled-animation', {
           detail: {
             mode: 'trace',
             code: sourceCode,
-            input: inputEl ? inputEl.value : '',
+            input: sourceInput,
             sliceMode: traceSettings.sliceMode || traceDocument?.sliceMode || 'auto',
             watches: traceSettings.watches || [],
-            skins: traceDocument?.skins || traceSettings.skins || {},
-            rules: traceDocument?.rules || traceSettings.rules || [],
-            traceDocument
+            skins: savedTraceDocument?.skins || traceSettings.skins || {},
+            rules: savedTraceDocument?.rules || traceSettings.rules || [],
+            traceDocument: savedTraceDocument
           }
         }));
       } catch (e) {
@@ -221,7 +223,7 @@ document.getElementById('runBtn').addEventListener('click', async () => {
           detail: {
             mode: 'legacy',
             code: sourceCode,
-            input: inputEl ? inputEl.value : '',
+            input: sourceInput,
             scriptContent: data.scriptContent
           }
         }));

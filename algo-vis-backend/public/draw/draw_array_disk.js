@@ -30,6 +30,7 @@
     }
 
     let highlight = style.filter(s => s.type === "highlight");
+    let focus = style.filter(s => s.type === "focus");
     let background = style.filter(s => s.type === "background");
     let point = style.filter(s => s.type === "point");
     let mark = style.filter(s => s.type === "mark");
@@ -37,6 +38,7 @@
     let baseStyle = style.find(s => s.type === "base_width");
 
     highlight = normalize(highlight);
+    focus = normalize(focus);
     background = normalize(background);
     point = normalize(point);
     mark = normalize(mark);
@@ -109,8 +111,12 @@
       const diskW = minDiskWidth + (v - 1) * diskWidthStep;
       const diskX = centerX - diskW / 2;
 
+      const haveFocus = focus.length > 0
+        ? focus.some(item => Array.isArray(item.elements) && item.elements.includes(i))
+        : true;
+      const dimColor = focus.findLast(item => item?.color?.trim())?.color.trim() || '#ccc';
       const haveBackground = background.findLast(m => Array.isArray(m.elements) && m.elements.includes(i));
-      let background_color = "#ffffff";
+      let background_color = haveFocus ? '#fff' : dimColor;
       if (haveBackground && haveBackground.color && haveBackground.color.trim() !== "") {
         background_color = haveBackground.color.trim();
       }

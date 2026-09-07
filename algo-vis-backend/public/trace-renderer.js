@@ -203,6 +203,21 @@
         if (!hint) return;
         hint.setAttribute('data-trace-attached-to', cellKey);
         hint.setAttribute('data-trace-attachment-kind', kind);
+        if (kind === 'highlight' || kind === 'point') {
+          const highlight = context.highlights?.[String(logicalIndex)]
+            || context.highlights?.$object
+            || {};
+          const sourceIdentity = String(
+            highlight.sourceStyleIds?.[kind]
+            || highlight.sourceStyleId
+            || highlight.eventId
+            || `${context.variableId}:${logicalIndex}`
+          );
+          window.HintWidgets?.continuePresentationLoop?.(
+            hint,
+            `${kind}:${sourceIdentity}`
+          );
+        }
       });
       const indexLabel = group.querySelector(`#${CSS.escape(`cell-${id}-${localIndex}-index`)}`);
       if (indexLabel) {
@@ -351,6 +366,48 @@
       y: Number(position?.y) || 0,
       absolute: position?.absolute === true
     };
+  }
+
+  function snapshotObjectKey(snapshot) {
+    return String(snapshot?.objectId || snapshot?.id || '');
+  }
+
+  function keepSnapshotObjectKeys(document, frame, sourceObjectKey = '') {
+    const snapshotsById = new Map((document?.snapshots || []).map(snapshot => [snapshot.id, snapshot]));
+    const objectKeys = (frame?.snapshotIds || []).map(snapshotId => (
+      snapshotObjectKey(snapshotsById.get(snapshotId))
+    )).filter(Boolean);
+    const sourceIndex = sourceObjectKey ? objectKeys.indexOf(sourceObjectKey) : -1;
+    return sourceIndex >= 0 ? objectKeys.slice(0, sourceIndex) : objectKeys;
+  }
+
+  function keepUnionPlacement(document, frame, placements, sourceObjectKey = '') {
+    const snapshotsById = new Map((document?.snapshots || []).map(snapshot => [snapshot.id, snapshot]));
+    const visibilityStates = document?.studio?.visibility?.[frame?.id] || {};
+    const snapshotIdsByObjectKey = new Map((frame?.snapshotIds || []).map(snapshotId => {
+      const objectKey = snapshotObjectKey(snapshotsById.get(snapshotId));
+      return [objectKey, snapshotId];
+    }));
+    const boxes = keepSnapshotObjectKeys(document, frame, sourceObjectKey).map(objectKey => {
+      const snapshotId = snapshotIdsByObjectKey.get(objectKey);
+      if (!objectKey || (visibilityStates[objectKey] || visibilityStates[snapshotId]) === 'hidden') return null;
+      return placements.get(objectKey) || null;
+    }).filter(box => box && [box.x, box.y, box.width, box.height].every(Number.isFinite));
+    if (!boxes.length) return null;
+    const left = Math.min(...boxes.map(box => box.x));
+    const top = Math.min(...boxes.map(box => box.y));
+    const right = Math.max(...boxes.map(box => box.x + box.width));
+    const bottom = Math.max(...boxes.map(box => box.y + box.height));
+    return { x: left, y: top, width: right - left, height: bottom - top };
+  }
+
+  function snapshotStudioPosition(document, frame, snapshot) {
+    const positions = document.studio?.positions?.[frame.id] || {};
+    const objectKey = snapshotObjectKey(snapshot);
+    const key = Object.prototype.hasOwnProperty.call(positions, objectKey)
+      ? objectKey
+      : snapshot.id;
+    return studioPosition(document, frame, key);
   }
 
   function objectKeyForVariable(frame, variableId) {
@@ -646,6 +703,14 @@
     };
   }
 
+  function keepArrowObjectKey(fromStageKey, runtimeIdentity, variableId) {
+    const sourceKey = String(fromStageKey || 'snapshot');
+    const continuityKey = runtimeIdentity
+      ? `identity:${runtimeIdentity}`
+      : `variable:${variableId || ''}`;
+    return `keep-arrow:${sourceKey}:${continuityKey}`;
+  }
+
   function renderKeepLastArrows(rootSvg, root, document, frame, placements, elements, keepNodes, options = {}) {
     if (!keepNodes.length) return;
     const color = 'rgba(255, 58, 58, 0.7)';
@@ -659,11 +724,22 @@
     });
     const byVariable = new Map();
     keepNodes.forEach(node => {
-      if (!byVariable.has(node.variableId)) byVariable.set(node.variableId, []);
-      byVariable.get(node.variableId).push(node);
+      const groupKey = node.runtimeIdentity
+        ? `identity:${node.runtimeIdentity}`
+        : `variable:${node.variableId}`;
+      if (!byVariable.has(groupKey)) byVariable.set(groupKey, []);
+      byVariable.get(groupKey).push(node);
     });
 
-    byVariable.forEach((nodes, variableId) => {
+    byVariable.forEach(nodes => {
+      const runtimeIdentity = nodes.find(node => node.runtimeIdentity)?.runtimeIdentity || '';
+      const variableId = nodes.map(node => node.variableId).find(id => frame.state?.[id])
+        || (runtimeIdentity
+          ? Object.entries(frame.state || {}).find(([, entry]) => (
+            String(entry?.identity || '') === String(runtimeIdentity)
+          ))?.[0]
+          : '')
+        || nodes[0]?.variableId;
       const currentKey = objectKeyForVariable(frame, variableId);
       const current = placements.get(currentKey);
       if (!current || !elements.get(currentKey)) return;
@@ -694,7 +770,10 @@
           x: points.end.x - (dx / length) * headShrink,
           y: points.end.y - (dy / length) * headShrink
         };
-        const key = `keep-arrow:${fromStage.key}:${variableId}`;
+        // Recursive calls give reference parameters a new variableId even when
+        // they still point at the same container.  Keep the arrow keyed to the
+        // container identity so a continuous arr does not re-enter every frame.
+        const key = keepArrowObjectKey(fromStage.key, runtimeIdentity, variableId);
         const line = svg('line', {
           class: 'asm-trace-keep-arrow',
           x1: points.start.x,
@@ -732,12 +811,28 @@
     return window.ASMTraceRules.conditionMatches(frame, object.condition);
   }
 
+  function placedObjectKey(placements, requestedKey) {
+    const key = String(requestedKey || '');
+    if (!key) return '';
+    // A keep alias is stored directly, while a Trace Studio object uses the
+    // studio: namespace internally. Direct/keep keys intentionally win.
+    if (placements.has(key)) return key;
+    const studioKey = `studio:${key}`;
+    if (placements.has(studioKey)) return studioKey;
+    return key;
+  }
+
   function targetPlacement(document, frame, placements, target = {}) {
-    const objectKey = target.objectKey || target.key;
-    if (objectKey && placements.has(objectKey)) return placements.get(objectKey);
+    const objectKey = target.objectKey || target.targetObjectKey || target.key;
     const variableId = target.variableId || target.targetVariableId;
-    if (!variableId) return null;
-    const targetObjectKey = objectKeyForVariable(frame, variableId);
+    if (!objectKey && !variableId) return null;
+    if (objectKey === 'keep' || objectKey === '$keep') {
+      if (String(target.indexExpression ?? '').trim()) return null;
+      return keepUnionPlacement(document, frame, placements);
+    }
+    const targetObjectKey = objectKey
+      ? placedObjectKey(placements, objectKey)
+      : objectKeyForVariable(frame, variableId);
     const expression = target.indexExpression;
     if (expression != null && String(expression).trim() !== '') {
       const parts = String(expression).split(',').map(part => part.trim()).filter(Boolean);
@@ -791,6 +886,21 @@
     return virtualPlacement;
   }
 
+  function leftmostVisibleIndexPlacement(frame, variableId, placements, elements) {
+    const prefix = `${objectKeyForVariable(frame, variableId)}#`;
+    const cells = [];
+    placements.forEach((placement, key) => {
+      if (!key.startsWith(prefix) || !/^\d+$/.test(key.slice(prefix.length))) return;
+      // Linear out-of-range placements have no rendered element. Never use
+      // those, labels, or decorations as the unknown marker's reference cell.
+      if (!elements.has(key) || ![placement.x, placement.y, placement.width, placement.height].every(Number.isFinite)) return;
+      cells.push({ key, placement, index: Number(key.slice(prefix.length)) });
+    });
+    cells.sort((a, b) => a.placement.x - b.placement.x
+      || a.placement.y - b.placement.y || a.index - b.index);
+    return cells[0] || null;
+  }
+
   function anchorPoint(placement, anchor = 'center') {
     if (!placement) return null;
     const normalized = String(anchor || 'center').toLowerCase();
@@ -807,9 +917,20 @@
     return anchorPoint(targetPlacement(document, frame, placements || new Map(), target), target?.anchor);
   }
 
-  function resolvedTargetKey(document, frame, target) {
-    const objectKey = target?.objectKey || target?.key;
-    if (objectKey) return objectKey;
+  function resolvedTargetKey(document, frame, target, placements = currentScene?.placements || new Map()) {
+    const objectKey = target?.objectKey || target?.targetObjectKey || target?.key;
+    if (objectKey) {
+      if ((objectKey === 'keep' || objectKey === '$keep')
+        && !String(target?.indexExpression ?? '').trim()) return '$keep';
+      const targetObjectKey = placedObjectKey(placements, objectKey);
+      const expression = String(target?.indexExpression ?? '').trim();
+      if (!expression) return targetObjectKey;
+      const indices = expression.split(',').map(part => Number(
+        window.ASMTraceRules.resolveExpression(document, frame, part.trim())
+      ));
+      if (!indices.length || indices.some(index => !Number.isInteger(index))) return targetObjectKey;
+      return `${targetObjectKey}#${indices.join(',')}`;
+    }
     const variableId = target?.variableId || target?.targetVariableId;
     if (!variableId) return '';
     const targetObjectKey = objectKeyForVariable(frame, variableId);
@@ -1082,15 +1203,30 @@
 
   function applyBindings(document, frame, placements, elements) {
     const directiveBindings = {};
-    (frame.objectBindings || []).forEach(binding => {
-      if (!binding?.sourceVariableId) return;
-      const sourceKey = objectKeyForVariable(frame, binding.sourceVariableId);
+    const snapshotsById = new Map((document.snapshots || []).map(snapshot => [snapshot.id, snapshot]));
+    const snapshotObjectKeys = new Set((frame.snapshotIds || []).map(id => (
+      snapshotObjectKey(snapshotsById.get(id))
+    )).filter(Boolean));
+    const automaticBindings = [
+      ...(frame.objectBindings || []),
+      ...(frame.snapshotIds || []).map(id => {
+        const snapshot = snapshotsById.get(id);
+        return snapshot?.binding
+          ? { ...snapshot.binding, sourceObjectKey: snapshotObjectKey(snapshot) }
+          : null;
+      }).filter(Boolean)
+    ];
+    automaticBindings.forEach(binding => {
+      if (!binding?.sourceVariableId && !binding?.sourceObjectKey) return;
+      const sourceKey = binding.sourceObjectKey
+        || objectKeyForVariable(frame, binding.sourceVariableId);
       const targetKey = binding.canvas
         ? '$canvas'
         : resolvedTargetKey(document, frame, {
+          objectKey: binding.targetObjectKey,
           variableId: binding.targetVariableId,
           indexExpression: (binding.indexExpressions || []).join(',')
-        });
+        }, placements);
       if (!sourceKey || !targetKey) return;
       const anchor = String(binding.anchor || 'center').toLowerCase();
       const vertical = anchor.includes('top') ? 'bottom' : anchor.includes('bottom') ? 'top' : '';
@@ -1120,12 +1256,25 @@
       const source = elements.get(key);
       if (!binding || !source) return;
       applying.add(key);
-      applyOne(binding.targetKey);
+      const targetKey = binding.targetKey === 'keep' ? '$keep' : binding.targetKey;
+      if (targetKey === '$keep') {
+        // A retained object keeps the placement it had when it was created.
+        // Its historical `keep` target therefore contains only older keeps;
+        // including future keeps here creates a circular layout that expands
+        // the vertical gaps every time another retained object is added.
+        keepSnapshotObjectKeys(document, frame,
+          snapshotObjectKeys.has(key) ? key : '').forEach(applyOne);
+      } else {
+        applyOne(targetKey);
+      }
       const sourcePlacement = placements.get(key);
-      const targetPlacement = binding.targetKey === '$canvas'
+      const targetPlacement = targetKey === '$canvas'
         ? { x: 0, y: 0, width: 1100, height: 620 }
-        : placements.get(binding.targetKey);
-      if (sourcePlacement && targetPlacement && binding.targetKey !== key) {
+        : targetKey === '$keep'
+          ? keepUnionPlacement(document, frame, placements,
+            snapshotObjectKeys.has(key) ? key : '')
+          : placements.get(targetKey);
+      if (sourcePlacement && targetPlacement && targetKey !== key) {
         const sourcePoint = anchorPoint(sourcePlacement, binding.sourceAnchor || 'top');
         const targetPoint = anchorPoint(targetPlacement, binding.targetAnchor || 'center');
         const dx = targetPoint.x + (Number(binding.dx) || 0) - sourcePoint.x;
@@ -1135,7 +1284,7 @@
           shiftPlacementTree(source, dx, dy, placements, elements);
         }
         source.dataset.traceBound = '1';
-        source.dataset.traceBindingTarget = binding.targetKey;
+        source.dataset.traceBindingTarget = targetKey;
         source.dataset.traceBindingSourceAnchor = binding.sourceAnchor || 'top';
         source.dataset.traceBindingTargetAnchor = binding.targetAnchor || 'center';
         source.dataset.studioOffset = `${Number(binding.dx) || 0},${Number(binding.dy) || 0}`;
@@ -1200,6 +1349,32 @@
     });
   }
 
+  function fixedTargetIndex(document, sourceFrame, target) {
+    if (target?.resolvedIndex != null
+      && target.resolvedIndex !== ''
+      && Number.isInteger(Number(target.resolvedIndex))) return Number(target.resolvedIndex);
+    const index = Number(window.ASMTraceRules.resolveExpression(
+      document, sourceFrame, target?.indexExpression
+    ));
+    return Number.isInteger(index) ? index : null;
+  }
+
+  function fixedTargetVariableIds(frame, sourceFrame, event, target) {
+    const identity = String(
+      target?.runtimeIdentity
+      || event?.runtimeIdentity
+      || sourceFrame?.state?.[target?.variableId]?.identity
+      || ''
+    );
+    if (identity) {
+      const aliases = Object.entries(frame?.state || {})
+        .filter(([, entry]) => String(entry?.identity || '') === identity)
+        .map(([variableId]) => variableId);
+      if (aliases.length) return aliases;
+    }
+    return frame?.state?.[target?.variableId] ? [target.variableId] : [];
+  }
+
   function applyFixedEventStyles(document, frame, highlights) {
     // @keep last renders a cloned frame. Match by stable frame ID instead of
     // object identity so accumulated marks are retained inside the snapshot.
@@ -1208,18 +1383,22 @@
     document.frames.slice(0, currentIndex + 1).forEach(sourceFrame => {
       (sourceFrame.events || []).filter(event => (
         event.type === 'fixed'
+        // Fixed marks are persistent renderer state, not a timed animation.
+        // Their user switch is authoritative even if an older saved trace
+        // still carries stale animation-availability metadata.
         && event.enabled !== false
-        && event.autoAnimationDisabled !== true
       )).forEach(event => {
         (event.targets || []).forEach(target => {
           if (!target.variableId || target.indexExpression == null) return;
-          const index = Number(window.ASMTraceRules.resolveExpression(document, frame, target.indexExpression));
-          if (!Number.isInteger(index)) return;
-          highlights[target.variableId] ||= {};
-          highlights[target.variableId][String(index)] = {
-            ...(highlights[target.variableId][String(index)] || {}),
-            fixedMark: '#4caf50'
-          };
+          const index = fixedTargetIndex(document, sourceFrame, target);
+          if (index == null) return;
+          fixedTargetVariableIds(frame, sourceFrame, event, target).forEach(variableId => {
+            highlights[variableId] ||= {};
+            highlights[variableId][String(index)] = {
+              ...(highlights[variableId][String(index)] || {}),
+              fixedMark: '#4caf50'
+            };
+          });
         });
       });
     });
@@ -1231,12 +1410,14 @@
     (frame.events || []).filter(event => (
       event.type === 'fixed'
       && event.enabled !== false
-      && event.autoAnimationDisabled !== true
     )).forEach(event => {
       (event.targets || []).forEach(target => {
         if (!target.variableId || target.indexExpression == null) return;
-        const index = Number(window.ASMTraceRules.resolveExpression(document, frame, target.indexExpression));
-        if (Number.isInteger(index)) targetKeys.add(`${target.variableId}#${index}`);
+        const index = fixedTargetIndex(document, frame, target);
+        if (index == null) return;
+        fixedTargetVariableIds(frame, frame, event, target).forEach(variableId => {
+          targetKeys.add(`${objectKeyForVariable(frame, variableId)}#${index}`);
+        });
       });
     });
     if (!targetKeys.size) return [];
@@ -1292,6 +1473,7 @@
     AV_orange: 'orange',
     AV_node_green: '#e8f5e9',
     AV_node_red: '#ef9a9a',
+    AV_grey: '#cccccc',
     AV_node_grey: '#cccccc',
     AV_black: '#111827',
     AV_white: '#ffffff'
@@ -1517,6 +1699,7 @@
       const target = binding.canvas
         ? canvas
         : targetPlacement(document, frame, placements, {
+          objectKey: binding.targetObjectKey,
           variableId: binding.targetVariableId,
           indexExpression
         });
@@ -1545,9 +1728,10 @@
       source.dataset.traceBindingTarget = binding.canvas
         ? 'canvas'
         : resolvedTargetKey(document, frame, {
+          objectKey: binding.targetObjectKey,
           variableId: binding.targetVariableId,
           indexExpression
-        });
+        }, placements);
       source.dataset.traceSemanticBinding = '1';
       source.dataset.traceBindingAnchor = binding.anchor || 'center';
       source.dataset.traceBindingLine = String(descriptor.line || '');
@@ -1557,9 +1741,14 @@
   function renderStudioObjects(root, document, frame, placements, elements, options = {}, sourceObjects = null) {
     const objects = (sourceObjects || document.studio?.objects || []).filter(object => studioObjectVisible(object, frame));
     objects.forEach(studioObject => {
-      const target = resolveAnchor(document, frame, studioObject.target, placements);
+      // Auto bindings may supply a transient placement without inventing a
+      // real array index. It is not persisted in the Trace Studio document.
+      const markerPlacement = studioObject.markerUnresolved ? studioObject.markerPlacement : null;
+      const target = markerPlacement
+        ? anchorPoint(markerPlacement, 'top')
+        : resolveAnchor(document, frame, studioObject.target, placements);
       if (!target) return;
-      const pointerTarget = studioObject.pointerTarget
+      const pointerTarget = markerPlacement ? anchorPoint(markerPlacement, 'center') : studioObject.pointerTarget
         ? resolveAnchor(document, frame, studioObject.pointerTarget, placements)
         : target;
       const key = `studio:${studioObject.id}`;
@@ -1580,10 +1769,24 @@
       }), key, { ...options, movable: true });
       object.dataset.tracePositionApplied = '1';
       object.dataset.tracePositionSpace = 'origin';
-      object.dataset.tracePositionX = String(position.x);
-      object.dataset.tracePositionY = String(position.y);
+      // A bound marker's motion origin is its rendered position, not its
+      // persisted Studio drag offset. Keeping the offset in tracePosition made
+      // every automatic marker look as though it lived at (0, 0), so recursive
+      // heap markers could not tween between their actual cells.
+      object.dataset.tracePositionX = String(
+        studioObject.type === 'variable-marker' ? baseX : position.x
+      );
+      object.dataset.tracePositionY = String(
+        studioObject.type === 'variable-marker' ? baseY : position.y
+      );
       if (studioObject.sourceVariableId) {
         object.dataset.traceSourceVariableId = studioObject.sourceVariableId;
+      }
+      if (studioObject.sourceRuntimeIdentity) {
+        object.dataset.traceRuntimeIdentity = studioObject.sourceRuntimeIdentity;
+      }
+      if (studioObject.sourceVisualContinuityKey) {
+        object.dataset.traceVisualContinuityKey = studioObject.sourceVisualContinuityKey;
       }
       const sourceVariableIds = Array.isArray(studioObject.sourceVariableIds)
         ? studioObject.sourceVariableIds.filter(Boolean)
@@ -1594,8 +1797,13 @@
       if (studioObject.indexExpression) {
         object.dataset.traceMarkerIndexExpression = studioObject.indexExpression;
       }
-      const boundTargetKey = resolvedTargetKey(document, frame, studioObject.target);
+      const boundTargetKey = markerPlacement ? '' : resolvedTargetKey(document, frame, studioObject.target, placements);
       if (boundTargetKey) object.dataset.traceBindingTarget = boundTargetKey;
+      if (markerPlacement) {
+        object.dataset.traceMarkerUnresolved = '1';
+        object.dataset.traceMarkerTargetX = String(pointerTarget.x + (Number(studioObject.pointerTargetOffsetX) || 0));
+        object.dataset.traceMarkerTargetY = String(pointerTarget.y);
+      }
       const motion = svg('g', { class: 'asm-trace-motion' });
       object.append(motion);
       let box;
@@ -1754,45 +1962,61 @@
     const bindings = Array.isArray(frame.bindings) ? frame.bindings : [];
     if (!bindings.length) return;
     const pending = [];
+    const visualContinuityOrdinals = new Map();
 
     bindings.forEach((binding, index) => {
       const targetEntry = frame.state?.[binding.targetVariableId];
       const targetItems = Array.isArray(targetEntry?.data?.items) ? targetEntry.data.items : [];
       const targetKind = targetEntry?.data?.kind;
       const indexExpression = binding.indexExpression || binding.sourceName;
-      const resolvedIndexValue = Number(
-        window.ASMTraceRules.resolveExpression(document, frame, indexExpression)
-      );
+      const rawIndexValue = window.ASMTraceRules.resolveExpression(document, frame, indexExpression);
+      const resolvedIndexValue = rawIndexValue == null ? NaN : Number(rawIndexValue);
       const hasIndexValue = Number.isInteger(resolvedIndexValue);
-      const indexValue = hasIndexValue ? resolvedIndexValue : -1;
+      const indexValue = hasIndexValue ? resolvedIndexValue : null;
       if (binding.mode !== 'index'
         || !targetEntry
         || targetKind === 'matrix'
         || !targetItems.length) return;
-      if (!ensureLinearIndexPlacement(
+      const unresolvedReference = hasIndexValue ? null : leftmostVisibleIndexPlacement(
+        frame, binding.targetVariableId, placements, elements
+      );
+      if (hasIndexValue ? !ensureLinearIndexPlacement(
         frame,
         binding.targetVariableId,
         indexValue,
         targetItems.length,
         placements
-      )) return;
+      ) : !unresolvedReference) return;
 
       const label = binding.indexExpression
         || binding.sourceName
         || document.variables?.[binding.sourceVariableId]?.name
         || 'index';
       const targetObjectKey = objectKeyForVariable(frame, binding.targetVariableId);
-      const targetKey = `${targetObjectKey}#${indexValue}`;
-      const targetPlacement = placements.get(targetKey);
+      const targetKey = unresolvedReference?.key || `${targetObjectKey}#${indexValue}`;
+      const targetPlacement = unresolvedReference?.placement || placements.get(targetKey);
       const targetElement = elements.get(targetKey);
       const baseCellWidth = Number(
         targetElement?.closest?.('[data-layout]')?.getAttribute?.('data-box-size')
       ) || 40;
+      const visualContinuityBase = [
+        'auto-marker',
+        binding.sourceVariableId,
+        binding.targetVariableId,
+        binding.sourceName || binding.indexExpression || ''
+      ].join(':');
+      const visualContinuityOrdinal = visualContinuityOrdinals.get(visualContinuityBase) || 0;
+      visualContinuityOrdinals.set(visualContinuityBase, visualContinuityOrdinal + 1);
       pending.push({
         id: `auto-frame-binding-${binding.sourceVariableId}-${binding.targetVariableId}-${index}`,
         type: 'variable-marker',
         sourceVariableId: binding.sourceVariableId,
         sourceVariableIds: binding.sourceVariableIds || [binding.sourceVariableId],
+        sourceRuntimeIdentity: frame.state?.[binding.sourceVariableId]?.identity || '',
+        // Runtime identity still distinguishes recursive stack activations for
+        // event snapshots. This stable role key is only for visual continuity,
+        // so the same automatic marker moves instead of re-entering on every call.
+        sourceVisualContinuityKey: `${visualContinuityBase}:${visualContinuityOrdinal}`,
         targetVariableId: binding.targetVariableId,
         targetObjectKey,
         targetRuntimeIdentity: targetEntry?.identity || '',
@@ -1827,7 +2051,9 @@
     const groups = new Map();
     pending.forEach(item => {
       const target = item.targetPlacement;
-      const groupKey = target
+      const groupKey = item.unresolvedIndex
+        ? `unresolved:${item.targetObjectKey}`
+        : target
         ? [target.x, target.y, target.width, target.height]
           .map(value => Math.round((Number(value) || 0) * 10) / 10)
           .join(':')
@@ -1856,6 +2082,13 @@
       );
       const targetWidth = Math.max(0, Number(targetPlacement?.width) || 0);
       const baseCellWidth = Math.max(1, Number(orderedGroup[0].baseCellWidth) || 40);
+      const unresolved = orderedGroup[0].unresolvedIndex;
+      // Move the entire group horizontally, preserving the reference cell's
+      // top/center anchors. The rightmost label ends 8px before its left edge.
+      const markerPlacement = unresolved ? {
+        ...targetPlacement,
+        x: targetPlacement.x - gap - totalWidth / 2 - targetPlacement.width / 2
+      } : null;
       const keepArrowsVertical = orderedGroup.length > 1
         && targetWidth >= baseCellWidth * 2 - 0.5;
       let cursor = -totalWidth / 2;
@@ -1868,7 +2101,12 @@
           targetPlacement: ignoredTargetPlacement,
           indexValue, unresolvedIndex, labelWidth, label, markerSortExpression, ...object
         } = item;
-        if (unresolvedIndex) object.markerUnresolved = true;
+        if (unresolvedIndex) {
+          object.markerUnresolved = true;
+          object.markerPlacement = markerPlacement;
+          delete object.target;
+          delete object.pointerTarget;
+        }
         objects.push(object);
       });
     });
@@ -1966,6 +2204,17 @@
     return y;
   }
 
+  function snapshotRuntimeIdentity(document, snapshot) {
+    if (snapshot.sourceIdentity) return snapshot.sourceIdentity;
+    const frames = document.frames || [];
+    const createdIndex = frames.findIndex(item => item.id === snapshot.createdFrameId);
+    for (let index = createdIndex >= 0 ? createdIndex : frames.length - 1; index >= 0; index -= 1) {
+      const identity = frames[index]?.state?.[snapshot.sourceVariableId]?.identity;
+      if (identity) return identity;
+    }
+    return '';
+  }
+
   function renderSnapshots(root, document, frame, startY, placements, elements, options = {}, keepNodes = []) {
     const snapshotsById = new Map((document.snapshots || []).map(snapshot => [snapshot.id, snapshot]));
     const visibilityStates = document.studio?.visibility?.[frame.id] || {};
@@ -1973,20 +2222,23 @@
     let y = startY;
     (frame.snapshotIds || []).forEach(snapshotId => {
       const snapshot = snapshotsById.get(snapshotId);
-      if (!snapshot || (!editingVisibility && visibilityStates[snapshotId] === 'hidden')) return;
+      const objectKey = snapshotObjectKey(snapshot);
+      const visibility = visibilityStates[objectKey] || visibilityStates[snapshotId];
+      if (!snapshot || !objectKey || (!editingVisibility && visibility === 'hidden')) return;
       if (snapshot.kind === 'frame' && snapshot.frame) {
-        const position = studioPosition(document, frame, snapshotId);
+        const position = snapshotStudioPosition(document, frame, snapshot);
         const baseX = position.x;
         const baseY = position.absolute ? position.y : y + position.y;
         const object = markSelectable(svg('g', {
-          id: `${options.idPrefix || 'trace'}-${safeKey(snapshotId)}`,
+          id: `${options.idPrefix || 'trace'}-${safeKey(objectKey)}`,
           class: 'asm-trace-object asm-trace-snapshot asm-trace-frame-snapshot',
           transform: `translate(${baseX}, ${baseY})`,
           'data-base-offset': `${baseX},${baseY}`,
           'data-translate': '0,0',
           'data-trace-snapshot': snapshotId,
-          'data-trace-object-key': snapshotId
-        }), snapshotId, { ...options, movable: true });
+          'data-trace-object-key': objectKey,
+          'data-trace-object-id': objectKey
+        }), objectKey, { ...options, movable: true });
         object.dataset.tracePositionApplied = '1';
         object.dataset.tracePositionSpace = 'origin';
         object.dataset.tracePositionX = String(baseX);
@@ -2005,29 +2257,30 @@
           frozenFrame,
           sourceIndex > 0 ? document.frames[sourceIndex - 1] : null,
           {
-            idPrefix: `${options.idPrefix || 'trace'}-${safeKey(snapshotId)}`,
+            idPrefix: `${options.idPrefix || 'trace'}-${safeKey(objectKey)}`,
             interactive: false,
             animatePositions: false,
             transform: ''
           }
         );
         const contentBox = measuredBox(content, { x: 0, y: 0, width: 180, height: 100 });
-        animateObjectPosition(motion, options, snapshotId, { x: baseX, y: baseY });
-        placements.set(snapshotId, {
+        animateObjectPosition(motion, options, objectKey, { x: baseX, y: baseY });
+        placements.set(objectKey, {
           x: baseX + contentBox.x,
           y: baseY + contentBox.y,
           width: contentBox.width,
           height: contentBox.height
         });
-        elements.set(snapshotId, object);
+        elements.set(objectKey, object);
         Object.keys(snapshot.frame.state || {}).forEach(variableId => {
           const sourceKey = objectKeyForVariable(snapshot.frame, variableId);
           const sourcePlacement = frozenScene.placements.get(sourceKey);
           const sourceElement = frozenScene.elements.get(sourceKey);
           if (!sourcePlacement || !sourceElement) return;
           keepNodes.push({
-            snapshotId,
+            snapshotId: objectKey,
             variableId,
+            runtimeIdentity: snapshot.frame.state?.[variableId]?.identity || '',
             relative: {
               x: sourcePlacement.x - contentBox.x,
               y: sourcePlacement.y - contentBox.y,
@@ -2040,7 +2293,7 @@
         return;
       }
       const sourceVariable = document.variables?.[snapshot.sourceVariableId] || {};
-      const variable = { ...sourceVariable, id: snapshotId, name: snapshot.label || sourceVariable.name || 'Snapshot' };
+      const variable = { ...sourceVariable, id: objectKey, name: snapshot.label || sourceVariable.name || 'Snapshot' };
       const entry = { name: variable.name, data: snapshot.data };
       const baseSkin = document.skins?.[snapshot.sourceVariableId] || {};
       const skin = {
@@ -2050,19 +2303,29 @@
       const rendererName = snapshot.renderer
         || skin.renderer || variable.kind || entry.data?.kind || 'object';
       const renderer = renderers.get(rendererName) || renderers.get(entry.data?.kind) || renderObject;
-      const position = studioPosition(document, frame, snapshotId);
+      const sourceFrame = snapshot.sourceFrameId
+        ? document.frames?.find(item => item.id === snapshot.sourceFrameId)
+        : null;
+      const snapshotStyleFrame = sourceFrame && Array.isArray(snapshot.styles)
+        ? { ...sourceFrame, events: [], styles: snapshot.styles }
+        : null;
+      const snapshotHighlights = snapshotStyleFrame
+        ? window.ASMTraceRules.evaluate({ ...document, rules: [] }, snapshotStyleFrame)[snapshot.sourceVariableId] || {}
+        : {};
+      const position = snapshotStudioPosition(document, frame, snapshot);
       const baseX = position.x;
       const baseY = position.absolute ? position.y : y + position.y;
       const object = markSelectable(svg('g', {
-        id: `${options.idPrefix || 'trace'}-${safeKey(snapshotId)}`,
+        id: `${options.idPrefix || 'trace'}-${safeKey(objectKey)}`,
         class: 'asm-trace-object asm-trace-snapshot',
         transform: `translate(${baseX}, ${baseY})`,
         'data-base-offset': `${baseX},${baseY}`,
         'data-translate': '0,0',
-        'data-trace-variable': snapshotId,
+        'data-trace-variable': objectKey,
         'data-trace-snapshot': snapshotId,
-        'data-trace-object-key': snapshotId
-      }), snapshotId, { ...options, movable: true });
+        'data-trace-object-key': objectKey,
+        'data-trace-object-id': objectKey
+      }), objectKey, { ...options, movable: true });
       object.dataset.tracePositionApplied = '1';
       object.dataset.tracePositionSpace = 'origin';
       object.dataset.tracePositionX = String(baseX);
@@ -2073,9 +2336,9 @@
       object.append(motion);
       root.append(object);
       let height = renderer(content, entry, {
-        variable, variableId: snapshotId, skin, rendererName,
-        highlights: {}, diff: [],
-        idPrefix: `${options.idPrefix || 'trace'}-snapshot`, interactive: options.interactive
+        variable, variableId: objectKey, skin, rendererName,
+        highlights: snapshotHighlights, diff: [],
+        idPrefix: `${options.idPrefix || 'trace'}-${safeKey(objectKey)}`, interactive: options.interactive
       });
       removeScalarIndexLabels(content, variable, rendererName);
       const contentBox = measuredBox(content, { x: 0, y: 0, width: 180, height: Number(height) || 76 });
@@ -2089,21 +2352,32 @@
           'font-size': 16,
           'font-weight': 'bold',
           fill: '#384348'
-        }, variable.name), `${snapshotId}:label`, options, snapshotId));
+        }, variable.name), `${objectKey}:label`, options, objectKey));
         height = Math.max(Number(height) || 0, labelY + 8);
       } else {
         height = Math.max(Number(height) || 0, contentBox.y + contentBox.height);
       }
-      animateObjectPosition(motion, options, snapshotId, { x: baseX, y: baseY });
+      animateObjectPosition(motion, options, objectKey, { x: baseX, y: baseY });
       const box = measuredBox(object, {
         x: contentBox.x,
         y: Math.min(-20, contentBox.y),
         width: contentBox.width,
         height: Math.max(76, Number(height) || 76, contentBox.height)
       });
-      placements.set(snapshotId, { x: baseX + box.x, y: baseY + box.y, width: box.width, height: box.height });
-      elements.set(snapshotId, object);
+      placements.set(objectKey, { x: baseX + box.x, y: baseY + box.y, width: box.width, height: box.height });
+      elements.set(objectKey, object);
       collectElementPlacements(motion, baseX, baseY, placements, elements);
+      keepNodes.push({
+        snapshotId: objectKey,
+        variableId: snapshot.sourceVariableId,
+        runtimeIdentity: snapshotRuntimeIdentity(document, snapshot),
+        relative: {
+          x: contentBox.x - box.x,
+          y: contentBox.y - box.y,
+          width: contentBox.width,
+          height: contentBox.height
+        }
+      });
       y += Math.max(76, Number(height) || 76) + 28;
     });
     return y;
@@ -2206,11 +2480,15 @@
       collectElementPlacements(motion, baseX, baseY, placements, elements);
       y += Math.max(76, Number(height) || 76) + 28;
     });
+    // Resolve frame/keep/Studio object placement before drawing anything that
+    // is anchored to those objects. Otherwise @text, segments, arrows, and
+    // automatic markers read the pre-offset coordinates from placements.
+    applyBindings(document, frame, placements, elements);
     renderFrameSegments(root, document, frame, placements, elements, options);
     y = renderFrameTexts(root, document, frame, y, placements, elements, options);
-    applySemanticTextBindings(document, frame, placements, elements);
     y = renderDecorations(root, document, frame, y, placements, elements, options);
     renderStudioObjects(root, document, frame, placements, elements, options);
+    applySemanticTextBindings(document, frame, placements, elements);
     renderFrameBindings(root, document, frame, placements, elements, options);
     renderStudioArrows(rootSvg, root, document, frame, placements, elements, options);
     applyStoredPartPositions(document, frame, placements, elements);
@@ -2292,9 +2570,11 @@
       animateRemovedObjects(result.root, previousObjects, result.elements, document, transitionOptions);
     }
     currentScene = { document, frame, placements: result.placements, elements: result.elements, rootOffset: TRACE_ROOT_OFFSET };
+    const playbackPlan = transition?.playbackPlan || null;
     transition = Promise.resolve(transition).then(() => {
       if (currentScene?.frame?.id === frame.id) revealDelayedFixedMarks(delayedMarks);
     });
+    if (playbackPlan) transition.playbackPlan = playbackPlan;
     window.dispatchEvent(new CustomEvent('asm:trace-rendered', {
       detail: { document, frame, placements: result.placements, height: result.height }
     }));
@@ -2315,23 +2595,27 @@
   }
 
   function cameraRuleForFrame(document, frame) {
-    return (document?.studio?.cameraRules || []).filter(rule => {
-      if (Array.isArray(rule.frameIds) && rule.frameIds.length && !rule.frameIds.includes(frame.id)) return false;
-      return window.ASMTraceRules?.conditionMatches?.(frame, rule.condition) !== false;
-    }).at(-1) || null;
+    return window.ASMTraceCamera.ruleForFrame(document, frame);
   }
 
-  function mainCameraSize() {
+  function mainCameraSize(includeCodeInset = true) {
     const canvas = window.document.getElementById('arraySvg');
     const rect = canvas?.getBoundingClientRect?.();
     const width = Number(rect?.width) || canvas?.clientWidth || 800;
     const height = Number(rect?.height) || canvas?.clientHeight || 450;
-    return { width, height, aspect: width / Math.max(1, height) };
+    return {
+      width,
+      height,
+      aspect: width / Math.max(1, height),
+      asmSafeInsetLeft: includeCodeInset
+        ? Number(window.ASMTraceCodePresenter?.safeInsetLeft?.()) || 0
+        : 0
+    };
   }
 
-  function autoCameraView(bounds, zoom = 0.92, offsetX = 0, offsetY = 0) {
+  function autoCameraView(bounds, zoom = 0.92, offsetX = 0, offsetY = 0, includeCodeInset = true) {
     if (!bounds || bounds.width <= 0 || bounds.height <= 0) return null;
-    const canvas = mainCameraSize();
+    const canvas = mainCameraSize(includeCodeInset);
     const sharedTarget = window.resolveAutoCameraTarget?.(bounds, zoom, offsetX, offsetY, canvas);
     if (sharedTarget) return sharedTarget;
     const padding = window.getAutoCameraPadding?.() || { horizontal: 30, vertical: 20 };
@@ -2365,7 +2649,9 @@
     if (rule?.manualFrame && Number.isFinite(Number(rule.centerX)) && Number.isFinite(Number(rule.centerY))) {
       const cameraTargetKey = cameraObjectKey(rule.binding?.targetKey);
       const boundPoint = cameraTargetKey
-        ? anchorPoint(placements?.get?.(cameraTargetKey), rule.binding.targetAnchor || 'center')
+        ? anchorPoint(cameraTargetKey === 'keep'
+          ? keepUnionPlacement(document, frame, placements)
+          : placements?.get?.(cameraTargetKey), rule.binding.targetAnchor || 'center')
         : null;
       const viewport = window.getCameraViewport?.(Number(rule.zoom) || 0.92);
       const canvas = mainCameraSize();
@@ -2388,7 +2674,8 @@
       bounds,
       Number(rule?.zoom) || 0.92,
       (Number(rule?.offsetX) || 0) + followX,
-      (Number(rule?.offsetY) || 0) + followY
+      (Number(rule?.offsetY) || 0) + followY,
+      false
     );
   }
 
@@ -2543,7 +2830,10 @@
 
   function currentBounds(options = {}) {
     if (!currentScene?.placements?.size) return null;
-    const snapshotIds = new Set(currentScene.frame?.snapshotIds || []);
+    const snapshotsById = new Map((currentScene.document?.snapshots || []).map(snapshot => [snapshot.id, snapshot]));
+    const snapshotIds = new Set((currentScene.frame?.snapshotIds || []).map(id => (
+      snapshotObjectKey(snapshotsById.get(id)) || id
+    )));
     const boxes = [...currentScene.placements.entries()]
       .filter(([key]) => options.includeSnapshots !== false || !snapshotIds.has(key))
       .map(([, box]) => box);
@@ -2579,7 +2869,9 @@
   }
 
   function currentPlacement(key, viewportCoordinates = true) {
-    const placement = currentScene?.placements?.get(key);
+    const placement = key === 'keep' || key === '$keep'
+      ? keepUnionPlacement(currentScene?.document, currentScene?.frame, currentScene?.placements || new Map())
+      : currentScene?.placements?.get(key);
     if (!placement) return null;
     const offset = viewportCoordinates ? currentScene.rootOffset : { x: 0, y: 0 };
     return {
@@ -2602,12 +2894,12 @@
     return String(key || '').split('#')[0].replace(/:(?:label|index)$/, '');
   }
 
-  document.documentElement.dataset.asmTraceRendererBuild = 'trace-88';
+  document.documentElement.dataset.asmTraceRendererBuild = 'trace-136';
   window.ASMTraceRenderers = {
-    build: 'trace-88',
+    build: 'trace-136',
     register, renderFrame, createThumbnail, fitThumbnail, fitThumbnails, displayValue,
     resolveAnchor, currentAnchor, currentBounds, fitCurrentObjectsCamera,
     currentPlacement, currentAnchorForKey, currentObjectKeys, cameraObjectKey, frameAnchorForKey, anchorPoint,
-    refreshThumbnailCamera, showMainCameraFrameInThumbnail
+    refreshThumbnailCamera, showMainCameraFrameInThumbnail, keepUnionPlacement
   };
 })();

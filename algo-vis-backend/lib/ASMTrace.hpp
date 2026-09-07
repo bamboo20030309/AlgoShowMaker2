@@ -289,19 +289,24 @@ inline std::string target_json(const char* role, const char* variable_id,
 
 template <typename T>
 inline void event_keep(int line, const char* signature, const char* variable_id,
-                       const char* name, const char* label, const T& value) {
+                       const char* name, const char* label, const T& value,
+                       bool preserve_style = true) {
   recorder().add_event("keep", line, signature ? signature : "",
     std::string("\"name\":") + quoted(name ? name : "")
       + ",\"label\":" + quoted(label ? label : "")
       + ",\"mode\":\"variable\""
+      + ",\"preserveStyle\":" + (preserve_style ? "true" : "false")
       + ",\"payload\":{\"data\":" + encode_value(value) + "}"
       + ",\"targets\":[" + target_json("source", variable_id, name, "") + ']');
 }
 
-inline void event_keep_last(int line, const char* signature, const char* label) {
+inline void event_keep_last(int line, const char* signature, const char* label,
+                            bool preserve_style = true) {
   recorder().add_event("keep", line, signature ? signature : "",
     std::string("\"label\":") + quoted(label ? label : "")
-      + ",\"mode\":\"last\",\"targets\":[]");
+      + ",\"mode\":\"last\""
+      + ",\"preserveStyle\":" + (preserve_style ? "true" : "false")
+      + ",\"targets\":[]");
 }
 
 inline void event_read(int line, const char* signature, const char* variable_id,
@@ -332,7 +337,9 @@ inline void event_declare_uninitialized(int line, const char* signature, const c
 template <typename T>
 void event_initialized_assign(int line, const char* signature,
                               const char* target_id, const char* target_expression, const char* target_index,
+                              bool target_has_resolved_index, long long target_resolved_index,
                               const char* source_id, const char* source_expression, const char* source_index,
+                              bool source_has_resolved_index, long long source_resolved_index,
                               const char* expression, const T& value) {
   const std::string encoded = encode_value(value);
   recorder().add_event("assign", line, signature ? signature : "",
@@ -340,8 +347,10 @@ void event_initialized_assign(int line, const char* signature,
       + ",\"animate\":true"
       + ",\"expression\":" + quoted(expression ? expression : "")
       + ",\"payload\":{\"before\":null,\"after\":" + encoded + ",\"source\":" + encoded + "}"
-      + ",\"targets\":[" + target_json("target", target_id, target_expression, target_index)
-      + ',' + target_json("source", source_id, source_expression, source_index) + ']');
+      + ",\"targets\":[" + target_json("target", target_id, target_expression, target_index,
+          target_has_resolved_index, target_resolved_index)
+      + ',' + target_json("source", source_id, source_expression, source_index,
+          source_has_resolved_index, source_resolved_index) + ']');
 }
 
 template <typename F>
@@ -356,17 +365,20 @@ bool event_condition(int line, const char* signature, const char* condition_kind
 template <typename F>
 void event_write(int line, const char* signature, const char* variable_id,
                  const char* expression, const char* index_expression,
+                 bool has_resolved_index, long long resolved_index,
                  const char* operation, F action, bool animate = true) {
   action();
   recorder().add_event("write", line, signature ? signature : "",
     std::string("\"operation\":") + quoted(operation ? operation : "")
       + ",\"animate\":" + (animate ? "true" : "false")
-      + ",\"targets\":[" + target_json("target", variable_id, expression, index_expression) + ']');
+      + ",\"targets\":[" + target_json("target", variable_id, expression, index_expression,
+          has_resolved_index, resolved_index) + ']');
 }
 
 template <typename BeforeFactory, typename F, typename AfterFactory>
 void event_update(int line, const char* signature, const char* variable_id,
                    const char* expression, const char* index_expression,
+                   bool has_resolved_index, long long resolved_index,
                    const char* operation, BeforeFactory before_factory,
                    F action, AfterFactory after_factory, bool animate = true) {
   const std::string before = encode_value(before_factory());
@@ -377,13 +389,16 @@ void event_update(int line, const char* signature, const char* variable_id,
       + ",\"animate\":" + (animate ? "true" : "false")
       + ",\"update\":true"
       + ",\"payload\":{\"before\":" + before + ",\"after\":" + after + ",\"source\":" + after + "}"
-      + ",\"targets\":[" + target_json("target", variable_id, expression, index_expression) + ']');
+      + ",\"targets\":[" + target_json("target", variable_id, expression, index_expression,
+          has_resolved_index, resolved_index) + ']');
 }
 
 template <typename BeforeFactory, typename F, typename AfterFactory>
 void event_assign(int line, const char* signature,
                    const char* target_id, const char* target_expression, const char* target_index,
+                   bool target_has_resolved_index, long long target_resolved_index,
                    const char* source_id, const char* source_expression, const char* source_index,
+                   bool source_has_resolved_index, long long source_resolved_index,
                    const char* expression, BeforeFactory before_factory, F action, AfterFactory after_factory,
                    bool animate = true) {
   const std::string before = encode_value(before_factory());
@@ -394,8 +409,10 @@ void event_assign(int line, const char* signature,
       + ",\"animate\":" + (animate ? "true" : "false")
       + ",\"expression\":" + quoted(expression ? expression : "")
       + ",\"payload\":{\"before\":" + before + ",\"after\":" + after + ",\"source\":" + after + "}"
-      + ",\"targets\":[" + target_json("target", target_id, target_expression, target_index)
-      + ',' + target_json("source", source_id, source_expression, source_index) + ']');
+      + ",\"targets\":[" + target_json("target", target_id, target_expression, target_index,
+          target_has_resolved_index, target_resolved_index)
+      + ',' + target_json("source", source_id, source_expression, source_index,
+          source_has_resolved_index, source_resolved_index) + ']');
 }
 
 template <typename LeftFactory, typename RightFactory, typename Compare>

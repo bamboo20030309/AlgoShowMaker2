@@ -27,6 +27,7 @@ const string AV_orange     = "AV_orange";
 
 const string AV_node_green = "AV_node_green";
 const string AV_node_red   = "AV_node_red";
+const string AV_grey       = "AV_grey";
 const string AV_node_grey  = "AV_node_grey";
 const string AV_black      = "AV_black";
 const string AV_white      = "AV_white";
@@ -1067,6 +1068,7 @@ public:
             {"AV_orange",     "orange"},
             {"AV_node_green", "#e8f5e9"},
             {"AV_node_red",   "#ef9a9a"},
+            {"AV_grey",       "#cccccc"},
             {"AV_node_grey",  "#cccccc"},
             {"AV_black",      "black"},
             {"AV_white",      "white"}

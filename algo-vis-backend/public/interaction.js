@@ -35,7 +35,10 @@ class CanvasInteractionManager {
 
       // 5) 監聽 viewport transform 屬性變化，自動更新選取框
       const setupViewportObserver = () => {
-        const vp = window.getViewport ? window.getViewport() : svg.querySelector('#viewport');
+        const sharedViewport = window.getViewport ? window.getViewport() : null;
+        const vp = sharedViewport?.nodeType
+          ? sharedViewport
+          : svg.querySelector('#viewport');
         if (vp) {
           const observer = new MutationObserver(mutations => {
             mutations.forEach(mutation => {

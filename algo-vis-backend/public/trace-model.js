@@ -30,6 +30,45 @@
     return clone(data);
   }
 
+  function defaultRenderer(variable = {}) {
+    if (variable.kind === 'matrix') return 'original-matrix';
+    if (variable.kind === 'stack') return 'original-stack';
+    if (variable.kind === 'queue') return 'original-queue';
+    if (['sequence', 'set', 'map'].includes(variable.kind)) return 'original-array';
+    if (['scalar', 'string'].includes(variable.kind)) return 'original-cell';
+    if (variable.kind === 'node-graph') return 'graph';
+    if (variable.kind === 'coordinate-system') return 'coordinate-system';
+    return 'object';
+  }
+
+  function canonicalRenderer(renderer, variable = {}) {
+    const legacy = {
+      array: 'original-array',
+      sequence: 'original-array',
+      matrix: 'original-matrix',
+      scalar: 'original-cell',
+      string: 'original-cell',
+      stack: 'original-stack',
+      queue: 'original-queue'
+    };
+    return legacy[renderer] || renderer || defaultRenderer(variable);
+  }
+
+  function normalizeSkins(variables, sourceSkins) {
+    const skins = sourceSkins && typeof sourceSkins === 'object' ? clone(sourceSkins) : {};
+    Object.entries(variables || {}).forEach(([variableId, variable]) => {
+      const skin = skins[variableId] && typeof skins[variableId] === 'object'
+        ? skins[variableId]
+        : {};
+      skins[variableId] = {
+        ...skin,
+        renderer: canonicalRenderer(skin.renderer, variable),
+        options: skin.options && typeof skin.options === 'object' ? skin.options : {}
+      };
+    });
+    return skins;
+  }
+
   function applyFrameConditions(document) {
     if (!window.ASMTraceRules?.expressionMatches) return document;
     const accepted = [];
@@ -83,6 +122,8 @@
     const normalized = {
       schemaVersion: source.schemaVersion || '1.0',
       generatedAt: source.generatedAt || '',
+      sourceCode: typeof source.sourceCode === 'string' ? source.sourceCode : '',
+      provenance: source.provenance && typeof source.provenance === 'object' ? clone(source.provenance) : null,
       sliceMode: source.sliceMode === 'manual' ? 'manual' : source.sliceMode === 'full' ? 'full' : 'auto',
       variables,
       frames,
@@ -96,10 +137,17 @@
       studio: source.studio && typeof source.studio === 'object' ? clone(source.studio) : {},
       asmView: source.asmView && typeof source.asmView === 'object' ? clone(source.asmView) : null
     };
-    if (normalized.asmView && window.ASMTraceViewSource?.applyToTrace) {
+    if (!source.viewSettingsApplied && normalized.asmView && window.ASMTraceViewSource?.applyToTrace) {
       window.ASMTraceViewSource.applyToTrace(normalized, normalized.asmView);
     }
+    // Saved slide animations intentionally omit default skins. Rehydrate them
+    // in the shared model so editor, Studio, and slide runtime select the same
+    // original renderer instead of falling back to the raw data kind.
+    normalized.skins = normalizeSkins(normalized.variables, normalized.skins);
+    normalized.viewSettingsApplied = Boolean(source.viewSettingsApplied
+      || (normalized.asmView && window.ASMTraceViewSource?.applyToTrace));
     applyFrameConditions(normalized);
+    window.ASMTraceEvents?.rebuildAutoFixedEvents?.(normalized);
     window.ASMTraceEvents?.applyEnabledStates?.(normalized);
     return normalized;
   }
@@ -150,6 +198,9 @@
   window.ASMTraceModel = {
     clone,
     normalizeData,
+    defaultRenderer,
+    canonicalRenderer,
+    normalizeSkins,
     applyFrameConditions,
     normalizeTraceDocument,
     scalarValue,

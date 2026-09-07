@@ -83,14 +83,14 @@
 
     // 根據 style.type 分組
     let highlight      = style.filter(s => s.type === "highlight");
-    let focus          = style.find(s => s.type === "focus")      ?.elements ?? [];
+    let focus          = style.filter(s => s.type === "focus");
     let point          = style.filter(s => s.type === "point");
     let mark           = style.filter(s => s.type === "mark");
     let background     = style.filter(s => s.type === "background");
     let CDVS           = style.find(s => s.type === "CDVS")       ?.elements ?? [];
 
     highlight  = normalize(highlight);
-    focus      = normalizeIndex(focus);
+    focus      = normalize(focus);
     point      = normalize(point);
     mark       = normalize(mark);
     background = normalize(background);
@@ -134,11 +134,14 @@
       const y   = lvl * hPerLevel + outerframe_padding;
 
       
-      const haveFocus        =       focus.length  > 0 ?  focus.includes(i) : true;
+      const haveFocus        =       focus.length  > 0
+        ? focus.some(m => Array.isArray(m.elements) && m.elements.includes(i))
+        : true;
+      const dimColor         =       focus.findLast(m => m?.color?.trim())?.color.trim() || '#ccc';
       const haveBackground   =  background.findLast(m => Array.isArray(m.elements) && m.elements.includes(i));
       const background_color = (background.findLast(m => Array.isArray(m.elements) && m.elements.includes(i)) ?.color?.trim() || "") || "rgb(231, 144, 255)";
 
-      let fillColor = haveFocus       ? '#fff' : '#ccc';
+      let fillColor = haveFocus       ? '#fff' : dimColor;
           fillColor = haveBackground  ? background_color : fillColor;
 
       if (CDVS.includes(i)) {

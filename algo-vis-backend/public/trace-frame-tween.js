@@ -99,6 +99,226 @@
     return null;
   }
 
+  function markerActivationChanged(current, previous) {
+    if (!current?.dataset?.traceSourceVariableId || !previous) return false;
+    const currentContinuity = String(current.dataset.traceVisualContinuityKey || '');
+    const previousContinuity = String(previous.dataset?.traceVisualContinuityKey || '');
+    if (currentContinuity && currentContinuity === previousContinuity) return false;
+    const currentIdentity = String(current.dataset.traceRuntimeIdentity || '');
+    const previousIdentity = String(previous.dataset?.traceRuntimeIdentity || '');
+    return Boolean(currentIdentity && previousIdentity && currentIdentity !== previousIdentity);
+  }
+
+  function previousVisualByContinuity(previousObjects, continuityKey, preferredKey = '') {
+    if (!continuityKey) return null;
+    const preferred = previousVisualElement(previousObjects, preferredKey);
+    if (String(preferred?.dataset?.traceVisualContinuityKey || '') === continuityKey) {
+      return { key: preferredKey, element: preferred };
+    }
+    for (const [topKey, object] of previousObjects || []) {
+      const candidates = [
+        object,
+        ...(object?.querySelectorAll?.('[data-trace-visual-continuity-key]') || [])
+      ];
+      const element = candidates.find(candidate => (
+        String(candidate?.dataset?.traceVisualContinuityKey || '') === continuityKey
+      ));
+      if (!element) continue;
+      return {
+        key: String(element.dataset?.traceObjectKey || '') || topKey,
+        element
+      };
+    }
+    return null;
+  }
+
+  function markerContinuationFor(element, key, previousPlacements, previousObjects) {
+    if (!element?.dataset?.traceSourceVariableId) return null;
+    const continuityKey = String(element.dataset.traceVisualContinuityKey || '');
+    if (!continuityKey) return null;
+    const match = previousVisualByContinuity(previousObjects, continuityKey, key);
+    if (!match?.element) return null;
+    const placement = previousPlacements?.get?.(match.key)
+      || previousPlacements?.get?.(key);
+    if (!placement) return null;
+    return { ...match, placement };
+  }
+
+  function markerNeedsEntrance({
+    element, key, previousPlacements, previousObjects,
+    currentAutomaticMarkers = new Set(), previousAutomaticMarkers = new Set()
+  } = {}) {
+    if (!element?.dataset?.traceSourceVariableId) return false;
+    const continuation = markerContinuationFor(
+      element, key, previousPlacements, previousObjects
+    );
+    const previousVisual = continuation?.element
+      || previousVisualElement(previousObjects, key);
+    const sourceExists = Boolean(continuation || previousPlacements?.has?.(key));
+    const automaticMarkerAppeared = currentAutomaticMarkers.has(key)
+      && !previousAutomaticMarkers.has(key)
+      && !continuation;
+    return !sourceExists
+      || automaticMarkerAppeared
+      || markerActivationChanged(element, previousVisual);
+  }
+
+  function recursiveMarkerTransitionSteps({
+    previousPlacements, currentPlacements, previousObjects, currentElements,
+    transitionForKey, duration, eventControlledKeys = new Set()
+  } = {}) {
+    const steps = [];
+    currentElements?.forEach?.((element, key) => {
+      const continuityKey = String(element?.dataset?.traceVisualContinuityKey || '');
+      const currentIdentity = String(element?.dataset?.traceRuntimeIdentity || '');
+      if (!continuityKey || !currentIdentity || eventControlledKeys.has(key)) return;
+      const previousMatch = previousVisualByContinuity(previousObjects, continuityKey, key);
+      const previousIdentity = String(previousMatch?.element?.dataset?.traceRuntimeIdentity || '');
+      if (!previousIdentity || previousIdentity === currentIdentity) return;
+      const beforePlacement = previousPlacements?.get?.(previousMatch.key)
+        || previousPlacements?.get?.(key);
+      const afterPlacement = currentPlacements?.get?.(key);
+      if (!beforePlacement || !afterPlacement) return;
+      const before = motionPosition(previousMatch.element, beforePlacement);
+      const after = motionPosition(element, afterPlacement);
+      if (![before?.x, before?.y, after?.x, after?.y].every(Number.isFinite)) return;
+      if (Math.abs(before.x - after.x) < 0.1 && Math.abs(before.y - after.y) < 0.1) return;
+      const transition = transitionForKey?.(key) || {};
+      const mode = transition.requestedMode || transition.mode || 'move';
+      if (mode === 'instant' || mode === 'fade') return;
+      steps.push({
+        id: `recursive-marker-move:${continuityKey}`,
+        kind: 'object-transition',
+        subtype: 'recursive-marker-move',
+        targetKey: key,
+        sourceKey: previousMatch.key,
+        visualContinuityKey: continuityKey,
+        from: { x: before.x, y: before.y },
+        to: { x: after.x, y: after.y },
+        durationMs: Math.max(1, Number(transition.duration) || Number(duration) || 520),
+        easing: String(transition.easing || 'smooth'),
+        blocking: true,
+        enabled: true,
+        source: 'automatic'
+      });
+    });
+    return steps;
+  }
+
+  function createPlaybackPlan({
+    frame, direction, runId = 0, transitionSteps = [], enteringMarkerKeys = [], eventTimeline = []
+  } = {}) {
+    const enabledTransitions = transitionSteps.filter(step => step?.enabled !== false);
+    const transitionDuration = enabledTransitions.reduce((end, step) => (
+      step.blocking === false ? end : Math.max(end, Number(step.durationMs) || 0)
+    ), 0);
+    const entranceTargets = [...new Set(enteringMarkerKeys)].filter(Boolean);
+    const entranceDuration = entranceTargets.length ? APPEAR_TIMING.duration : 0;
+    const entranceStart = transitionDuration;
+    const eventStart = entranceStart + entranceDuration;
+    const eventSteps = eventTimeline.map(slot => ({
+      id: `trace-event:${slot.event?.id || slot.event?.order || slot.start}`,
+      kind: 'trace-event',
+      subtype: String(slot.animation || slot.type || ''),
+      eventId: String(slot.event?.id || ''),
+      eventType: String(slot.type || slot.event?.type || ''),
+      eventOrder: Number(slot.event?.order),
+      startMs: Number(slot.start) || 0,
+      durationMs: Math.max(0, Number(slot.duration) || 0),
+      endMs: Number(slot.end) || 0,
+      blocking: true,
+      enabled: true
+    }));
+    const eventEnd = eventTimeline.reduce(
+      (end, slot) => Math.max(end, Number(slot.end) || 0), eventStart
+    );
+    return {
+      version: 1,
+      id: `frame-playback:${frame?.id || 'unknown'}:${runId}`,
+      frameId: String(frame?.id || ''),
+      direction: Number(direction) || 0,
+      preEventDurationMs: eventStart,
+      totalDurationMs: Math.max(eventStart, eventEnd),
+      phases: [
+        {
+          id: 'frame-transition',
+          mode: 'parallel',
+          startMs: 0,
+          durationMs: transitionDuration,
+          steps: enabledTransitions
+        },
+        {
+          id: 'object-entrance',
+          mode: 'parallel',
+          startMs: entranceStart,
+          durationMs: entranceDuration,
+          steps: entranceTargets.map(targetKey => ({
+            id: `marker-enter:${targetKey}`,
+            kind: 'object-entrance',
+            subtype: 'marker-enter',
+            targetKey,
+            durationMs: APPEAR_TIMING.duration,
+            blocking: true,
+            enabled: true,
+            source: 'automatic'
+          }))
+        },
+        {
+          id: 'trace-events',
+          mode: 'sequence',
+          startMs: eventStart,
+          durationMs: Math.max(0, eventEnd - eventStart),
+          steps: eventSteps
+        }
+      ]
+    };
+  }
+
+  function playbackPhaseAt(plan, elapsed) {
+    return plan?.phases?.find(phase => (
+      Number(phase.durationMs) > 0
+      && elapsed >= Number(phase.startMs)
+      && elapsed < Number(phase.startMs) + Number(phase.durationMs)
+    ))?.id || '';
+  }
+
+  const PRESENTATION_HINT_SELECTOR = '.highlight-blink, .arrow-bounce';
+
+  function removePresentationHints(element) {
+    element?.querySelectorAll?.(PRESENTATION_HINT_SELECTOR).forEach(hint => hint.remove());
+  }
+
+  function syncPresentationHints(element) {
+    if (!element) return;
+    const hints = [];
+    if (element.matches?.(PRESENTATION_HINT_SELECTOR)) hints.push(element);
+    hints.push(...(element.querySelectorAll?.(PRESENTATION_HINT_SELECTOR) || []));
+    hints.forEach(hint => window.HintWidgets?.continuePresentationLoop?.(
+      hint,
+      hint.dataset?.tracePresentationId || ''
+    ));
+  }
+
+  function clonePresentationHints(element) {
+    if (!element?.querySelector?.(PRESENTATION_HINT_SELECTOR)) return null;
+    const overlay = element.cloneNode(true);
+    removeAnimationNodes(overlay);
+    [...overlay.querySelectorAll('*')].reverse().forEach(node => {
+      if (node.matches?.(PRESENTATION_HINT_SELECTOR)
+        || node.querySelector?.(PRESENTATION_HINT_SELECTOR)) return;
+      node.remove();
+    });
+    [overlay, ...overlay.querySelectorAll('[id]')].forEach(node => node.removeAttribute?.('id'));
+    [overlay, ...overlay.querySelectorAll('[data-trace-object-key]')].forEach(node => {
+      node.removeAttribute?.('data-trace-object-key');
+      node.removeAttribute?.('data-trace-object-id');
+    });
+    syncPresentationHints(overlay);
+    overlay.classList.add('asm-trace-presentation-overlay');
+    overlay.setAttribute('pointer-events', 'none');
+    return overlay;
+  }
+
   function alignedRectStates(source, target, fallbackKey = '$object') {
     const states = new Map();
     const sourceRects = [...(source?.querySelectorAll?.('rect') || [])];
@@ -357,6 +577,11 @@
   function createHeapResizeSwapStages(root, descriptors) {
     const stages = descriptors.map(descriptor => {
       const ghost = descriptor.previousObject.cloneNode(true);
+      const presentationOverlay = clonePresentationHints(descriptor.currentTop);
+      // The ghost exists to retain pre-swap values and geometry. Frame-authored
+      // highlights and points describe the current frame, so keeping their old
+      // copies here makes the style look as if it updates only after the swap.
+      removePresentationHints(ghost);
       removeAnimationNodes(ghost);
       [ghost, ...ghost.querySelectorAll('[id]')].forEach(element => element.removeAttribute?.('id'));
       ghost.classList.add('asm-trace-heap-resize-ghost');
@@ -364,6 +589,7 @@
       ghost.setAttribute('pointer-events', 'none');
       ghost.setAttribute('opacity', '1');
       appendBelowTraceIndicators(root, ghost);
+      if (presentationOverlay) appendBelowTraceIndicators(root, presentationOverlay);
 
       const ghostHeap = heapLayoutElement(ghost);
       const ghostCellStates = new Map();
@@ -447,6 +673,7 @@
         ghostWidthElement,
         currentWidthElement,
         resizeWrapper,
+        presentationOverlay,
         targetWidthRatio,
         appliedScaleX: 1,
         update(elapsed, eventAdjustments) {
@@ -549,6 +776,7 @@
           this.resizeWrapper.removeAttribute('transform');
         },
         remove() {
+          this.presentationOverlay?.remove();
           this.ghost.remove();
           if (this.resizeWrapper?.parentNode && this.currentHeap) {
             this.resizeWrapper.parentNode.insertBefore(this.currentHeap, this.resizeWrapper);
@@ -1723,6 +1951,21 @@
     return markers;
   }
 
+  function markersForLogicalEvent(event, elements) {
+    if (!['assign', 'write'].includes(event?.type)) return [];
+    const targets = event?.targets || [];
+    const markers = [];
+    for (const [key, element] of elements || []) {
+      const target = targets.find(item => (
+        item?.role !== 'source'
+        && eventMutatesVariable(event, item?.variableId)
+        && markerDependsOnVariable(element, item?.variableId)
+      ));
+      if (target) markers.push({ key, element, target });
+    }
+    return markers;
+  }
+
   function markerAssignmentMotion(
     traceDocument, eventFrame, eventTimeline, placements, elements, markerEntries = []
   ) {
@@ -1748,6 +1991,12 @@
           || ''
         ),
         previousBase,
+        previousUnresolvedTarget: entry.previousVisual?.dataset?.traceMarkerUnresolved === '1'
+          ? {
+            targetX: Number(entry.previousVisual.dataset.traceMarkerTargetX),
+            targetY: Number(entry.previousVisual.dataset.traceMarkerTargetY)
+          }
+          : null,
         finalBase,
         labelWidth,
         baseCellWidth: Math.max(
@@ -1763,20 +2012,37 @@
       return { adjustments, arrowStates, update() {}, finish() { adjustments.clear(); arrowStates.clear(); } };
     }
 
-    const motionSlots = eventTimeline.map(slot => ({
-      slot,
-      markers: markersForMotionSlot(slot, elements).filter(marker => metadata.has(marker.key))
-    })).filter(item => item.markers.length);
-    if (!motionSlots.length) {
-      const adjustments = new Map();
-      const arrowStates = new Map();
-      return { adjustments, arrowStates, update() {}, finish() { adjustments.clear(); arrowStates.clear(); } };
-    }
+    const timelineSlotByEvent = new Map(eventTimeline.map(slot => [slot.event, slot]));
+    const logicalEvents = orderedEvents(eventFrame);
+    eventTimeline.forEach(slot => {
+      if (slot.event && !logicalEvents.includes(slot.event)) logicalEvents.push(slot.event);
+    });
+    let logicalCursor = 0;
+    const logicalMotionSlots = logicalEvents.map(event => {
+      const visibleSlot = timelineSlotByEvent.get(event);
+      const slot = visibleSlot || {
+        event,
+        animation: 'assign',
+        start: logicalCursor,
+        motionStart: logicalCursor,
+        end: logicalCursor,
+        logicalOnly: true
+      };
+      const markers = visibleSlot
+        ? markersForMotionSlot(slot, elements)
+        : markersForLogicalEvent(event, elements);
+      if (visibleSlot) logicalCursor = Math.max(logicalCursor, Number(visibleSlot.end) || 0);
+      return {
+        slot,
+        markers: markers.filter(marker => metadata.has(marker.key))
+      };
+    }).filter(item => item.markers.length);
 
     const finalState = new Map([...metadata].map(([key, item]) => [key, item.currentTarget]));
     const initialState = new Map(finalState);
     metadata.forEach((item, key) => {
-      if (markerTargetParts(item.previousTarget)) initialState.set(key, item.previousTarget);
+      if (item.previousUnresolvedTarget && item.previousBase) initialState.set(key, `unresolved:${key}`);
+      else if (markerTargetParts(item.previousTarget)) initialState.set(key, item.previousTarget);
     });
     const markerTargetForEvent = (item, slot, phase) => {
       const parts = markerTargetParts(item.currentTarget);
@@ -1786,29 +2052,45 @@
       ));
       const variableName = traceDocument?.variables?.[target?.variableId]?.name;
       const value = displayEventValue(slot.event?.payload?.[phase]);
-      const locals = variableName && value != null ? { [variableName]: value } : {};
-      const resolved = Number(window.ASMTraceRules?.resolveExpression?.(
+      // A missing before/after snapshot is not permission to fall back to the
+      // frame's final value. That made a newly-entering marker start from the
+      // last assignment in the frame and visually skip earlier movements.
+      if (value === '') return '';
+      const locals = variableName ? { [variableName]: value } : {};
+      const rawResolved = window.ASMTraceRules?.resolveExpression?.(
         traceDocument, eventFrame, item.indexExpression || item.sortKey, locals
-      ));
+      );
+      const resolved = rawResolved == null ? NaN : Number(rawResolved);
       return Number.isInteger(resolved) ? `${parts.prefix}#${resolved}` : '';
     };
-    motionSlots.forEach(({ slot, markers }) => {
+    const initializedMarkers = new Set();
+    logicalMotionSlots.forEach(({ slot, markers }) => {
       markers.forEach(marker => {
         const item = metadata.get(marker.key);
-        if (item?.previousTarget) return;
+        if (item?.previousTarget || item?.previousUnresolvedTarget) return;
+        if (initializedMarkers.has(marker.key)) return;
         const beforeTarget = markerTargetForEvent(item, slot, 'before');
-        if (beforeTarget) initialState.set(marker.key, beforeTarget);
+        const afterTarget = markerTargetForEvent(item, slot, 'after');
+        const initialTarget = beforeTarget || afterTarget;
+        if (!initialTarget) return;
+        initialState.set(marker.key, initialTarget);
+        initializedMarkers.add(marker.key);
       });
     });
 
     const positionsForState = state => {
       const groups = new Map();
+      const positions = new Map();
       state.forEach((targetKey, key) => {
+        const item = metadata.get(key);
+        if (targetKey === `unresolved:${key}` && item?.previousBase && item.previousUnresolvedTarget) {
+          positions.set(key, { ...item.previousBase, ...item.previousUnresolvedTarget });
+          return;
+        }
         if (!metadata.has(key) || !markerTargetParts(targetKey)) return;
         if (!groups.has(targetKey)) groups.set(targetKey, []);
         groups.get(targetKey).push(metadata.get(key));
       });
-      const positions = new Map();
       groups.forEach((group, targetKey) => {
         const target = markerTargetGeometry(targetKey, placements);
         if (!target) return;
@@ -1852,23 +2134,30 @@
       if (!item.previousBase || !initialPositions.has(key)) return;
       initialPositions.set(key, {
         ...initialPositions.get(key),
+        // Keep a parked marker's arrow with its previous visual until its
+        // assignment motion begins; it has no real cell binding to resolve.
+        ...(item.previousUnresolvedTarget
+          && Object.values(item.previousUnresolvedTarget).every(Number.isFinite)
+          ? item.previousUnresolvedTarget : {}),
         x: item.previousBase.x,
         y: item.previousBase.y
       });
     });
     let currentPositions = new Map(initialPositions);
     const tracks = new Map();
-    const addStep = (key, start, end, from, to) => {
+    const addStep = (key, start, end, from, to, fromTarget, toTarget, instant = false) => {
       if (!from || !to) return;
       const positionStable = Math.abs(from.x - to.x) < 0.1 && Math.abs(from.y - to.y) < 0.1;
       const arrowStable = Math.abs(from.targetX - to.targetX) < 0.1
         && Math.abs(from.targetY - to.targetY) < 0.1;
       if (positionStable && arrowStable) return;
       if (!tracks.has(key)) tracks.set(key, []);
-      tracks.get(key).push({ start, end, from: { ...from }, to: { ...to } });
+      tracks.get(key).push({
+        start, end, from: { ...from }, to: { ...to }, fromTarget, toTarget, instant
+      });
     };
 
-    motionSlots.forEach(({ slot, markers }, slotIndex) => {
+    logicalMotionSlots.forEach(({ slot, markers }, slotIndex) => {
       let beforeStateChanged = false;
       markers.forEach(marker => {
         const item = metadata.get(marker.key);
@@ -1887,9 +2176,13 @@
       });
       const nextPositions = positionsForState(nextState);
       const start = Number(slot.motionStart ?? slot.start) || 0;
-      const end = Math.max(start + 1, Number(slot.end) || start + 1);
+      const instant = slot.logicalOnly === true;
+      const end = instant ? start : Math.max(start + 1, Number(slot.end) || start + 1);
       metadata.forEach((unused, key) => {
-        addStep(key, start, end, currentPositions.get(key), nextPositions.get(key));
+        addStep(
+          key, start, end, currentPositions.get(key), nextPositions.get(key),
+          state.get(key), nextState.get(key), instant
+        );
       });
       state.clear();
       nextState.forEach((value, key) => state.set(key, value));
@@ -1904,11 +2197,15 @@
       update(elapsed) {
         adjustments.clear();
         arrowStates.clear();
-        tracks.forEach((track, key) => {
-          const item = metadata.get(key);
+        metadata.forEach((item, key) => {
+          const track = tracks.get(key) || [];
           let point = initialPositions.get(key) || item?.finalBase;
           for (const step of track) {
             if (elapsed < step.start) break;
+            if (step.instant) {
+              point = step.to;
+              continue;
+            }
             if (elapsed < step.end) {
               const progress = easeOutCubic(clamp01((elapsed - step.start) / (step.end - step.start)));
               point = {
@@ -1921,14 +2218,16 @@
             }
             point = step.to;
           }
-          if (!item || !point) return;
-          adjustments.set(key, {
-            x: point.x - item.finalBase.x,
-            y: point.y - item.finalBase.y,
-            scale: 1,
-            absolute: true
-          });
-          arrowStates.set(key, point);
+          if (!item) return;
+          if (point) {
+            adjustments.set(key, {
+              x: point.x - item.finalBase.x,
+              y: point.y - item.finalBase.y,
+              scale: 1,
+              absolute: true
+            });
+            arrowStates.set(key, point);
+          }
         });
       },
       finish() { adjustments.clear(); arrowStates.clear(); }
@@ -1970,8 +2269,23 @@
     if (animation === 'assign') {
       const target = targets.find(item => item.role === 'target') || targets[0];
       const variableTargets = targets.filter(item => item?.variableId);
-      return Boolean(target && visible(target))
-        && variableTargets.every(visible);
+      const targetOperand = target ? eventOperand(
+        traceDocument,
+        eventFrame,
+        target,
+        event?.payload?.after,
+        placements,
+        elements,
+        key => key
+      ) : null;
+      if (!targetOperand) return false;
+      // An index marker assignment (for example largest = l) is fully
+      // determined by the captured before/after/source values. The source
+      // scalar does not need its own box or pointer on the canvas.
+      if (targetOperand.marker && Number.isFinite(Number(displayEventValue(event?.payload?.after)))) {
+        return true;
+      }
+      return variableTargets.every(visible);
     }
     if (animation === 'compare' || animation === 'swap') {
       return targets.length >= 2 && targets.slice(0, 2).every(visible);
@@ -1981,6 +2295,10 @@
   }
 
   function eventAvailabilityAnimation(event, elements) {
+    // "fixed" is rendered as a persistent cell mark rather than a timed
+    // animation. Treat it as its own renderable event so availability does
+    // not make the switch look off after the renderer has already drawn it.
+    if (event?.type === 'fixed') return 'fixed';
     const positionOnly = updateTargetsMarker(event, elements);
     const standaloneUpdate = event?.type === 'write' && event?.update === true && !positionOnly;
     return positionOnly
@@ -1988,15 +2306,47 @@
       : (standaloneUpdate ? 'assign' : eventAnimation(null, event.type));
   }
 
+  function eventAnimationIsRenderable(animation) {
+    return ['position', 'assign', 'compare', 'swap', 'fixed'].includes(animation)
+      || Boolean(GENERIC_EVENT_DURATION[animation]);
+  }
+
+  function eventHasRenderableTargetDefinition(event, animation) {
+    const targets = Array.isArray(event?.targets) ? event.targets : [];
+    if (animation === 'assign') {
+      const target = targets.find(item => item?.role === 'target') || targets[0];
+      return Boolean(target?.variableId);
+    }
+    if (animation === 'compare' || animation === 'swap') {
+      return targets.length >= 2 && targets.slice(0, 2).every(target => target?.variableId);
+    }
+    return targets.some(target => target?.variableId);
+  }
+
   function updateEventAvailability(traceDocument, eventFrame, placements, elements) {
     let changed = false;
     orderedEvents(eventFrame).forEach(event => {
+      if (event.type === 'fixed') {
+        if (event.autoAnimationDisabled === false
+          && !event.autoAnimationUnavailableReason) return;
+        event.autoAnimationDisabled = false;
+        delete event.autoAnimationUnavailableReason;
+        changed = true;
+        return;
+      }
       const animation = eventAvailabilityAnimation(event, elements);
-      const autoDisabled = !eventHasVisibleAnimationTargets(
-        traceDocument, eventFrame, event, animation, placements, elements
-      );
-      if (event.autoAnimationDisabled === autoDisabled) return;
+      const unavailableReason = !eventAnimationIsRenderable(animation)
+        || !eventHasRenderableTargetDefinition(event, animation)
+        ? 'unrenderable'
+        : !eventHasVisibleAnimationTargets(
+          traceDocument, eventFrame, event, animation, placements, elements
+        ) ? 'missing-target' : '';
+      const autoDisabled = Boolean(unavailableReason);
+      if (event.autoAnimationDisabled === autoDisabled
+        && String(event.autoAnimationUnavailableReason || '') === unavailableReason) return;
       event.autoAnimationDisabled = autoDisabled;
+      if (unavailableReason) event.autoAnimationUnavailableReason = unavailableReason;
+      else delete event.autoAnimationUnavailableReason;
       changed = true;
     });
     if (changed) {
@@ -2165,6 +2515,18 @@
     let activeSlot = null;
     let activeEffect = null;
     let finished = false;
+    function announce(slot, phase) {
+      if (!slot?.event || typeof window.dispatchEvent !== 'function') return;
+      window.dispatchEvent(new CustomEvent('asm:trace-active-event', {
+        detail: {
+          document: options.document,
+          frame: eventFrame,
+          event: slot.event,
+          slot,
+          phase
+        }
+      }));
+    }
     function effectFor(slot) {
       if (!slot) return null;
       if (slot.type === 'compare') {
@@ -2208,12 +2570,14 @@
           && (elapsed < item.end || (index === eventTimeline.length - 1 && elapsed <= item.end))
         )) || null;
         if (slot !== activeSlot) {
+          announce(activeSlot, 'end');
           activeEffect?.remove?.();
           activeSlot = slot;
           activeEffect = effectFor(slot);
           if (slot) {
             options.root.dataset.traceActiveEventId = String(slot.event?.id || '');
             options.root.dataset.traceActiveEventType = String(slot.type || '');
+            announce(slot, 'start');
           } else {
             delete options.root.dataset.traceActiveEventId;
             delete options.root.dataset.traceActiveEventType;
@@ -2237,6 +2601,7 @@
       finish() {
         if (finished) return;
         finished = true;
+        announce(activeSlot, 'end');
         activeEffect?.remove?.();
         activeEffect = null;
         activeSlot = null;
@@ -2383,14 +2748,29 @@
     markerEntrancesByFrame.forEach((entry, frameId) => {
       if (entry.expiresAt <= now) markerEntrancesByFrame.delete(frameId);
     });
+    const entranceSourceFrameId = String(options.previousFrame?.id || '');
     const rememberedEntrance = markerEntrancesByFrame.get(frame.id);
-    const enteringMarkerKeys = new Set(rememberedEntrance?.keys || []);
+    const enteringMarkerKeys = new Set(
+      rememberedEntrance?.sourceFrameId === entranceSourceFrameId
+        ? rememberedEntrance.keys
+        : []
+    );
+    const markerContinuations = new Map();
     let detectedMarkerEntrance = false;
     currentElements.forEach((element, key) => {
       if (!element?.dataset?.traceSourceVariableId) return;
-      if (!previousPlacements?.has?.(key) || (
-        currentAutomaticMarkers.has(key) && !previousAutomaticMarkers.has(key)
-      )) {
+      const continuation = markerContinuationFor(
+        element, key, previousPlacements, previousObjects
+      );
+      if (continuation) markerContinuations.set(key, continuation);
+      if (markerNeedsEntrance({
+        element,
+        key,
+        previousPlacements,
+        previousObjects,
+        currentAutomaticMarkers,
+        previousAutomaticMarkers
+      })) {
         enteringMarkerKeys.add(key);
         detectedMarkerEntrance = true;
       }
@@ -2398,14 +2778,55 @@
     if (detectedMarkerEntrance) {
       markerEntrancesByFrame.set(frame.id, {
         keys: new Set(enteringMarkerKeys),
+        sourceFrameId: entranceSourceFrameId,
         expiresAt: now + 2000
       });
     }
-    const markerEntranceDelay = enteringMarkerKeys.size ? APPEAR_TIMING.duration : 0;
+    const provisionalEventTimeline = buildEventTimeline(
+      traceDocument, eventFrame, options.direction, duration,
+      previousPlacements, currentPlacements, currentElements, 0
+    );
+    const eventControlledKeys = new Set(eventMotionDelays(
+      traceDocument, eventFrame, provisionalEventTimeline, currentPlacements, currentElements
+    ).keys());
+    // Event switches control presentation only. Even a disabled assignment
+    // still changes the runtime marker state, so it must not be mistaken for a
+    // recursive/frame-level transition to the frame-final position.
+    orderedEvents(eventFrame).forEach(event => {
+      markersForLogicalEvent(event, currentElements).forEach(marker => {
+        eventControlledKeys.add(marker.key);
+      });
+    });
+    const transitionSteps = recursiveMarkerTransitionSteps({
+      previousPlacements,
+      currentPlacements,
+      previousObjects,
+      currentElements,
+      transitionForKey,
+      duration,
+      eventControlledKeys
+    });
+    const preEventPlan = createPlaybackPlan({
+      frame,
+      direction: options.direction,
+      runId,
+      transitionSteps,
+      enteringMarkerKeys
+    });
     const eventTimeline = buildEventTimeline(
       traceDocument, eventFrame, options.direction, duration,
-      previousPlacements, currentPlacements, currentElements, markerEntranceDelay
+      previousPlacements, currentPlacements, currentElements, preEventPlan.preEventDurationMs
     );
+    const playbackPlan = createPlaybackPlan({
+      frame,
+      direction: options.direction,
+      runId,
+      transitionSteps,
+      enteringMarkerKeys,
+      eventTimeline
+    });
+    root.dataset.tracePlaybackPlanId = playbackPlan.id;
+    root.dataset.tracePlaybackPhase = playbackPhaseAt(playbackPlan, 0);
     const previousIdentityKeys = previousKeysByRuntimeIdentity(previousObjects);
     const heapResizeDescriptors = prepareHeapResizeSwaps(
       traceDocument, eventFrame, eventTimeline,
@@ -2437,13 +2858,27 @@
       const current = motionPosition(element, currentPlacement);
       const plan = transitionForKey?.(key) || { mode: 'move', sourceKey: key, duration };
       const swap = swapMap.get(key);
-      const requestedSourceKey = swap?.sourceKey || plan.sourceKey || key;
+      const markerContinuation = markerContinuations.get(key);
+      const useMarkerContinuation = markerContinuation
+        && !swap
+        && (plan.requestedMode === 'auto' || !plan.sourceKey || plan.sourceKey === key);
+      const requestedSourceKey = useMarkerContinuation
+        ? markerContinuation.key
+        : swap?.sourceKey || plan.sourceKey || key;
       const topKey = topLevelKey(element, root);
       const topElement = currentElements.get(topKey) || element;
       const sourceKey = previousAliasKey(
         requestedSourceKey, topKey, topElement, previousPlacements, previousIdentityKeys
       );
-      const previous = previousPlacements?.get(sourceKey);
+      const candidatePreviousVisual = useMarkerContinuation
+        ? markerContinuation.element
+        : previousVisualElement(previousObjects, sourceKey);
+      const activationChanged = markerActivationChanged(element, candidatePreviousVisual);
+      const previous = activationChanged
+        ? null
+        : (useMarkerContinuation
+          ? markerContinuation.placement
+          : previousPlacements?.get(sourceKey));
       const mode = previous && plan.requestedMode === 'auto'
         ? 'move'
         : plan.mode || (previous ? 'move' : 'lift');
@@ -2457,6 +2892,7 @@
       }
       entries.push({
         key, sourceKey, element, current, previous, plan, mode, topKey,
+        markerContinuation: useMarkerContinuation ? markerContinuation : null,
         motionDelay: Math.max(swap?.start || 0, motionDelays.get(key) || 0)
       });
     });
@@ -2473,6 +2909,9 @@
       entry.baseTransform = entry.target.getAttribute('transform') || '';
       entry.baseOpacity = entry.target.getAttribute('opacity');
       entry.appearing = !entry.previous || enteringMarkerKeys.has(entry.key);
+      entry.appearanceStart = enteringMarkerKeys.has(entry.key)
+        ? playbackPlan.phases.find(phase => phase.id === 'object-entrance').startMs
+        : 0;
       if (entry.appearing) entry.target.dataset.traceAppearing = '1';
       entry.attachedVisuals = (attachmentsByKey.get(entry.key) || [])
         .map(wrapAttachedVisual)
@@ -2485,7 +2924,12 @@
       }
       entry.rects = [...entry.element.querySelectorAll('rect')];
       const previousTop = previousObjects?.get(entry.topKey);
-      const previousVisual = previousVisualElement(previousObjects, entry.sourceKey);
+      const markerContinuation = entry.markerContinuation;
+      const candidatePreviousVisual = markerContinuation?.element
+        || previousVisualElement(previousObjects, entry.sourceKey);
+      const previousVisual = markerActivationChanged(entry.element, candidatePreviousVisual)
+        ? null
+        : candidatePreviousVisual;
       entry.previousVisual = previousVisual;
       entry.previousSegmentGeometry = segmentGeometry(previousVisual);
       entry.currentSegmentGeometry = segmentGeometry(entry.element);
@@ -2514,6 +2958,7 @@
       clone.removeAttribute('data-trace-object-key');
       clone.classList.add('asm-trace-transition-ghost');
       clone.setAttribute('pointer-events', 'none');
+      syncPresentationHints(clone);
       const wrapper = createSvg('g', { class: 'asm-trace-transition-ghost-motion', 'pointer-events': 'none' });
       wrapper.append(clone);
       root.prepend(wrapper);
@@ -2534,13 +2979,20 @@
       const normalEnd = entry.motionDelay + localDuration;
       return Math.max(end, normalEnd);
     }, duration);
-    const totalDuration = Math.max(eventTimelineDuration, motionDuration);
+    const totalDuration = Math.max(
+      eventTimelineDuration,
+      motionDuration,
+      playbackPlan.totalDurationMs
+    );
     let previousTick = performance.now();
     let elapsed = 0;
     function tick(now) {
       if (runId !== activeRun) return;
       elapsed += Math.max(0, now - previousTick) * animationPlaybackRate();
       previousTick = now;
+      const playbackPhase = playbackPhaseAt(playbackPlan, elapsed);
+      if (playbackPhase) root.dataset.tracePlaybackPhase = playbackPhase;
+      else delete root.dataset.tracePlaybackPhase;
       const progress = Math.max(0, Math.min(1, elapsed / duration));
       const eased = easeOutCubic(progress);
 
@@ -2557,7 +3009,10 @@
         const localDuration = Math.max(1, Number(entry.plan?.duration) || duration);
         const localProgress = Math.max(0, Math.min(1, motionElapsed / localDuration));
         const localEased = easeOutCubic(localProgress);
-        const appearProgress = clamp01(elapsed / Math.min(APPEAR_TIMING.duration, localDuration));
+        const appearElapsed = Math.max(0, elapsed - entry.appearanceStart);
+        const appearProgress = clamp01(
+          appearElapsed / Math.min(APPEAR_TIMING.duration, localDuration)
+        );
         const appearEased = easeOutCubic(appearProgress);
         let dx = entry.dx * (1 - localEased);
         let dy = entry.dy * (1 - localEased);
@@ -2693,9 +3148,11 @@
       heapResizeStages.finish();
       events?.finish?.();
       markerEntrancesByFrame.delete(frame.id);
+      delete root.dataset.tracePlaybackPhase;
       finishRun();
     }
     tick(previousTick);
+    completion.playbackPlan = playbackPlan;
     return completion;
   }
 
@@ -2717,7 +3174,16 @@
     document.querySelectorAll('[data-trace-appearing]').forEach(element => {
       delete element.dataset.traceAppearing;
     });
+    document.querySelectorAll('[data-trace-playback-plan-id]').forEach(element => {
+      delete element.dataset.tracePlaybackPhase;
+    });
   }
 
-  window.ASMTraceFrameTween = { play, cancel, updateEventAvailability };
+  if (typeof document !== 'undefined') {
+    document.documentElement.dataset.asmTraceFrameTweenBuild = 'trace-109';
+  }
+  window.ASMTraceFrameTween = {
+    build: 'trace-109', play, cancel, updateEventAvailability,
+    createPlaybackPlan, recursiveMarkerTransitionSteps
+  };
 })();

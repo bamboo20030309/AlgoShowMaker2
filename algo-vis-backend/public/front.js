@@ -854,7 +854,15 @@ document.addEventListener('DOMContentLoaded', () => {
   initMarkerObserver();
 
   // === 幀條碼初始化 ===
-  reloadAfterRun();
+  // Embedded algorithm slides receive their animation from the parent window.
+  // Loading the bundled code_script.js first briefly paints its sample arrows,
+  // then leaves them fading over the saved slide when the payload arrives.
+  if (!new URLSearchParams(window.location.search).has('asmEmbed')) {
+    reloadAfterRun();
+  } else {
+    window.resetArrows?.();
+    window.clearCanvas?.();
+  }
 
   // === 輸入框 (inputArea) 歷史紀錄管理 (Undo/Redo) ===
   const inputArea = document.getElementById('inputArea');

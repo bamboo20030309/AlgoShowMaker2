@@ -383,6 +383,18 @@ body.asm-trace-camera-framing #arraySvg {
   opacity: 0.58;
 }
 
+.trace-studio-frame-event.is-unavailable {
+  border-style: dashed;
+}
+
+.trace-studio-frame-event.is-missing-target .trace-studio-frame-event-copy strong {
+  color: #f4c95d;
+}
+
+.trace-studio-frame-event.is-unrenderable .trace-studio-frame-event-copy strong {
+  color: #ff6b6b;
+}
+
 .trace-studio-frame-event-swatch {
   width: 4px;
   align-self: stretch;
@@ -410,6 +422,43 @@ body.asm-trace-camera-framing #arraySvg {
 .trace-studio-frame-event-copy small {
   color: #9facb2;
   font-size: 10px;
+}
+
+.trace-studio-fixed-batches {
+  display: grid;
+  gap: 5px;
+}
+
+.trace-studio-fixed-batch {
+  min-width: 0;
+  min-height: 42px;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 32px;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 1px solid #416848;
+  border-radius: 4px;
+  background: #202a23;
+}
+
+.trace-studio-fixed-batch.is-disabled {
+  opacity: 0.58;
+}
+
+.trace-studio-fixed-batch-icon {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #4caf50;
+  border-radius: 50%;
+  color: #8bd48e;
+  font: 700 12px/1 Arial, sans-serif;
+}
+
+.trace-studio-fixed-batch .trace-studio-frame-event-copy strong {
+  color: #8bd48e;
 }
 
 .trace-studio-event-switch {
@@ -523,12 +572,23 @@ body.asm-trace-camera-framing #arraySvg {
 
 .trace-studio-events-panel {
   display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
 
 .trace-studio-events-panel .trace-studio-section {
   min-height: 0;
+}
+
+.trace-studio-events-panel .trace-studio-frame-events-section {
   flex: 1;
+  overflow: hidden;
+}
+
+.trace-studio-events-panel .trace-studio-fixed-section {
+  flex: 0 0 auto;
+  max-height: 42%;
+  overflow-y: auto;
 }
 
 .trace-studio-inspector-head {

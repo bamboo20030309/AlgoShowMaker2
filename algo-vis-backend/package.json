@@ -4,7 +4,9 @@
   "description": "後端編譯 C++，並提供靜態前端",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node --test tests/*.test.js",
+    "regression": "node scripts/regression.js"
   },
   "dependencies": {
     "@jaames/iro": "^5.5.2",

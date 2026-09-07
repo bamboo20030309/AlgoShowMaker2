@@ -234,7 +234,11 @@
     }
 
     const factor = getScreenScaleFactor();
-    const availableWidth = Math.max(1, Number(rect.width) - AUTO_CAMERA_PADDING.horizontal * 2);
+    const safeInsetLeft = Math.max(0, Math.min(
+      Number(rect.width) * 0.48,
+      Number(rect.asmSafeInsetLeft) || 0
+    ));
+    const availableWidth = Math.max(1, Number(rect.width) - safeInsetLeft - AUTO_CAMERA_PADDING.horizontal * 2);
     const availableHeight = Math.max(1, Number(rect.height) - AUTO_CAMERA_PADDING.vertical * 2);
     const maximumFitScale = Math.min(
       availableWidth / contentWidth,
@@ -252,7 +256,11 @@
     const bottom = Number.isFinite(Number(bounds.bottom)) ? Number(bounds.bottom) : top + contentHeight;
 
     return {
-      centerX: (left + right) / 2 + (Number(offsetX) || 0),
+      // setCamera places centerX at the physical canvas center. Shift the
+      // camera center left so the object center lands in the unobscured area
+      // to the right of the code HUD.
+      centerX: (left + right) / 2 + (Number(offsetX) || 0)
+        - safeInsetLeft / Math.max(0.0001, physicalScale * 2),
       centerY: (top + bottom) / 2 + (Number(offsetY) || 0),
       scale: targetScale,
       width: Number(rect.width) / physicalScale,
@@ -260,6 +268,7 @@
       aspect: Number(rect.height) > 0 ? Number(rect.width) / Number(rect.height) : 16 / 9,
       paddingX: AUTO_CAMERA_PADDING.horizontal,
       paddingY: AUTO_CAMERA_PADDING.vertical,
+      safeInsetLeft,
       maximumFitScale,
       preservedScale: requestedFits
     };
@@ -491,6 +500,11 @@
       rect = { width: pw, height: ph };
     }
 
+    rect = {
+      width: Number(rect.width) || 0,
+      height: Number(rect.height) || 0,
+      asmSafeInsetLeft: Number(window.ASMTraceCodePresenter?.safeInsetLeft?.()) || 0
+    };
     const target = window.resolveAutoCameraTarget({
       left: minX,
       top: minY,

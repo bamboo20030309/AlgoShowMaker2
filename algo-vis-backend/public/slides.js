@@ -521,9 +521,10 @@
   }
 
   function saveDeck({ history: pushHistory = true, cloud = true } = {}) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(deck));
+    const serializedDeck = JSON.stringify(deck);
+    localStorage.setItem(STORAGE_KEY, serializedDeck);
     updateDiagnostics();
-    if (pushHistory && !suppressHistory) pushHistorySnapshot();
+    if (pushHistory && !suppressHistory) pushHistorySnapshot(serializedDeck);
     if (cloud) scheduleCloudSave();
     if (ttsTransport?.dataset.expanded === 'true' && !ttsEditorSyncFrame) {
       ttsEditorSyncFrame = requestAnimationFrame(() => {
@@ -827,11 +828,10 @@
     reader.readAsText(file);
   }
 
-  function pushHistorySnapshot() {
+  function pushHistorySnapshot(snapshot = JSON.stringify(deck)) {
     clearTimeout(pendingHistoryTimer);
     pendingHistoryTimer = null;
     pendingColorHistory = false;
-    const snapshot = JSON.stringify(deck);
     if (history[historyIndex] === snapshot) return;
     history = history.slice(0, historyIndex + 1);
     history.push(snapshot);
@@ -1928,20 +1928,7 @@
   }
 
   function normalizeAlgorithmAnimation(animation = {}) {
-    const mode = animation.mode === 'trace' ? 'trace' : 'legacy';
-    return {
-      mode,
-      code: typeof animation.code === 'string' ? animation.code : '',
-      input: typeof animation.input === 'string' ? animation.input : '',
-      scriptContent: typeof animation.scriptContent === 'string' ? animation.scriptContent : '',
-      sliceMode: animation.sliceMode === 'manual' ? 'manual' : animation.sliceMode === 'full' ? 'full' : 'auto',
-      watches: Array.isArray(animation.watches) ? clone(animation.watches) : [],
-      skins: animation.skins && typeof animation.skins === 'object' ? clone(animation.skins) : {},
-      rules: Array.isArray(animation.rules) ? clone(animation.rules) : [],
-      traceDocument: animation.traceDocument && typeof animation.traceDocument === 'object'
-        ? clone(animation.traceDocument)
-        : null
-    };
+    return window.ASMAlgorithmAnimation.normalize(animation);
   }
 
   function normalizeSlide(slide = {}) {
@@ -2600,7 +2587,7 @@
           class="algorithm-slide-frame"
           data-slide-id="${slide.id}"
           title="Algorithm animation"
-          src="${hasScript ? 'algorithm.html?asmEmbed=runtime&v=trace-runtime-10' : 'about:blank'}"
+          src="${hasScript ? 'algorithm.html?asmEmbed=runtime&v=trace-runtime-32' : 'about:blank'}"
           ${hasScript ? '' : 'hidden'}
         ></iframe>
         <div class="algorithm-slide-placeholder" ${hasScript ? 'hidden' : ''}>
@@ -7469,16 +7456,53 @@
     return pos && deck.groups[pos.h]?.slides[pos.v];
   }
 
-  function sendAlgorithmAnimationToFrame(frame, slide) {
+  function sendAlgorithmAnimationToFrame(frame, slide, preparedAnimation = null) {
     if (!frame?.contentWindow || !slide || slide.kind !== 'algorithm-animation') return;
     frame.contentWindow.postMessage({
       type: 'asm-load-animation',
-      animation: normalizeAlgorithmAnimation(slide.animation)
+      animation: preparedAnimation || normalizeAlgorithmAnimation(slide.animation)
     }, window.location.origin);
+  }
+
+  function refreshAlgorithmSlideInPlace(slide) {
+    if (!slide || slide.kind !== 'algorithm-animation') return;
+    const section = document.querySelector(`section.asm-slide[data-slide-id="${slide.id}"]`);
+    const frame = section?.querySelector('.algorithm-slide-frame');
+    const placeholder = section?.querySelector('.algorithm-slide-placeholder');
+    if (!frame || !placeholder) return;
+
+    const animation = slide.animation || normalizeAlgorithmAnimation();
+    const hasAnimation = !!animation.scriptContent || !!animation.traceDocument?.frames?.length;
+    frame.hidden = !hasAnimation;
+    placeholder.hidden = hasAnimation;
+
+    if (!hasAnimation) {
+      if (frame.getAttribute('src') !== 'about:blank') frame.src = 'about:blank';
+      return;
+    }
+
+    const runtimeUrl = 'algorithm.html?asmEmbed=runtime&v=trace-runtime-32';
+    if (!frame.getAttribute('src')?.includes('asmEmbed=runtime')) {
+      frame.src = runtimeUrl;
+      return;
+    }
+
+    // Preserve the current iframe and canvas. Replacing only its payload avoids
+    // rebuilding the whole deck and prevents old/new animation layers from
+    // briefly being visible at the same time.
+    sendAlgorithmAnimationToFrame(frame, slide, animation);
+    if (reveal) reveal.layout();
   }
 
   function handleAlgorithmEmbedMessage(event) {
     if (event.origin !== window.location.origin || !event.data) return;
+    if (event.data.type === 'asm-animation-applied') {
+      if (event.source === algorithmEditorFrame?.contentWindow && event.data.mode === 'editor') {
+        algorithmEditorModal?.classList.remove('is-loading');
+        if (algorithmEditorStatus) algorithmEditorStatus.textContent = '動畫已載入。';
+      }
+      return;
+    }
     if (event.data.type === 'asm-embed-ready') {
       if (event.source === algorithmEditorFrame?.contentWindow) {
         sendAlgorithmAnimationToFrame(algorithmEditorFrame, getSlideById(editingAlgorithmSlideId));
@@ -7499,7 +7523,7 @@
     }
     slide.animation = normalizeAlgorithmAnimation(event.data.animation);
     saveDeck();
-    renderDeck();
+    refreshAlgorithmSlideInPlace(slide);
     closeAlgorithmEditor();
     flashHint('Done');
   }
@@ -7508,14 +7532,16 @@
     const slide = getSlideById(slideId);
     if (!algorithmEditorModal || !algorithmEditorFrame || !slide || slide.kind !== 'algorithm-animation') return;
     editingAlgorithmSlideId = slideId;
-    if (algorithmEditorStatus) algorithmEditorStatus.textContent = 'Algorithm editor status updated.';
+    if (algorithmEditorStatus) algorithmEditorStatus.textContent = '正在載入動畫…';
+    algorithmEditorModal.classList.add('is-loading');
     algorithmEditorModal.hidden = false;
-    algorithmEditorFrame.src = 'algorithm.html?asmEmbed=editor&v=trace-runtime-9';
+    algorithmEditorFrame.src = 'algorithm.html?asmEmbed=editor&v=trace-runtime-32';
   }
 
   function closeAlgorithmEditor() {
     if (!algorithmEditorModal || !algorithmEditorFrame) return;
     algorithmEditorModal.hidden = true;
+    algorithmEditorModal.classList.remove('is-loading');
     algorithmEditorFrame.src = 'about:blank';
     editingAlgorithmSlideId = null;
   }

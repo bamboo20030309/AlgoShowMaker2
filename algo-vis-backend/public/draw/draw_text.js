@@ -382,6 +382,7 @@ function isFullWidth(char) {
     'AV_orange': 'orange',
     'AV_node_green': '#e8f5e9',
     'AV_node_red': '#ef9a9a',
+    'AV_grey': '#cccccc',
     'AV_node_grey': '#cccccc',
     'AV_black': 'black',
     'AV_white': 'white'
